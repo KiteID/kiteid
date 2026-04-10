@@ -1,0 +1,12 @@
+{
+  "name": "@kiteid/brand",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./palette": "./colors/palette.json",
+    "./tokens.css": "./colors/tokens.css",
+    "./tailwind-preset": "./colors/tailwind.preset.js",
+    "./logo/*": "./logo/*"
+  }
+}

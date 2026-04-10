@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KiteID Wordmark — Mono Light (single color, light on dark)
+  Both "Kite" and "ID" in Cream Light (#FAF7F0)
+  Use case: dark backgrounds, social cards, video overlays
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 80"
+  width="320"
+  height="80"
+  role="img"
+  aria-label="KiteID"
+>
+  <title>KiteID</title>
+  <style>
+    .kite { font-family: 'DM Sans', system-ui, -apple-system, sans-serif; font-weight: 400; fill: #FAF7F0; letter-spacing: -1.2px; }
+    .id   { font-family: 'DM Sans', system-ui, -apple-system, sans-serif; font-weight: 800; fill: #FAF7F0; letter-spacing: -1.2px; }
+  </style>
+  <text x="0" y="58" font-size="64" class="kite">Kite</text>
+  <text x="138" y="58" font-size="64" class="id">ID</text>
+</svg>

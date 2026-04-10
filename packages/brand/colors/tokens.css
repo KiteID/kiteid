@@ -1,0 +1,172 @@
+/* ================================================================
+ * KiteID Design Tokens
+ * Parchment Identity — Warm Light Theme
+ * Version: 1.0.0
+ * ================================================================ */
+
+:root {
+  /* ----------------------------------------------------------------
+   * BACKGROUND
+   * ---------------------------------------------------------------- */
+  --kid-bg-primary: #faf7f0; /* Cream Light — page bg */
+  --kid-bg-card: #f5f0e4; /* Parchment — card bg */
+  --kid-bg-elevated: #ede8dc; /* Sand Pale — elevated */
+  --kid-bg-muted: #e4ddc9; /* Sand Soft — muted */
+  --kid-bg-input: #f5f0e4; /* Form inputs */
+  --kid-bg-white: #ffffff; /* Pure white — sparingly */
+
+  /* ----------------------------------------------------------------
+   * BORDER
+   * ---------------------------------------------------------------- */
+  --kid-border-default: #dbd5c7; /* Sand Core — Kite heritage */
+  --kid-border-strong: #c9c0a6; /* Sand Mid */
+  --kid-border-subtle: #ede8dc; /* Sand Pale */
+  --kid-border-focus: #c9986a; /* Burnished Gold focus ring */
+
+  /* ----------------------------------------------------------------
+   * TEXT
+   * ---------------------------------------------------------------- */
+  --kid-text-primary: #141414; /* Carbon — softer black */
+  --kid-text-secondary: #2a2a2a; /* Charcoal */
+  --kid-text-tertiary: #4a4a4a; /* Graphite */
+  --kid-text-muted: #6b665c; /* Stone — captions */
+  --kid-text-accent: #9b8564; /* Bronze Mute — links */
+  --kid-text-disabled: #b8b0a0;
+  --kid-text-inverse: #faf7f0; /* On dark surfaces */
+
+  /* ----------------------------------------------------------------
+   * BRAND
+   * ---------------------------------------------------------------- */
+  --kid-brand-primary: #c9986a; /* Burnished Gold — signature */
+  --kid-brand-primary-hover: #a87c52; /* Antique Brass */
+  --kid-brand-primary-glow: #e8b987; /* Gold Glow */
+  --kid-brand-secondary: #9b8564; /* Bronze Core — Kite heritage */
+  --kid-brand-secondary-deep: #7a6849; /* Bronze Deep */
+  --kid-brand-tertiary: #dbd5c7; /* Sand Core */
+  --kid-brand-subtle: #f5e8d4; /* Cream Accent */
+
+  /* ----------------------------------------------------------------
+   * SEMANTIC
+   * ---------------------------------------------------------------- */
+  --kid-success: #5a7a50;
+  --kid-success-bg: #e8efe2;
+  --kid-error: #a8453c;
+  --kid-error-bg: #f5e2df;
+  --kid-warning: #b8722e;
+  --kid-warning-bg: #f5e8d4;
+  --kid-info: #4a6f8a;
+  --kid-info-bg: #e0e8ef;
+
+  /* ----------------------------------------------------------------
+   * GRADIENTS
+   * ---------------------------------------------------------------- */
+  --kid-gradient-kite-heritage: linear-gradient(135deg, #9b8564 0%, #dbd5c7 100%);
+
+  --kid-gradient-premium-gold: linear-gradient(135deg, #a87c52 0%, #c9986a 50%, #e8b987 100%);
+
+  --kid-gradient-aged-bronze: linear-gradient(180deg, #c9986a 0%, #9b8564 50%, #7a6849 100%);
+
+  --kid-gradient-parchment-bg: linear-gradient(180deg, #faf7f0 0%, #f5f0e4 100%);
+
+  /* ----------------------------------------------------------------
+   * SHADOWS — bronze-tinted, never pure black
+   * ---------------------------------------------------------------- */
+  --kid-shadow-sm: 0 1px 2px rgba(155, 133, 100, 0.08);
+  --kid-shadow-md: 0 4px 12px rgba(155, 133, 100, 0.12);
+  --kid-shadow-lg: 0 12px 32px rgba(155, 133, 100, 0.16);
+  --kid-shadow-xl: 0 24px 64px rgba(155, 133, 100, 0.2);
+  --kid-shadow-glow: 0 0 40px rgba(201, 152, 106, 0.3);
+
+  /* ----------------------------------------------------------------
+   * RADIUS
+   * ---------------------------------------------------------------- */
+  --kid-radius-xs: 4px;
+  --kid-radius-sm: 6px;
+  --kid-radius-md: 8px;
+  --kid-radius-lg: 12px;
+  --kid-radius-xl: 16px;
+  --kid-radius-2xl: 24px;
+  --kid-radius-full: 9999px;
+
+  /* ----------------------------------------------------------------
+   * SPACING (8-base scale)
+   * ---------------------------------------------------------------- */
+  --kid-space-1: 4px;
+  --kid-space-2: 8px;
+  --kid-space-3: 12px;
+  --kid-space-4: 16px;
+  --kid-space-5: 20px;
+  --kid-space-6: 24px;
+  --kid-space-8: 32px;
+  --kid-space-10: 40px;
+  --kid-space-12: 48px;
+  --kid-space-16: 64px;
+  --kid-space-20: 80px;
+  --kid-space-24: 96px;
+
+  /* ----------------------------------------------------------------
+   * TYPOGRAPHY
+   * ---------------------------------------------------------------- */
+  --kid-font-sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --kid-font-mono: "JetBrains Mono", "Roboto Mono", ui-monospace, monospace;
+
+  /* Type scale */
+  --kid-text-display: 72px;
+  --kid-text-h1: 48px;
+  --kid-text-h2: 36px;
+  --kid-text-h3: 24px;
+  --kid-text-h4: 20px;
+  --kid-text-body-lg: 18px;
+  --kid-text-body: 16px;
+  --kid-text-sm: 14px;
+  --kid-text-caption: 12px;
+
+  /* Line heights */
+  --kid-leading-tight: 1;
+  --kid-leading-snug: 1.2;
+  --kid-leading-normal: 1.4;
+  --kid-leading-relaxed: 1.6;
+
+  /* Letter spacing */
+  --kid-tracking-tighter: -0.04em;
+  --kid-tracking-tight: -0.02em;
+  --kid-tracking-normal: 0;
+  --kid-tracking-wide: 0.02em;
+  --kid-tracking-wider: 0.04em;
+
+  /* Font weights */
+  --kid-weight-regular: 400;
+  --kid-weight-medium: 500;
+  --kid-weight-semibold: 600;
+  --kid-weight-bold: 700;
+  --kid-weight-extrabold: 800;
+
+  /* ----------------------------------------------------------------
+   * MOTION
+   * ---------------------------------------------------------------- */
+  --kid-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --kid-duration-micro: 150ms;
+  --kid-duration-default: 250ms;
+  --kid-duration-macro: 400ms;
+
+  /* ----------------------------------------------------------------
+   * LAYOUT
+   * ---------------------------------------------------------------- */
+  --kid-container: 1200px;
+  --kid-container-wide: 1400px;
+  --kid-container-px-mobile: 24px;
+  --kid-container-px-desktop: 48px;
+}
+
+/* ================================================================
+ * Optional V2 dark mode toggle (commented out, ready for V2)
+ * ================================================================ */
+/*
+[data-theme="dark"] {
+  --kid-bg-primary:    #0F0D08;
+  --kid-bg-card:       #1A1610;
+  --kid-text-primary:  #FAF7F0;
+  --kid-text-muted:    #9B8564;
+  ...
+}
+*/

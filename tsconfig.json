@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/utils" },
+    { "path": "packages/sdk" },
+    { "path": "packages/api" },
+    { "path": "packages/db" },
+    { "path": "packages/ui" },
+    { "path": "packages/contracts-abi" },
+    { "path": "apps/web" },
+    { "path": "apps/docs" },
+    { "path": "apps/indexer" },
+    { "path": "apps/workers" }
+  ]
+}

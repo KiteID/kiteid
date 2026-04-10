@@ -1,0 +1,250 @@
+{
+  "$meta": {
+    "name": "KiteID Parchment Identity",
+    "version": "1.0.0",
+    "description": "Warm parchment light theme palette inspired by Kite blockchain heritage",
+    "lastUpdated": "2026-04-08",
+    "license": "MIT"
+  },
+  "background": {
+    "primary": {
+      "value": "#FAF7F0",
+      "name": "Cream Light",
+      "description": "Main page background — warm, parchment-tinted"
+    },
+    "card": {
+      "value": "#F5F0E4",
+      "name": "Parchment",
+      "description": "Card background, alternate sections"
+    },
+    "elevated": {
+      "value": "#EDE8DC",
+      "name": "Sand Pale",
+      "description": "Elevated cards, hover surfaces"
+    },
+    "muted": {
+      "value": "#E4DDC9",
+      "name": "Sand Soft",
+      "description": "Subtle dividers, muted backgrounds"
+    },
+    "input": {
+      "value": "#F5F0E4",
+      "name": "Parchment",
+      "description": "Form inputs, search bars"
+    },
+    "white": {
+      "value": "#FFFFFF",
+      "name": "Pure White",
+      "description": "Use sparingly for max contrast moments"
+    }
+  },
+  "border": {
+    "default": {
+      "value": "#DBD5C7",
+      "name": "Sand Core",
+      "description": "Default border (Kite heritage color)"
+    },
+    "strong": {
+      "value": "#C9C0A6",
+      "name": "Sand Mid",
+      "description": "Strong borders, focused inputs"
+    },
+    "subtle": {
+      "value": "#EDE8DC",
+      "name": "Sand Pale",
+      "description": "Very subtle dividers"
+    },
+    "focus": {
+      "value": "#C9986A",
+      "name": "Burnished Gold",
+      "description": "Focus ring color"
+    }
+  },
+  "text": {
+    "primary": {
+      "value": "#141414",
+      "name": "Carbon",
+      "description": "Primary text — softer than pure black"
+    },
+    "secondary": {
+      "value": "#2A2A2A",
+      "name": "Charcoal",
+      "description": "Secondary text"
+    },
+    "tertiary": {
+      "value": "#4A4A4A",
+      "name": "Graphite",
+      "description": "Tertiary text"
+    },
+    "muted": {
+      "value": "#6B665C",
+      "name": "Stone",
+      "description": "Captions, metadata, timestamps"
+    },
+    "accent": {
+      "value": "#9B8564",
+      "name": "Bronze Mute",
+      "description": "Accent text, links (Kite heritage)"
+    },
+    "disabled": {
+      "value": "#B8B0A0",
+      "name": "Disabled",
+      "description": "Disabled state text"
+    },
+    "inverse": {
+      "value": "#FAF7F0",
+      "name": "Cream Light",
+      "description": "Text on dark surfaces (CTAs, dark cards)"
+    }
+  },
+  "brand": {
+    "primary": {
+      "value": "#C9986A",
+      "name": "Burnished Gold",
+      "description": "Signature KiteID accent — primary CTA, highlights"
+    },
+    "primaryHover": {
+      "value": "#A87C52",
+      "name": "Antique Brass",
+      "description": "Hover state for gold"
+    },
+    "primaryGlow": {
+      "value": "#E8B987",
+      "name": "Gold Glow",
+      "description": "Subtle highlights, premium backgrounds"
+    },
+    "secondary": {
+      "value": "#9B8564",
+      "name": "Bronze Core",
+      "description": "Kite heritage color — secondary brand element"
+    },
+    "secondaryDeep": {
+      "value": "#7A6849",
+      "name": "Bronze Deep",
+      "description": "Depth, dark accents"
+    },
+    "tertiary": {
+      "value": "#DBD5C7",
+      "name": "Sand Core",
+      "description": "Kite heritage secondary"
+    },
+    "subtle": {
+      "value": "#F5E8D4",
+      "name": "Cream Accent",
+      "description": "Notice background, warm hover"
+    }
+  },
+  "semantic": {
+    "success": {
+      "fg": {
+        "value": "#5A7A50",
+        "name": "Forest Mute",
+        "description": "Available domains, success states"
+      },
+      "bg": {
+        "value": "#E8EFE2",
+        "name": "Forest Soft",
+        "description": "Success notice background"
+      }
+    },
+    "error": {
+      "fg": {
+        "value": "#A8453C",
+        "name": "Brick",
+        "description": "Taken domains, errors"
+      },
+      "bg": {
+        "value": "#F5E2DF",
+        "name": "Brick Soft",
+        "description": "Error notice background"
+      }
+    },
+    "warning": {
+      "fg": {
+        "value": "#B8722E",
+        "name": "Amber Deep",
+        "description": "Warnings, expiring domains"
+      },
+      "bg": {
+        "value": "#F5E8D4",
+        "name": "Amber Soft",
+        "description": "Warning notice background"
+      }
+    },
+    "info": {
+      "fg": {
+        "value": "#4A6F8A",
+        "name": "Slate Blue",
+        "description": "Informational content"
+      },
+      "bg": {
+        "value": "#E0E8EF",
+        "name": "Slate Soft",
+        "description": "Info notice background"
+      }
+    }
+  },
+  "gradient": {
+    "kiteHeritage": {
+      "value": "linear-gradient(135deg, #9B8564 0%, #DBD5C7 100%)",
+      "description": "Kite blockchain heritage gradient — direct from Kite logo"
+    },
+    "premiumGold": {
+      "value": "linear-gradient(135deg, #A87C52 0%, #C9986A 50%, #E8B987 100%)",
+      "description": "KiteID signature premium gold gradient"
+    },
+    "agedBronze": {
+      "value": "linear-gradient(180deg, #C9986A 0%, #9B8564 50%, #7A6849 100%)",
+      "description": "Premium domain card gradient"
+    },
+    "parchmentBg": {
+      "value": "linear-gradient(180deg, #FAF7F0 0%, #F5F0E4 100%)",
+      "description": "Subtle page background warmth"
+    }
+  },
+  "shadow": {
+    "sm": {
+      "value": "0 1px 2px rgba(155, 133, 100, 0.08)",
+      "description": "Subtle shadow — bronze-tinted"
+    },
+    "md": {
+      "value": "0 4px 12px rgba(155, 133, 100, 0.12)",
+      "description": "Default card shadow"
+    },
+    "lg": {
+      "value": "0 12px 32px rgba(155, 133, 100, 0.16)",
+      "description": "Hover/elevated shadow"
+    },
+    "xl": {
+      "value": "0 24px 64px rgba(155, 133, 100, 0.20)",
+      "description": "Modal/overlay shadow"
+    },
+    "glow": {
+      "value": "0 0 40px rgba(201, 152, 106, 0.30)",
+      "description": "Gold glow effect"
+    }
+  },
+  "radius": {
+    "xs": "4px",
+    "sm": "6px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px",
+    "2xl": "24px",
+    "full": "9999px"
+  },
+  "spacing": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px",
+    "20": "80px",
+    "24": "96px"
+  }
+}
