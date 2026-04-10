@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: kiteid-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kiteid
+      POSTGRES_PASSWORD: kiteid_dev
+      POSTGRES_DB: kiteid_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - .docker-data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U kiteid -d kiteid_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: bitnami/pgbouncer:latest
+    container_name: kiteid-pgbouncer
+    restart: unless-stopped
+    environment:
+      POSTGRESQL_HOST: postgres
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USERNAME: kiteid
+      POSTGRESQL_PASSWORD: kiteid_dev
+      POSTGRESQL_DATABASE: kiteid_dev
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: 100
+      PGBOUNCER_DEFAULT_POOL_SIZE: 20
+    ports:
+      - '6432:6432'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
+    container_name: kiteid-dragonfly
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - .docker-data/dragonfly:/data
+    ulimits:
+      memlock: -1
