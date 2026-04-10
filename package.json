@@ -30,6 +30,7 @@
     "@commitlint/config-conventional": "^19.0.0",
     "@types/node": "^22.10.0",
     "lefthook": "^2.1.0",
+    "rimraf": "^6.0.0",
     "turbo": "^2.9.0",
     "typescript": "^6.0.0"
   }
