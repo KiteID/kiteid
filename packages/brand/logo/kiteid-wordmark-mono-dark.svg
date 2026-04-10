@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KiteID Wordmark — Mono Dark (single color, dark on light)
+  Both "Kite" and "ID" in Carbon (#141414)
+  Use case: print, single-color contexts, embroidery
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 80"
+  width="320"
+  height="80"
+  role="img"
+  aria-label="KiteID"
+>
+  <title>KiteID</title>
+  <style>
+    .kite { font-family: 'DM Sans', system-ui, -apple-system, sans-serif; font-weight: 400; fill: #141414; letter-spacing: -1.2px; }
+    .id   { font-family: 'DM Sans', system-ui, -apple-system, sans-serif; font-weight: 800; fill: #141414; letter-spacing: -1.2px; }
+  </style>
+  <text x="0" y="58" font-size="64" class="kite">Kite</text>
+  <text x="138" y="58" font-size="64" class="id">ID</text>
+</svg>
