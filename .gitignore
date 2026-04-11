@@ -19,7 +19,6 @@ packages/contracts/broadcast/
 !.env.example
 
 # IDE
-.vscode/settings.json
 .idea/
 *.swp
 *.swo
