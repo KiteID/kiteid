@@ -21,6 +21,7 @@ describe('makeCommitment', () => {
     name: 'alice',
     owner: '0x1234567890123456789012345678901234567890' as `0x${string}`,
     duration: 31536000n,
+    // nosemgrep: generic.secrets.security.detected-generic-secret.detected-generic-secret
     secret: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as `0x${string}`,
     resolver: ZERO_ADDRESS,
     data: [] as `0x${string}`[],
@@ -44,6 +45,7 @@ describe('makeCommitment', () => {
     const c1 = makeCommitment(baseParams);
     const c2 = makeCommitment({
       ...baseParams,
+      // nosemgrep: generic.secrets.security.detected-generic-secret.detected-generic-secret
       secret: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
     });
     expect(c1).not.toBe(c2);
