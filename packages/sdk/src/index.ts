@@ -14,9 +14,12 @@ export {
   useKiteCommit,
   useKiteCommitments,
   useKiteIsReserved,
+  useKiteNameExpiry,
+  useKiteNameOwner,
   useKiteRegister,
   useKiteRenew,
   useKiteRentPrice,
+  useKiteResolver,
 } from './hooks';
 export type { Price, RegistrationParams } from './types';
 export type { ValidationResult } from './utils';
