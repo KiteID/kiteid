@@ -9,3 +9,29 @@ export {
   getControllerAddress,
   getResolverAddress,
 } from './contracts';
+export {
+  useKiteAvailable,
+  useKiteCommitments,
+  useKiteIsReserved,
+  useKiteRentPrice,
+} from './hooks';
+export type { Price, RegistrationParams } from './types';
+export type { ValidationResult } from './utils';
+export {
+  daysUntilExpiry,
+  formatKitePrice,
+  formatKitePriceWithSymbol,
+  getLabelLength,
+  humanDuration,
+  isValidName,
+  KITE_NODE,
+  kiteLabelhash,
+  kiteNamehash,
+  labelhash,
+  namehash,
+  normalizeLabel,
+  SECONDS_PER_DAY,
+  SECONDS_PER_YEAR,
+  secondsToYears,
+  yearsToSeconds,
+} from './utils';
