@@ -64,17 +64,19 @@ contract LinearPremiumPriceOracle is StablePriceOracle {
     function _premium(
         uint256 expires
     ) internal view returns (uint256) {
-        // Premium starts after grace period ends
+        // Premium only applies in the auction window (after grace period ends)
+        // Active names and grace period: no premium
         uint256 gracePeriod = 90 days;
         uint256 auctionStart = expires + gracePeriod;
 
-        if (block.timestamp < auctionStart) return startPremium;
+        if (block.timestamp < auctionStart) return 0;
 
         uint256 elapsed = block.timestamp - auctionStart;
         if (elapsed >= PREMIUM_DECAY_DURATION) return 0;
 
-        // Exponential decay: startPremium * (1 - elapsed/duration)^2
-        // Using quadratic decay for simplicity (approximates exponential)
+        // Quadratic decay: startPremium at auction start → 0 after PREMIUM_DECAY_DURATION
+        // At elapsed=0: premium = startPremium
+        // At elapsed=PREMIUM_DECAY_DURATION: premium = 0
         uint256 remaining = PREMIUM_DECAY_DURATION - elapsed;
         return (startPremium * remaining * remaining) / (PREMIUM_DECAY_DURATION * PREMIUM_DECAY_DURATION);
     }

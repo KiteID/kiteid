@@ -75,6 +75,44 @@ contract KiteReverseRegistrarTest is Test {
         reverseRegistrar.setDefaultResolver(alice);
     }
 
+    // ============ Controller Authorization (Regression: Finding 3) ============
+
+    function test_addController() public {
+        address ctrl = makeAddr("controller");
+        reverseRegistrar.addController(ctrl);
+        assertTrue(reverseRegistrar.controllers(ctrl));
+    }
+
+    function test_addController_onlyOwner() public {
+        vm.prank(alice);
+        vm.expectRevert();
+        reverseRegistrar.addController(alice);
+    }
+
+    function test_removeController() public {
+        address ctrl = makeAddr("controller");
+        reverseRegistrar.addController(ctrl);
+        reverseRegistrar.removeController(ctrl);
+        assertFalse(reverseRegistrar.controllers(ctrl));
+    }
+
+    function test_setNameForAddr_byController() public {
+        address ctrl = makeAddr("controller");
+        reverseRegistrar.addController(ctrl);
+
+        // Controller can set name for any address without being the address or operator
+        vm.prank(ctrl);
+        bytes32 node = reverseRegistrar.setNameForAddr(alice, "alice.kite");
+        assertNotEq(node, bytes32(0));
+    }
+
+    function test_setNameForAddr_unauthorizedReverts() public {
+        // bob is not alice, not operator, not controller → must revert
+        vm.prank(bob);
+        vm.expectRevert();
+        reverseRegistrar.setNameForAddr(alice, "alice.kite");
+    }
+
     // ============ Fuzz ============
 
     function testFuzz_node_neverReverts(

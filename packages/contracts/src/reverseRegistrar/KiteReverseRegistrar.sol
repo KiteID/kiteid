@@ -23,6 +23,7 @@ contract KiteReverseRegistrar is Ownable {
 
     event ReverseClaimed(address indexed addr, bytes32 indexed node);
     event DefaultResolverChanged(address indexed resolver);
+    event ControllerChanged(address indexed controller, bool active);
 
     // ============ State ============
 
@@ -31,6 +32,7 @@ contract KiteReverseRegistrar is Ownable {
         keccak256(abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("reverse"))), keccak256("addr")));
 
     address public defaultResolver;
+    mapping(address => bool) public controllers;
 
     // ============ Constructor ============
 
@@ -71,7 +73,7 @@ contract KiteReverseRegistrar is Ownable {
         address addr,
         string calldata name
     ) external returns (bytes32) {
-        if (msg.sender != addr && !_isAuthorised(addr)) revert NotAuthorised(addr);
+        if (msg.sender != addr && !controllers[msg.sender] && !_isAuthorised(addr)) revert NotAuthorised(addr);
         bytes32 node = _claimForAddr(addr, address(this));
         IReverseResolver(defaultResolver).setName(node, name);
         return node;
@@ -94,6 +96,22 @@ contract KiteReverseRegistrar is Ownable {
     ) external onlyOwner {
         defaultResolver = _resolver;
         emit DefaultResolverChanged(_resolver);
+    }
+
+    /// @notice Adds a trusted controller (e.g., KiteController)
+    function addController(
+        address _controller
+    ) external onlyOwner {
+        controllers[_controller] = true;
+        emit ControllerChanged(_controller, true);
+    }
+
+    /// @notice Removes a trusted controller
+    function removeController(
+        address _controller
+    ) external onlyOwner {
+        controllers[_controller] = false;
+        emit ControllerChanged(_controller, false);
     }
 
     // ============ Internal ============

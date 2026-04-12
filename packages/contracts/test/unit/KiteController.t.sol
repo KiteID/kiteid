@@ -348,4 +348,121 @@ contract KiteControllerTest is DeployHelper {
         uint256 gasUsed = gasBefore - gasleft();
         assertLt(gasUsed, 100_000);
     }
+
+    // ============ Regression: Finding 1 — Renewal must NOT charge premium ============
+
+    function test_renew_noPremium_activeNames() public {
+        _registerName("alice", alice, ONE_YEAR);
+
+        // Get renewal price — should be base only, no premium
+        IPriceOracle.Price memory renewPrice = controller.rentPrice("alice", ONE_YEAR);
+
+        // For active name, renewal premium must be 0
+        // (Before fix: oracle returned startPremium=100 KITE because
+        //  future expires caused _premium() to return max)
+        assertEq(renewPrice.premium, 0, "renewal must not charge premium");
+
+        // Exact renewal cost = base only (~5 KITE for 5-char)
+        uint256 balanceBefore = alice.balance;
+        vm.prank(alice);
+        controller.renew{value: renewPrice.base}("alice", ONE_YEAR);
+        assertEq(alice.balance, balanceBefore - renewPrice.base, "only base charged");
+    }
+
+    function test_renew_noPremium_inGracePeriod() public {
+        _registerName("alice", alice, ONE_YEAR);
+
+        // Warp into grace period (expired but within 90 days)
+        vm.warp(block.timestamp + ONE_YEAR + 45 days);
+
+        // Renewal during grace: still no premium
+        IPriceOracle.Price memory renewPrice = controller.rentPrice("alice", ONE_YEAR);
+        assertEq(renewPrice.premium, 0, "grace period renewal must not charge premium");
+
+        vm.prank(alice);
+        controller.renew{value: renewPrice.base}("alice", ONE_YEAR);
+    }
+
+    // ============ Regression: Finding 2 — Re-registration must apply auction premium ============
+
+    function test_reregistration_chargesPremium_inAuctionWindow() public {
+        _registerName("alice", alice, ONE_YEAR);
+
+        // Warp past expiry + grace + 1 second (auction just started)
+        vm.warp(block.timestamp + ONE_YEAR + 90 days + 1);
+        assertTrue(controller.available("alice"), "name should be available");
+
+        // Quote should include premium (Dutch auction just started)
+        IPriceOracle.Price memory price = controller.rentPrice("alice", ONE_YEAR);
+        assertGt(price.premium, 0, "re-registration must charge premium in auction window");
+        // Premium should be close to startPremium (100 KITE) since only 1s elapsed
+        assertGt(price.premium, 99 ether, "premium near startPremium at auction start");
+
+        // Actually register — must pay premium
+        bytes32 secret2 = keccak256("re-reg-secret");
+        bytes[] memory data = new bytes[](0);
+        bytes32 commitment = controller.makeCommitment("alice", bob, ONE_YEAR, secret2, address(0), data, false);
+        controller.commit(commitment);
+        vm.warp(block.timestamp + 61);
+
+        // Re-query price after warp (premium decays slightly)
+        IPriceOracle.Price memory price2 = controller.rentPrice("alice", ONE_YEAR);
+        uint256 totalPrice = price2.base + price2.premium;
+
+        vm.prank(bob);
+        controller.register{value: totalPrice}("alice", bob, ONE_YEAR, secret2, address(0), data, false);
+        assertEq(registrar.ownerOf(uint256(keccak256("alice"))), bob);
+    }
+
+    function test_reregistration_noPremium_afterAuctionEnds() public {
+        _registerName("alice", alice, ONE_YEAR);
+
+        // Warp past expiry + grace + full auction (14 days)
+        vm.warp(block.timestamp + ONE_YEAR + 90 days + 14 days + 1);
+        assertTrue(controller.available("alice"), "name should be available");
+
+        // Auction over: premium = 0
+        IPriceOracle.Price memory price = controller.rentPrice("alice", ONE_YEAR);
+        assertEq(price.premium, 0, "no premium after auction ends");
+
+        // Register at base price only
+        bytes32 secret2 = keccak256("late-reg-secret");
+        _commitAndWait("alice", bob, ONE_YEAR, secret2);
+        bytes[] memory data = new bytes[](0);
+        vm.prank(bob);
+        controller.register{value: price.base}("alice", bob, ONE_YEAR, secret2, address(0), data, false);
+        assertEq(registrar.ownerOf(uint256(keccak256("alice"))), bob);
+    }
+
+    function test_newRegistration_noPremium() public {
+        // Brand new name (never registered) must have zero premium
+        IPriceOracle.Price memory price = controller.rentPrice("brand", ONE_YEAR);
+        assertEq(price.premium, 0, "new name must not have premium");
+    }
+
+    // ============ Regression: Finding 4 — Event emits correct baseCost + premium ============
+
+    function test_register_event_correctPriceFields() public {
+        _registerName("alice", alice, ONE_YEAR);
+
+        // Expire and enter auction
+        vm.warp(block.timestamp + ONE_YEAR + 90 days + 1);
+
+        bytes32 secret2 = keccak256("event-test-secret");
+        bytes[] memory data = new bytes[](0);
+        bytes32 commitment = controller.makeCommitment("alice", bob, ONE_YEAR, secret2, address(0), data, false);
+        controller.commit(commitment);
+        vm.warp(block.timestamp + 61);
+
+        IPriceOracle.Price memory price = controller.rentPrice("alice", ONE_YEAR);
+        assertGt(price.premium, 0, "should have premium");
+
+        uint256 expectedExpires = block.timestamp + ONE_YEAR;
+
+        // Expect event with SEPARATE baseCost and premium (not totalPrice, 0)
+        vm.expectEmit(false, true, true, true);
+        emit KiteController.NameRegistered("alice", keccak256("alice"), bob, price.base, price.premium, expectedExpires);
+        vm.prank(bob);
+        controller.register{value: price.base + price.premium}("alice", bob, ONE_YEAR, secret2, address(0), data, false);
+    }
 }
