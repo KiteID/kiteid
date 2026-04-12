@@ -19,6 +19,8 @@ abstract contract AddrResolver is ResolverBase, IAddrResolver, IAddressResolver 
     ) public view virtual returns (address payable) {
         bytes memory a = addr(node, COIN_TYPE_ETH);
         if (a.length == 0) return payable(address(0));
+        // safe: a is 20 bytes (validated by length check above), bytes20 preserves all bits
+        // forge-lint: disable-next-line(unsafe-typecast)
         return payable(address(uint160(bytes20(a))));
     }
 
@@ -48,6 +50,8 @@ abstract contract AddrResolver is ResolverBase, IAddrResolver, IAddressResolver 
         uint64 version = recordVersions[node];
         _addresses[coinType][node][version] = a;
         emit AddressChanged(node, coinType, a);
+        // safe: for COIN_TYPE_ETH, a is always 20 bytes (set via _addressToBytes)
+        // forge-lint: disable-next-line(unsafe-typecast)
         if (coinType == COIN_TYPE_ETH) emit AddrChanged(node, address(uint160(bytes20(a))));
     }
 

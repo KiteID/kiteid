@@ -141,6 +141,8 @@ contract KiteReverseRegistrar is Ownable {
     ) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
         for (uint256 i; i < 20; i++) {
+            // safe: extracting single byte from 20-byte address, result always fits uint8
+            // forge-lint: disable-next-line(unsafe-typecast)
             bytes1 b = bytes1(uint8(uint256(uint160(addr)) / (2 ** (8 * (19 - i)))));
             bytes1 hi = bytes1(uint8(b) / 16);
             bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
