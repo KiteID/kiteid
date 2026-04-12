@@ -83,6 +83,7 @@ contract Deploy is Script {
 
         // 8. Wire up controller
         registrar.addController(address(controller));
+        reverseRegistrar.addController(address(controller));
 
         vm.stopBroadcast();
 

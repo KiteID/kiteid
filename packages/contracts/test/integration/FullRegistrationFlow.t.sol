@@ -138,6 +138,61 @@ contract FullRegistrationFlowTest is DeployHelper {
         assertApproxEqAbs(price5.base, 5 ether, 0.01 ether);
     }
 
+    // ============ Regression: Dutch Auction Integration ============
+
+    function test_fullFlow_dutchAuctionPremiumDecays() public {
+        _register("alice", alice, ONE_YEAR);
+
+        uint256 tokenId = uint256(keccak256(bytes("alice")));
+        uint256 oldExpiry = registrar.nameExpires(tokenId);
+
+        // Warp past expiry + grace + 1 day into auction
+        vm.warp(oldExpiry + 90 days + 1 days);
+        assertTrue(registrar.available(tokenId));
+
+        IPriceOracle.Price memory priceEarly = controller.rentPrice("alice", ONE_YEAR);
+        assertGt(priceEarly.premium, 0, "premium > 0 early in auction");
+
+        // Warp further: +7 days into auction (halfway)
+        vm.warp(oldExpiry + 90 days + 7 days);
+        IPriceOracle.Price memory priceMid = controller.rentPrice("alice", ONE_YEAR);
+        assertLt(priceMid.premium, priceEarly.premium, "premium decays over time");
+
+        // Warp past auction end
+        vm.warp(oldExpiry + 90 days + 15 days);
+        IPriceOracle.Price memory priceLate = controller.rentPrice("alice", ONE_YEAR);
+        assertEq(priceLate.premium, 0, "premium is 0 after auction ends");
+
+        // Can register at base price only
+        bytes32 secret2 = keccak256("dutch-secret");
+        bytes[] memory data = new bytes[](0);
+        bytes32 commitment = controller.makeCommitment("alice", bob, ONE_YEAR, secret2, address(0), data, false);
+        controller.commit(commitment);
+        vm.warp(block.timestamp + 61);
+
+        IPriceOracle.Price memory finalPrice = controller.rentPrice("alice", ONE_YEAR);
+        vm.prank(bob);
+        controller.register{value: finalPrice.base + finalPrice.premium}(
+            "alice", bob, ONE_YEAR, secret2, address(0), data, false
+        );
+        assertEq(registrar.ownerOf(tokenId), bob);
+    }
+
+    function test_fullFlow_renewalCostIsBaseOnly() public {
+        _register("alice", alice, ONE_YEAR);
+
+        // Renewal cost = base only, never premium
+        IPriceOracle.Price memory renewPrice = controller.rentPrice("alice", ONE_YEAR);
+        // For active 5-char name: ~5 KITE/yr, 0 premium
+        assertApproxEqAbs(renewPrice.base, 5 ether, 0.01 ether);
+        assertEq(renewPrice.premium, 0, "renewal premium must be 0");
+
+        uint256 balanceBefore = alice.balance;
+        vm.prank(alice);
+        controller.renew{value: renewPrice.base}("alice", ONE_YEAR);
+        assertEq(alice.balance, balanceBefore - renewPrice.base);
+    }
+
     // ============ Helpers ============
 
     function _register(

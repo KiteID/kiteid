@@ -132,12 +132,14 @@ contract KiteController is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSU
         _consumeCommitment(commitment);
 
         // Execute registration
-        (uint256 expires, uint256 totalPrice) = _executeRegistration(name, owner, duration, resolver, data);
+        (uint256 expires, IPriceOracle.Price memory priceData) =
+            _executeRegistration(name, owner, duration, resolver, data);
+        uint256 totalPrice = priceData.base + priceData.premium;
 
         // Set reverse record if requested
         if (reverseRecord) _setReverseRecord(name, owner);
 
-        emit NameRegistered(name, keccak256(bytes(name)), owner, totalPrice, 0, expires);
+        emit NameRegistered(name, keccak256(bytes(name)), owner, priceData.base, priceData.premium, expires);
 
         // Refund excess
         _refundExcess(totalPrice);
@@ -153,10 +155,10 @@ contract KiteController is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSU
         if (duration < MIN_REGISTRATION_DURATION) revert DurationTooShort(duration);
 
         uint256 tokenId = uint256(keccak256(bytes(name)));
-        uint256 expires = $.registrar.nameExpires(tokenId);
 
-        IPriceOracle.Price memory priceData = $.priceOracle.price(name, expires, duration);
-        uint256 totalPrice = priceData.base + priceData.premium;
+        // Renewals never pay premium — pass expires=0
+        IPriceOracle.Price memory priceData = $.priceOracle.price(name, 0, duration);
+        uint256 totalPrice = priceData.base;
         if (msg.value < totalPrice) revert InsufficientValue(totalPrice, msg.value);
 
         uint256 newExpires = $.registrar.renew(tokenId, duration);
@@ -172,13 +174,15 @@ contract KiteController is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSU
 
     // ============ Views ============
 
-    /// @notice Get the rent price for a name
+    /// @notice Get the rent price for a name (includes premium if in auction window)
     function rentPrice(
         string calldata name,
         uint256 duration
     ) external view returns (IPriceOracle.Price memory) {
         ControllerStorage storage $ = _getStorage();
-        return $.priceOracle.price(name, 0, duration);
+        uint256 tokenId = uint256(keccak256(bytes(name)));
+        uint256 previousExpiry = $.registrar.nameExpires(tokenId);
+        return $.priceOracle.price(name, previousExpiry, duration);
     }
 
     /// @notice Check if a name is available
@@ -272,14 +276,18 @@ contract KiteController is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSU
         uint256 duration,
         address resolver,
         bytes[] calldata data
-    ) internal returns (uint256 expires, uint256 totalPrice) {
+    ) internal returns (uint256 expires, IPriceOracle.Price memory priceData) {
         ControllerStorage storage $ = _getStorage();
 
         uint256 tokenId = uint256(keccak256(bytes(name)));
         if (!$.registrar.available(tokenId)) revert NameNotAvailable(name);
 
-        IPriceOracle.Price memory priceData = $.priceOracle.price(name, 0, duration);
-        totalPrice = priceData.base + priceData.premium;
+        // Get previous expiry for Dutch auction premium calculation
+        // If never registered, nameExpires returns 0 → no premium
+        // If expired past grace, nameExpires returns old expiry → premium may apply
+        uint256 previousExpiry = $.registrar.nameExpires(tokenId);
+        priceData = $.priceOracle.price(name, previousExpiry, duration);
+        uint256 totalPrice = priceData.base + priceData.premium;
         if (msg.value < totalPrice) revert InsufficientValue(totalPrice, msg.value);
 
         // Register — registrar gives registry node ownership to this controller
@@ -336,7 +344,7 @@ contract KiteController is OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSU
         if ($.reverseRegistrar != address(0)) {
             (bool success,) = $.reverseRegistrar
                 .call(abi.encodeWithSignature("setNameForAddr(address,string)", owner, string.concat(name, ".kite")));
-            success; // silence unused variable warning
+            require(success, "KiteController: reverse record failed");
         }
     }
 }
