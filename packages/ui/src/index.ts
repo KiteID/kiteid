@@ -6,3 +6,6 @@ export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 export { cn } from './cn';
 export type { InputProps } from './input';
 export { Input } from './input';
+export type { ProgressProps } from './progress';
+export { Progress } from './progress';
+export { Skeleton } from './skeleton';
