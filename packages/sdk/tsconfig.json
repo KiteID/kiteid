@@ -1,5 +1,5 @@
 {
-  "extends": "@kiteid/config-typescript/base",
+  "extends": "@kiteid/config-typescript/react",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist"

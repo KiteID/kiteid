@@ -4,7 +4,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
-  transpilePackages: ['@kiteid/ui', '@kiteid/sdk'],
+  transpilePackages: ['@kiteid/ui', '@kiteid/sdk', '@kiteid/contracts-abi'],
   turbopack: {
     root: resolve(__dirname, '../..'),
   },

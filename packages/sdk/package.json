@@ -11,8 +11,21 @@
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist"
   },
+  "dependencies": {
+    "@kiteid/contracts-abi": "workspace:*",
+    "viem": "^2.31.0"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.80.0",
+    "react": "^19.1.0",
+    "wagmi": "^2.15.0"
+  },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
-    "typescript": "^6.0.0"
+    "@tanstack/react-query": "^5.80.0",
+    "@types/react": "^19.1.0",
+    "react": "^19.1.0",
+    "typescript": "^6.0.0",
+    "wagmi": "^2.15.0"
   }
 }
