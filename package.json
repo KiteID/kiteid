@@ -20,8 +20,12 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "lefthook"
-    ]
+      "lefthook",
+      "sharp"
+    ],
+    "overrides": {
+      "axios": ">=1.15.0"
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",
