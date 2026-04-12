@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { LogoIcon } from '@/components/brand/logo-icon';
+import { Wordmark } from '@/components/brand/wordmark';
 import { SearchBar } from '@/components/domain/search-bar';
 
 export default function HomePage() {
@@ -6,10 +8,10 @@ export default function HomePage() {
     <main className="flex min-h-screen flex-col">
       {/* Subtle top bar */}
       <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-0.5">
-          <span className="text-xl font-normal tracking-tight text-carbon">Kite</span>
-          <span className="text-xl font-extrabold tracking-tight text-gold">ID</span>
-        </div>
+        <Link href="/" className="flex items-center gap-2">
+          <LogoIcon size={28} />
+          <Wordmark size="sm" />
+        </Link>
         <Link
           href="/names"
           className="text-sm font-medium text-bronze transition-colors hover:text-carbon"
