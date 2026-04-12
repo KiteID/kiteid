@@ -11,8 +11,11 @@ export {
 } from './contracts';
 export {
   useKiteAvailable,
+  useKiteCommit,
   useKiteCommitments,
   useKiteIsReserved,
+  useKiteRegister,
+  useKiteRenew,
   useKiteRentPrice,
 } from './hooks';
 export type { Price, RegistrationParams } from './types';
@@ -21,6 +24,7 @@ export {
   daysUntilExpiry,
   formatKitePrice,
   formatKitePriceWithSymbol,
+  generateSecret,
   getLabelLength,
   humanDuration,
   isValidName,
@@ -28,6 +32,7 @@ export {
   kiteLabelhash,
   kiteNamehash,
   labelhash,
+  makeCommitment,
   namehash,
   normalizeLabel,
   SECONDS_PER_DAY,

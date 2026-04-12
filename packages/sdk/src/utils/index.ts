@@ -1,3 +1,4 @@
+export { generateSecret, makeCommitment } from './commitment';
 export {
   daysUntilExpiry,
   humanDuration,
