@@ -61,9 +61,10 @@ contract KiteReverseRegistrar is Ownable {
     function setName(
         string calldata name
     ) external returns (bytes32) {
-        bytes32 node = _claimForAddr(msg.sender, address(this));
-        IReverseResolver(defaultResolver).setName(node, name);
-        return node;
+        bytes32 reverseNode = _claimForAddr(msg.sender, address(this));
+        registry.setResolver(reverseNode, defaultResolver);
+        IReverseResolver(defaultResolver).setName(reverseNode, name);
+        return reverseNode;
     }
 
     /// @notice Sets the reverse name for a specific address (authorized callers only)
@@ -74,9 +75,10 @@ contract KiteReverseRegistrar is Ownable {
         string calldata name
     ) external returns (bytes32) {
         if (msg.sender != addr && !controllers[msg.sender] && !_isAuthorised(addr)) revert NotAuthorised(addr);
-        bytes32 node = _claimForAddr(addr, address(this));
-        IReverseResolver(defaultResolver).setName(node, name);
-        return node;
+        bytes32 reverseNode = _claimForAddr(addr, address(this));
+        registry.setResolver(reverseNode, defaultResolver);
+        IReverseResolver(defaultResolver).setName(reverseNode, name);
+        return reverseNode;
     }
 
     /// @notice Computes the reverse node for an address
