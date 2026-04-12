@@ -11,6 +11,7 @@
     "fmt": "forge fmt",
     "fmt:check": "forge fmt --check",
     "snapshot": "forge snapshot",
+    "abi:export": "forge build && node scripts/export-abis.mjs",
     "clean": "forge clean"
   }
 }
