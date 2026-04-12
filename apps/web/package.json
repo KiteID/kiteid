@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "clean": "rimraf dist .next"
+    "clean": "rimraf dist .next",
+    "test": "vitest run"
   },
   "dependencies": {
     "@kiteid/sdk": "workspace:*",
@@ -28,8 +29,13 @@
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "typescript": "^6.0.0"
+    "@vitest/coverage-v8": "^4.1.4",
+    "happy-dom": "^18.0.1",
+    "typescript": "^6.0.0",
+    "vitest": "^4.1.4"
   }
 }
