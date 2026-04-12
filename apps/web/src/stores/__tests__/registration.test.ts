@@ -82,9 +82,38 @@ describe('RegistrationStore', () => {
     const store = useRegistrationStore.getState();
     store.startRegistration('alpha', mockParams);
     store.startRegistration('beta', mockParams);
-    store.updateState('alpha', RegistrationState.COMMITTING);
-    expect(store.getRegistration('alpha')?.state).toBe(RegistrationState.COMMITTING);
+    store.updateState('alpha', RegistrationState.COMMIT_READY);
+    expect(store.getRegistration('alpha')?.state).toBe(RegistrationState.COMMIT_READY);
     expect(store.getRegistration('beta')?.state).toBe(RegistrationState.CONFIGURING);
+  });
+
+  it('should transition COMMIT_READY → COMMITTING → COMMIT_PENDING correctly', () => {
+    const store = useRegistrationStore.getState();
+    store.startRegistration('test', mockParams);
+
+    // initRegistration sets COMMIT_READY
+    store.updateState('test', RegistrationState.COMMIT_READY);
+    expect(store.getRegistration('test')?.state).toBe(RegistrationState.COMMIT_READY);
+
+    // submitCommit sets COMMITTING (wallet prompt)
+    store.updateState('test', RegistrationState.COMMITTING);
+    expect(store.getRegistration('test')?.state).toBe(RegistrationState.COMMITTING);
+
+    // setCommitTx sets COMMIT_PENDING (tx broadcast)
+    store.setCommitTx('test', '0xhash', 1000);
+    expect(store.getRegistration('test')?.state).toBe(RegistrationState.COMMIT_PENDING);
+  });
+
+  it('should allow retry from COMMITTING back to CONFIGURING on wallet reject', () => {
+    const store = useRegistrationStore.getState();
+    store.startRegistration('test', mockParams);
+    store.updateState('test', RegistrationState.COMMIT_READY);
+    store.updateState('test', RegistrationState.COMMITTING);
+    // Wallet rejected — go back to configuring
+    store.updateState('test', RegistrationState.CONFIGURING, 'Transaction rejected');
+    const reg = store.getRegistration('test');
+    expect(reg?.state).toBe(RegistrationState.CONFIGURING);
+    expect(reg?.errorMessage).toBe('Transaction rejected');
   });
 
   it('should serialize duration as string', () => {

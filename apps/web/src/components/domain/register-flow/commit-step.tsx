@@ -12,10 +12,11 @@ interface CommitStepProps {
 }
 
 export function CommitStep({ onSubmit, isPending, commitTxHash, state }: CommitStepProps) {
-  const isSubmitting = state === 'committing' || isPending;
-  const isConfirming = state === 'commit_pending';
+  const isWaitingWallet = state === 'committing' && !commitTxHash;
+  const isConfirming = state === 'commit_pending' || (state === 'committing' && !!commitTxHash);
+  const showButton = state === 'commit_ready' && !isPending;
 
-  const txStatus = isConfirming ? 'confirming' : isSubmitting ? 'pending' : 'idle';
+  const txStatus = isConfirming ? 'confirming' : isWaitingWallet || isPending ? 'pending' : 'idle';
 
   return (
     <div className="space-y-6">
@@ -27,25 +28,24 @@ export function CommitStep({ onSubmit, isPending, commitTxHash, state }: CommitS
         </p>
       </div>
 
-      {(isSubmitting || isConfirming) && (
+      {(isWaitingWallet || isConfirming || isPending) && (
         <div className="flex justify-center py-4">
           <TxStatus status={txStatus} hash={commitTxHash} />
         </div>
       )}
 
-      {!isSubmitting && !isConfirming && (
+      {showButton && (
         <Button
           type="button"
           size="lg"
           className="w-full bg-gold text-cream hover:bg-bronze"
-          disabled={isPending}
           onClick={onSubmit}
         >
           Request to Register
         </Button>
       )}
 
-      {isSubmitting && !commitTxHash && (
+      {isWaitingWallet && (
         <p className="text-center text-xs text-bronze">
           Please confirm the transaction in your wallet.
         </p>

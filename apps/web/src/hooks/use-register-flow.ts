@@ -98,8 +98,8 @@ export function useRegisterFlow(name: string) {
         reverseRecord,
       });
 
-      // Transition to COMMITTING so the wizard advances to the commit step
-      store.updateState(label, RegistrationState.COMMITTING);
+      // Advance wizard to commit step — COMMIT_READY shows the button
+      store.updateState(label, RegistrationState.COMMIT_READY);
     },
     [address, chainId, label, store],
   );

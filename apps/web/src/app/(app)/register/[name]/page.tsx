@@ -5,6 +5,7 @@ import { Card, CardContent, Skeleton } from '@kiteid/ui';
 import { use } from 'react';
 import { useChainId } from 'wagmi';
 import { RegisterFlow } from '@/components/domain/register-flow';
+import { WalletGuard } from '@/components/web3/wallet-guard';
 import { TLD } from '@/lib/constants';
 
 interface RegisterPageProps {
@@ -57,7 +58,9 @@ export default function RegisterPage({ params }: RegisterPageProps) {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
-      <RegisterFlow name={name} />
+      <WalletGuard message="Domain kaydetmek için cüzdanınızı bağlayın.">
+        <RegisterFlow name={name} />
+      </WalletGuard>
     </div>
   );
 }

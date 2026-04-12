@@ -23,6 +23,7 @@ function getStep(state: RegistrationState | undefined): 1 | 2 | 3 {
   switch (state) {
     case RegistrationState.CONFIGURING:
       return 1;
+    case RegistrationState.COMMIT_READY:
     case RegistrationState.COMMITTING:
     case RegistrationState.COMMIT_PENDING:
     case RegistrationState.WAITING_MIN_AGE:
@@ -96,7 +97,9 @@ export function RegisterFlow({ name }: RegisterFlowProps) {
         )}
 
         {/* Step 2: Commit */}
-        {(state === RegistrationState.COMMITTING || state === RegistrationState.COMMIT_PENDING) && (
+        {(state === RegistrationState.COMMIT_READY ||
+          state === RegistrationState.COMMITTING ||
+          state === RegistrationState.COMMIT_PENDING) && (
           <CommitStep
             onSubmit={submitCommit}
             isPending={isCommitPending}

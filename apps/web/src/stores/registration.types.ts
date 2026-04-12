@@ -4,6 +4,7 @@ export enum RegistrationState {
   AVAILABLE = 'available',
   UNAVAILABLE = 'unavailable',
   CONFIGURING = 'configuring',
+  COMMIT_READY = 'commit_ready',
   COMMITTING = 'committing',
   COMMIT_PENDING = 'commit_pending',
   WAITING_MIN_AGE = 'waiting_min_age',
