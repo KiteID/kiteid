@@ -3,6 +3,7 @@ pragma solidity ^0.8.34;
 
 import {IPriceOracle} from "../../src/registrar/IPriceOracle.sol";
 import {KiteController} from "../../src/registrar/KiteController.sol";
+import {KiteResolver} from "../../src/resolvers/KiteResolver.sol";
 import {StringUtils} from "../../src/utils/StringUtils.sol";
 import {DeployHelper} from "../helpers/DeployHelper.sol";
 import {Test} from "forge-std/Test.sol";
@@ -191,6 +192,51 @@ contract FullRegistrationFlowTest is DeployHelper {
         vm.prank(alice);
         controller.renew{value: renewPrice.base}("alice", ONE_YEAR);
         assertEq(alice.balance, balanceBefore - renewPrice.base);
+    }
+
+    // ============ Reverse Record E2E ============
+
+    function test_fullFlow_registerWithReverseRecord() public {
+        string memory name = "alice";
+        bytes[] memory data = new bytes[](0);
+
+        // Commit
+        bytes32 commitment = controller.makeCommitment(name, alice, ONE_YEAR, SECRET, address(resolver), data, true);
+        vm.prank(alice);
+        controller.commit(commitment);
+        vm.warp(block.timestamp + 61);
+
+        // Register with reverseRecord=true
+        IPriceOracle.Price memory price = controller.rentPrice(name, ONE_YEAR);
+        vm.prank(alice);
+        controller.register{value: price.base + price.premium + 1 ether}(
+            name, alice, ONE_YEAR, SECRET, address(resolver), data, true
+        );
+
+        // Verify forward registration
+        uint256 tokenId = uint256(keccak256(bytes(name)));
+        assertEq(registrar.ownerOf(tokenId), alice);
+
+        // Verify reverse: registry.resolver(reverseNode) == defaultResolver
+        bytes32 reverseNode = reverseRegistrar.node(alice);
+        assertEq(registry.resolver(reverseNode), address(resolver), "reverse node resolver must be set");
+
+        // Verify reverse: resolver.name(reverseNode) == "alice.kite"
+        assertEq(resolver.name(reverseNode), "alice.kite", "reverse name must match");
+    }
+
+    function test_fullFlow_setNameDirectly() public {
+        // Alice registers, then calls setName on reverse registrar
+        _register("alice", alice, ONE_YEAR);
+
+        vm.prank(alice);
+        bytes32 reverseNode = reverseRegistrar.setName("alice.kite");
+
+        // Verify resolver pointer
+        assertEq(registry.resolver(reverseNode), address(resolver), "resolver must be set");
+
+        // Verify name lookup
+        assertEq(resolver.name(reverseNode), "alice.kite", "name must match");
     }
 
     // ============ Helpers ============

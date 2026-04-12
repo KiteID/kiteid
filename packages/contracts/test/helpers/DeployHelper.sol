@@ -10,6 +10,7 @@ import {LinearPremiumPriceOracle} from "../../src/registrar/LinearPremiumPriceOr
 import {StablePriceOracle} from "../../src/registrar/StablePriceOracle.sol";
 import {KiteRegistry} from "../../src/registry/KiteRegistry.sol";
 import {KiteResolver} from "../../src/resolvers/KiteResolver.sol";
+import {KiteReverseRegistrar} from "../../src/reverseRegistrar/KiteReverseRegistrar.sol";
 import {TestConstants} from "./TestConstants.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Test} from "forge-std/Test.sol";
@@ -22,6 +23,7 @@ abstract contract DeployHelper is Test {
     KiteController public controller;
     KiteResolver public resolver;
     LinearPremiumPriceOracle public priceOracle;
+    KiteReverseRegistrar public reverseRegistrar;
 
     bytes32 public constant ROOT_NODE = bytes32(0);
     bytes32 public constant KITE_LABEL = keccak256("kite");
@@ -57,7 +59,13 @@ abstract contract DeployHelper is Test {
         // 5. Deploy Resolver
         resolver = new KiteResolver(IKiteRegistry(address(registry)));
 
-        // 6. Deploy Controller (UUPS proxy)
+        // 6. Setup reverse namespace: root -> "reverse" -> "addr"
+        bytes32 reverseNode = registry.setSubnodeOwner(ROOT_NODE, keccak256("reverse"), deployer);
+        bytes32 addrReverseNode = registry.setSubnodeOwner(reverseNode, keccak256("addr"), deployer);
+        reverseRegistrar = new KiteReverseRegistrar(IKiteRegistry(address(registry)), address(resolver));
+        registry.setOwner(addrReverseNode, address(reverseRegistrar));
+
+        // 7. Deploy Controller (UUPS proxy)
         KiteController controllerImpl = new KiteController();
         bytes memory initData = abi.encodeCall(
             KiteController.initialize,
@@ -65,15 +73,16 @@ abstract contract DeployHelper is Test {
                 IKiteBaseRegistrar(address(registrar)),
                 IPriceOracle(address(priceOracle)),
                 IKiteRegistry(address(registry)),
-                address(0), // reverseRegistrar placeholder
+                address(reverseRegistrar),
                 deployer
             )
         );
         ERC1967Proxy proxy = new ERC1967Proxy(address(controllerImpl), initData);
         controller = KiteController(address(proxy));
 
-        // 7. Add controller to registrar
+        // 8. Wire up controllers
         registrar.addController(address(controller));
+        reverseRegistrar.addController(address(controller));
 
         vm.stopPrank();
     }
