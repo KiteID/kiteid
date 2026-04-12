@@ -20,7 +20,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "lefthook"
+      "lefthook",
+      "sharp"
     ]
   },
   "devDependencies": {
