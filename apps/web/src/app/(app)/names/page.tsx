@@ -33,6 +33,14 @@ export default function NamesPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <h1 className="mb-8 text-2xl font-semibold text-carbon">My Names</h1>
+
+      {/* Phase 3 — Ponder indexer will populate owned names automatically */}
+      <div className="mb-6 rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-bronze">
+        Domain listeleme Phase 3 (Ponder indexer) ile aktif olacak. Şimdilik kayıtlı
+        domain&apos;inizi doğrudan <span className="font-mono text-gold">/names/isim</span> yoluyla
+        görüntüleyebilirsiniz.
+      </div>
+
       <NameList names={names} isLoading={isLoading} />
     </div>
   );

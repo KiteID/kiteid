@@ -1,4 +1,4 @@
-import { encodePacked, keccak256 } from 'viem';
+import { encodeAbiParameters, keccak256 } from 'viem';
 
 export function generateSecret(): `0x${string}` {
   const bytes = new Uint8Array(32);
@@ -8,6 +8,10 @@ export function generateSecret(): `0x${string}` {
     .join('')}` as `0x${string}`;
 }
 
+/**
+ * Compute commitment hash matching KiteController._makeCommitment:
+ *   keccak256(abi.encode(name, owner, duration, secret, resolver, data, reverseRecord))
+ */
 export function makeCommitment(params: {
   name: string;
   owner: `0x${string}`;
@@ -17,26 +21,24 @@ export function makeCommitment(params: {
   data: `0x${string}`[];
   reverseRecord: boolean;
 }): `0x${string}` {
-  const dataHash =
-    params.data.length > 0
-      ? keccak256(
-          encodePacked(
-            params.data.map(() => 'bytes' as const),
-            params.data,
-          ),
-        )
-      : ('0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`);
-
   return keccak256(
-    encodePacked(
-      ['string', 'address', 'uint256', 'bytes32', 'address', 'bytes32', 'bool'],
+    encodeAbiParameters(
+      [
+        { type: 'string', name: 'name' },
+        { type: 'address', name: 'owner' },
+        { type: 'uint256', name: 'duration' },
+        { type: 'bytes32', name: 'secret' },
+        { type: 'address', name: 'resolver' },
+        { type: 'bytes[]', name: 'data' },
+        { type: 'bool', name: 'reverseRecord' },
+      ],
       [
         params.name,
         params.owner,
         params.duration,
         params.secret,
         params.resolver,
-        dataHash,
+        params.data,
         params.reverseRecord,
       ],
     ),

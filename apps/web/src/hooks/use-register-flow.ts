@@ -97,6 +97,9 @@ export function useRegisterFlow(name: string) {
         resolver,
         reverseRecord,
       });
+
+      // Transition to COMMITTING so the wizard advances to the commit step
+      store.updateState(label, RegistrationState.COMMITTING);
     },
     [address, chainId, label, store],
   );
