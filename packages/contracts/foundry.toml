@@ -1,7 +1,7 @@
 [profile.default]
 src = "src"
 out = "out"
-libs = ["lib", "dependencies"]
+libs = ["lib"]
 solc = "0.8.34"
 optimizer = true
 optimizer_runs = 10_000
@@ -32,7 +32,7 @@ sort_imports = true
 [profile.ci]
 src = "src"
 out = "out"
-libs = ["lib", "dependencies"]
+libs = ["lib"]
 solc = "0.8.34"
 optimizer = true
 optimizer_runs = 10_000
@@ -51,7 +51,7 @@ depth = 25
 [profile.intense]
 src = "src"
 out = "out"
-libs = ["lib", "dependencies"]
+libs = ["lib"]
 solc = "0.8.34"
 optimizer = true
 optimizer_runs = 10_000
