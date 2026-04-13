@@ -1,2 +1,6 @@
-# Trivy false positive ignore list
-# Add CVE IDs here to suppress known false positives
+# Trivy vulnerability ignore list
+
+# drizzle-orm 0.41.0 pinned for Ponder 0.16.x type compatibility
+# Ponder bundles drizzle-orm@0.41.0 internally — override breaks type parity
+# Tracked: upgrade when Ponder releases with drizzle-orm >=0.45.2
+CVE-2026-39356

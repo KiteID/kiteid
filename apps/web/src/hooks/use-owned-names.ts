@@ -1,15 +1,16 @@
 'use client';
 
-import { useAccount } from 'wagmi';
+import { type IndexedDomain, useIndexedNames } from '@kiteid/sdk';
 
-// TODO: Replace with Ponder indexer query in Phase 3
 export function useOwnedNames() {
-  const { address } = useAccount();
+  const { domains, count, isLoading, error, refetch } = useIndexedNames();
 
   return {
-    data: [] as string[],
-    isLoading: false,
-    isEmpty: true,
-    address,
+    data: domains.map((d: IndexedDomain) => d.name),
+    domains,
+    isLoading,
+    isEmpty: count === 0,
+    error,
+    refetch,
   };
 }

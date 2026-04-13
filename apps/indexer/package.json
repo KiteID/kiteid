@@ -3,13 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "scripts": {
-    "build": "tsc --noEmit",
-    "typecheck": "tsc --noEmit",
-    "clean": "rimraf dist"
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "codegen": "ponder codegen",
+    "build": "ponder codegen",
+    "typecheck": "ponder codegen && tsc --noEmit",
+    "clean": "rimraf dist .ponder"
+  },
+  "dependencies": {
+    "@kiteid/contracts-abi": "workspace:*",
+    "drizzle-orm": "0.41.0",
+    "hono": "^4.12.12",
+    "ponder": "^0.16.6",
+    "viem": "^2.31.0"
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",

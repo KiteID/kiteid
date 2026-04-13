@@ -46,3 +46,20 @@ services:
       - .docker-data/dragonfly:/data
     ulimits:
       memlock: -1
+
+  # Init service: runs DB migrations then exits.
+  # All app services depend on this completing successfully.
+  migrate:
+    image: node:22-alpine
+    container_name: kiteid-migrate
+    working_dir: /app
+    volumes:
+      - ./packages/db:/app/packages/db
+      - ./node_modules:/app/node_modules
+    environment:
+      DATABASE_DIRECT_URL: postgresql://kiteid:kiteid_dev@postgres:5432/kiteid_dev
+    command: ['node', '/app/packages/db/migrate.mjs']
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'

@@ -7,7 +7,12 @@ export {
   getControllerAddress,
   getResolverAddress,
 } from './contracts';
+export type { ActivityEvent, IndexedDomain } from './hooks';
 export {
+  useActivityFeed,
+  useDomainDetail,
+  useDomainStats,
+  useIndexedNames,
   useKiteAvailable,
   useKiteCommit,
   useKiteCommitments,

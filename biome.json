@@ -27,7 +27,8 @@
       "!**/pnpm-lock.yaml",
       "!**/.changeset",
       "!**/coverage",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!**/ponder-env.d.ts"
     ]
   }
 }

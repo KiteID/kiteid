@@ -15,6 +15,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:contracts": "turbo run test:contracts",
+    "db:generate": "turbo run db:generate --filter=@kiteid/db",
+    "db:migrate": "turbo run db:migrate --filter=@kiteid/db",
     "clean": "turbo run clean",
     "prepare": "lefthook install"
   },
@@ -24,7 +26,17 @@
       "sharp"
     ],
     "overrides": {
-      "axios": ">=1.15.0"
+      "axios": ">=1.15.0",
+      "happy-dom": ">=20.8.9",
+      "kysely": ">=0.28.14",
+      "esbuild": ">=0.25.0",
+      "vite": ">=6.4.2",
+      "@hono/node-server": ">=1.19.13"
+    },
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2026-39356"
+      ]
     }
   },
   "devDependencies": {

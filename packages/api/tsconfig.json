@@ -1,8 +1,10 @@
 {
-  "extends": "@kiteid/config-typescript/node",
+  "extends": "@kiteid/config-typescript/base",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false
   },
   "include": ["src"]
 }
