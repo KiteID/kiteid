@@ -1,8 +1,10 @@
 {
-  "extends": "@kiteid/config-typescript/node",
+  "extends": "@kiteid/config-typescript/base",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist"
+    "rootDir": ".",
+    "outDir": "dist",
+    "noEmit": true,
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "ponder.config.ts", "ponder.schema.ts", "ponder-env.d.ts"]
 }

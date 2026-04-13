@@ -4,15 +4,27 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./client": "./src/client.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:run": "node migrate.mjs",
+    "db:studio": "drizzle-kit studio",
     "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.0",
     "typescript": "^6.0.0"
   }
 }

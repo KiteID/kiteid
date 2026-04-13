@@ -1,6 +1,10 @@
+export { type ActivityEvent, useActivityFeed } from './use-activity-feed';
 export { useKiteAvailable } from './use-available';
 export { useKiteCommit } from './use-commit';
 export { useKiteCommitments } from './use-commitments';
+export { useDomainDetail } from './use-domain-detail';
+export { useDomainStats } from './use-domain-stats';
+export { type IndexedDomain, useIndexedNames } from './use-indexed-names';
 export { useKiteIsReserved } from './use-is-reserved';
 export { useKiteNameExpiry } from './use-name-expiry';
 export { useKiteNameOwner } from './use-name-owner';
