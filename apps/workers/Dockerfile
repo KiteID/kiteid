@@ -33,6 +33,7 @@ COPY --from=builder /app/apps/workers/node_modules ./node_modules
 COPY --from=builder /app/packages/db ./packages/db
 
 ENV NODE_ENV=production
+USER node
 # Run idempotent DB migrations on startup (Drizzle tracks applied state)
 # In local dev, docker-compose init service runs first; this is a prod safety net.
 CMD ["sh", "-c", "node /app/packages/db/migrate.mjs && node dist/index.js"]

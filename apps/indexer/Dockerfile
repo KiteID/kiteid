@@ -23,7 +23,9 @@ COPY apps/indexer apps/indexer
 COPY pnpm-workspace.yaml package.json tsconfig.json ./
 
 WORKDIR /app/apps/indexer
+RUN mkdir -p .ponder && chown -R node:node .ponder
 
 EXPOSE 42069
 ENV NODE_ENV=production
+USER node
 CMD ["pnpm", "start"]
