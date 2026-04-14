@@ -2,7 +2,7 @@ name: Docker Build & Push
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - 'apps/web/**'
       - 'apps/indexer/**'
@@ -86,13 +86,22 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "tag=staging" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/web/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/web:latest
+            ${{ env.IMAGE_PREFIX }}/web:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -117,13 +126,22 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "tag=staging" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/indexer/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/indexer:latest
+            ${{ env.IMAGE_PREFIX }}/indexer:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE_PREFIX }}/indexer:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
@@ -148,13 +166,22 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "tag=staging" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/workers/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}/workers:latest
+            ${{ env.IMAGE_PREFIX }}/workers:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE_PREFIX }}/workers:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
