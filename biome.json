@@ -28,7 +28,10 @@
       "!**/.changeset",
       "!**/coverage",
       "!**/next-env.d.ts",
-      "!**/ponder-env.d.ts"
+      "!**/ponder-env.d.ts",
+      "!**/playwright-report",
+      "!**/test-results",
+      "!**/blob-report"
     ]
   }
 }
