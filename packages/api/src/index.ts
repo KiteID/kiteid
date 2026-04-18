@@ -11,10 +11,18 @@ const app = new Hono().basePath('/api');
 
 // Global middleware
 app.use('*', logger());
+const corsOrigins = (
+  process.env.CORS_ORIGINS ||
+  'http://localhost:3000,https://kiteid.xyz,https://www.kiteid.xyz,https://staging.kiteid.xyz'
+)
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(
   '*',
   cors({
-    origin: ['http://localhost:3000', 'https://kiteid.xyz', 'https://www.kiteid.xyz'],
+    origin: corsOrigins,
     credentials: true,
   }),
 );
