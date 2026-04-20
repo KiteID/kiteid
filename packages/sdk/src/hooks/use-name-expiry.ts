@@ -10,7 +10,7 @@ export function useKiteNameExpiry(name: string, chainId?: number) {
   const tokenId = labelhash(label);
 
   return useReadContract({
-    address: chainId ? getAddresses(chainId).baseRegistrar : undefined,
+    address: chainId ? getAddresses(chainId)?.baseRegistrar : undefined,
     abi: abis.baseRegistrar,
     functionName: 'nameExpires',
     args: [BigInt(tokenId)],
