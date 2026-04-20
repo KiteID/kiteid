@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10.28.1 --activate
+RUN apk add --no-cache git && corepack enable && corepack prepare pnpm@10.28.1 --activate
 WORKDIR /app
 
 # -- deps --
@@ -8,7 +8,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/config-typescript/package.json packages/config-typescript/
 COPY packages/db/package.json packages/db/
 COPY apps/workers/package.json apps/workers/
-RUN pnpm install --frozen-lockfile --filter @kiteid/workers...
+RUN pnpm install --frozen-lockfile --ignore-scripts --filter @kiteid/workers...
 
 # -- build --
 FROM base AS builder

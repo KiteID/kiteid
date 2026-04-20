@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN apk add --no-cache git && corepack enable && corepack prepare pnpm@latest --activate
 
 FROM base AS deps
 WORKDIR /app
@@ -9,7 +9,7 @@ COPY packages/sdk/package.json packages/sdk/
 COPY packages/ui/package.json packages/ui/
 COPY packages/contracts-abi/package.json packages/contracts-abi/
 COPY packages/config-typescript/package.json packages/config-typescript/
-RUN pnpm install --frozen-lockfile --filter @kiteid/web...
+RUN pnpm install --frozen-lockfile --ignore-scripts --filter @kiteid/web...
 
 FROM base AS builder
 WORKDIR /app
