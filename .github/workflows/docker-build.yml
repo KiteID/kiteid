@@ -104,6 +104,9 @@ jobs:
             ${{ env.IMAGE_PREFIX }}/web:${{ steps.meta.outputs.tag }}
             ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=${{ secrets.WALLETCONNECT_PROJECT_ID }}
+            NEXT_PUBLIC_CHAIN_ID=2368
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

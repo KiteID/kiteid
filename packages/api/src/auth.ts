@@ -58,7 +58,13 @@ export const auth = betterAuth({
       },
     }),
   ],
-  trustedOrigins: ['http://localhost:3000', 'https://kiteid.xyz', 'https://www.kiteid.xyz'],
+  trustedOrigins: (
+    process.env.TRUSTED_ORIGINS ||
+    'http://localhost:3000,https://kiteid.xyz,https://www.kiteid.xyz,https://staging.kiteid.xyz'
+  )
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean),
 });
 
 export type Auth = typeof auth;
