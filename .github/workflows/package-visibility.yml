@@ -1,0 +1,23 @@
+name: Set Package Visibility Public
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-public:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Make GHCR packages public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for pkg in web indexer workers; do
+            echo "=== $pkg ==="
+            gh api --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "orgs/KiteID/packages/container/$pkg/visibility" \
+              -f visibility=public || echo "FAILED (may need manual action)"
+          done
