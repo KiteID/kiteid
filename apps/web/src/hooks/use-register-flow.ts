@@ -78,6 +78,7 @@ export function useRegisterFlow(name: string) {
       const secret = generateSecret();
       const dur = yearsToSeconds(years);
       const resolver = getResolverAddress(chainId);
+      if (!resolver) return;
 
       const commitment = makeCommitment({
         name: label,

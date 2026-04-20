@@ -10,7 +10,7 @@ export function useKiteResolver(name: string, chainId?: number) {
   const node = kiteNamehash(label);
 
   return useReadContract({
-    address: chainId ? getAddresses(chainId).registry : undefined,
+    address: chainId ? getAddresses(chainId)?.registry : undefined,
     abi: abis.registry,
     functionName: 'resolver',
     args: [node as `0x${string}`],

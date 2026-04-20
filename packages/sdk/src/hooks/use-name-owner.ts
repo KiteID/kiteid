@@ -10,7 +10,7 @@ export function useKiteNameOwner(name: string, chainId?: number) {
   const node = kiteNamehash(label);
 
   return useReadContract({
-    address: chainId ? getAddresses(chainId).registry : undefined,
+    address: chainId ? getAddresses(chainId)?.registry : undefined,
     abi: abis.registry,
     functionName: 'owner',
     args: [node as `0x${string}`],

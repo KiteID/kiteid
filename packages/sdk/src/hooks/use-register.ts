@@ -11,10 +11,12 @@ export function useKiteRegister(chainId?: number) {
 
   const register = (params: RegistrationParams, totalPrice: bigint) => {
     if (!chainId) return;
+    const address = getControllerAddress(chainId);
+    if (!address) return;
     const valueWithBuffer = totalPrice + (totalPrice * PRICE_BUFFER_PERCENT) / 100n;
 
     writeContract({
-      address: getControllerAddress(chainId),
+      address,
       abi: abis.controller,
       functionName: 'register',
       args: [
@@ -32,10 +34,12 @@ export function useKiteRegister(chainId?: number) {
 
   const registerAsync = (params: RegistrationParams, totalPrice: bigint) => {
     if (!chainId) throw new Error('Chain ID not set');
+    const address = getControllerAddress(chainId);
+    if (!address) throw new Error(`Unsupported chain ID: ${chainId}`);
     const valueWithBuffer = totalPrice + (totalPrice * PRICE_BUFFER_PERCENT) / 100n;
 
     return writeContractAsync({
-      address: getControllerAddress(chainId),
+      address,
       abi: abis.controller,
       functionName: 'register',
       args: [

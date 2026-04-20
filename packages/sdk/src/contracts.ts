@@ -23,18 +23,18 @@ export type NetworkKey = 'kiteMainnet' | 'kiteTestnet';
 
 type ContractAddresses = (typeof addresses)[NetworkKey];
 
-export function getAddresses(chainId: number): ContractAddresses {
+export function getAddresses(chainId: number): ContractAddresses | undefined {
   if (chainId === kiteAI.id) return addresses.kiteMainnet;
   if (chainId === kiteAITestnet.id) return addresses.kiteTestnet;
-  throw new Error(`Unsupported chain ID: ${chainId}`);
+  return undefined;
 }
 
-export function getControllerAddress(chainId: number): Address {
-  return getAddresses(chainId).controller;
+export function getControllerAddress(chainId: number): Address | undefined {
+  return getAddresses(chainId)?.controller;
 }
 
-export function getResolverAddress(chainId: number): Address {
-  return getAddresses(chainId).resolver;
+export function getResolverAddress(chainId: number): Address | undefined {
+  return getAddresses(chainId)?.resolver;
 }
 
 export { addresses };
