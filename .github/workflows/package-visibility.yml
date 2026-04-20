@@ -2,6 +2,10 @@ name: Set Package Visibility Public
 
 on:
   workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/package-visibility.yml'
 
 jobs:
   set-public:
