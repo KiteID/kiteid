@@ -25,7 +25,6 @@
     "@kiteid/config-typescript": "workspace:*",
     "@tanstack/react-query": "^5.80.0",
     "@types/react": "^19.1.0",
-    "@wagmi/core": "^3.4.2",
     "react": "^19.1.0",
     "typescript": "^6.0.0",
     "vitest": "^4.1.4",
