@@ -11,6 +11,10 @@ interface StaggerProps {
   as?: 'div' | 'ul' | 'ol' | 'section';
 }
 
+/**
+ * Uses `whileInView` to orchestrate children — more robust than manual
+ * initial/animate pairs when nested inside `RevealOnScroll`.
+ */
 export function Stagger({
   children,
   delay = 0,
@@ -19,12 +23,16 @@ export function Stagger({
   as = 'div',
 }: StaggerProps) {
   const reduce = useReducedMotion();
+
+  if (reduce) return <div className={className}>{children}</div>;
+
   const Component = motion[as];
 
   return (
     <Component
-      initial={reduce ? false : 'hidden'}
-      animate="visible"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-60px' }}
       variants={{
         hidden: {},
         visible: {
