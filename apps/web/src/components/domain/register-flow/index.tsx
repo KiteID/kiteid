@@ -1,10 +1,10 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@kiteid/ui';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { FadeIn } from '@/components/motion';
 import { useRegisterFlow } from '@/hooks/use-register-flow';
-import { TLD } from '@/lib/constants';
+import { celebrationConfetti } from '@/lib/confetti';
 import { RegistrationState } from '@/stores/registration.types';
 import { CommitStep } from './commit-step';
 import { ConfigureStep } from './configure-step';
@@ -17,21 +17,22 @@ interface RegisterFlowProps {
   name: string;
 }
 
-const STEP_LABELS: [string, string, string] = ['Configure', 'Request', 'Register'];
+const STEP_LABELS: [string, string, string, string] = ['Configure', 'Commit', 'Wait', 'Register'];
 
-function getStep(state: RegistrationState | undefined): 1 | 2 | 3 {
+function getStep(state: RegistrationState | undefined): 1 | 2 | 3 | 4 {
   switch (state) {
     case RegistrationState.CONFIGURING:
       return 1;
     case RegistrationState.COMMIT_READY:
     case RegistrationState.COMMITTING:
     case RegistrationState.COMMIT_PENDING:
-    case RegistrationState.WAITING_MIN_AGE:
       return 2;
+    case RegistrationState.WAITING_MIN_AGE:
+      return 3;
     case RegistrationState.READY_TO_REGISTER:
     case RegistrationState.REGISTERING:
     case RegistrationState.REGISTER_PENDING:
-      return 3;
+      return 4;
     default:
       return 1;
   }
@@ -54,9 +55,10 @@ export function RegisterFlow({ name }: RegisterFlowProps) {
   const state = registration?.state;
   const currentStep = getStep(state);
 
-  // Redirect to success page on completion
+  // Redirect to success page on completion — fire confetti before transition
   useEffect(() => {
     if (state === RegistrationState.COMPLETED) {
+      celebrationConfetti();
       router.push(`/register/${encodeURIComponent(name)}/success`);
     }
   }, [state, name, router]);
@@ -64,65 +66,62 @@ export function RegisterFlow({ name }: RegisterFlowProps) {
   // Error state
   if (state === RegistrationState.ERROR) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">
-            {name}
-            <span className="text-gold">{TLD}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ErrorDisplay
-            message={registration?.errorMessage ?? 'An unknown error occurred.'}
-            onRetry={retry}
-          />
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-md sm:p-8">
+        <ErrorDisplay
+          message={registration?.errorMessage ?? 'An unknown error occurred.'}
+          onRetry={retry}
+        />
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="space-y-4">
-        <CardTitle className="text-center">
-          Register <span className="text-carbon">{name}</span>
-          <span className="text-gold">{TLD}</span>
-        </CardTitle>
-        <StepIndicator currentStep={currentStep} labels={STEP_LABELS} />
-      </CardHeader>
-      <CardContent>
-        {/* Step 1: Configure (also shown when no registration exists yet) */}
+    <div className="rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-md sm:p-8">
+      <StepIndicator currentStep={currentStep} labels={STEP_LABELS} />
+      <div className="mt-8">
+        {/* Step 1: Configure */}
         {(!state || state === RegistrationState.CONFIGURING) && (
-          <ConfigureStep name={name} onContinue={initRegistration} />
+          <FadeIn key="configure">
+            <ConfigureStep name={name} onContinue={initRegistration} />
+          </FadeIn>
         )}
 
         {/* Step 2: Commit */}
         {(state === RegistrationState.COMMIT_READY ||
           state === RegistrationState.COMMITTING ||
           state === RegistrationState.COMMIT_PENDING) && (
-          <CommitStep
-            onSubmit={submitCommit}
-            isPending={isCommitPending}
-            commitTxHash={registration?.commitTxHash}
-            state={state}
-          />
+          <FadeIn key="commit">
+            <CommitStep
+              onSubmit={submitCommit}
+              isPending={isCommitPending}
+              commitTxHash={registration?.commitTxHash}
+              state={state}
+            />
+          </FadeIn>
         )}
 
-        {/* Step 2: Wait */}
-        {state === RegistrationState.WAITING_MIN_AGE && <WaitStep timer={timer} />}
+        {/* Step 3: Wait */}
+        {state === RegistrationState.WAITING_MIN_AGE && (
+          <FadeIn key="wait">
+            <WaitStep timer={timer} commitTxHash={registration?.commitTxHash} />
+          </FadeIn>
+        )}
 
-        {/* Step 3: Register */}
+        {/* Step 4: Register */}
         {(state === RegistrationState.READY_TO_REGISTER ||
           state === RegistrationState.REGISTERING ||
           state === RegistrationState.REGISTER_PENDING) && (
-          <RegisterStep
-            onSubmit={submitRegister}
-            isPending={isRegisterPending}
-            price={price}
-            state={state}
-          />
+          <FadeIn key="register">
+            <RegisterStep
+              onSubmit={submitRegister}
+              isPending={isRegisterPending}
+              price={price}
+              state={state}
+              name={name}
+            />
+          </FadeIn>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

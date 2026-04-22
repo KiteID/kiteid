@@ -1,56 +1,45 @@
 'use client';
 
-import { cn } from '@kiteid/ui';
+import { Check } from 'lucide-react';
+import { motion } from 'motion/react';
+import { cn } from '@/lib/cn';
 
 interface StepIndicatorProps {
-  currentStep: 1 | 2 | 3;
-  labels: [string, string, string];
+  currentStep: 1 | 2 | 3 | 4;
+  labels: [string, string, string, string];
 }
 
 export function StepIndicator({ currentStep, labels }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex w-full items-start">
       {labels.map((label, index) => {
-        const step = (index + 1) as 1 | 2 | 3;
+        const step = (index + 1) as 1 | 2 | 3 | 4;
         const isActive = step === currentStep;
         const isCompleted = step < currentStep;
+        const isUpcoming = step > currentStep;
 
         return (
-          <div key={label} className="flex flex-1 items-center">
-            <div className="flex flex-col items-center gap-1.5">
-              <div
+          <div key={label} className="flex flex-1 items-start">
+            {/* Step marker + label stack */}
+            <div className="flex min-w-[60px] flex-col items-center gap-2">
+              <motion.div
                 className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors',
+                  'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors',
                   isCompleted && 'bg-gold text-cream',
-                  isActive &&
-                    'bg-gold text-cream ring-2 ring-gold/30 ring-offset-2 ring-offset-parchment',
-                  !isActive && !isCompleted && 'bg-sand-pale text-bronze',
+                  isActive && 'bg-gold text-cream shadow-kid-glow',
+                  isUpcoming && 'border border-sand-core bg-cream text-bronze',
                 )}
+                animate={isActive ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                transition={{ duration: 1.6, repeat: isActive ? Infinity : 0 }}
               >
-                {isCompleted ? (
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <title>Completed</title>
-                    <path
-                      d="M20 6L9 17L4 12"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                ) : (
-                  step
-                )}
-              </div>
+                {isCompleted ? <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> : step}
+              </motion.div>
               <span
                 className={cn(
-                  'text-xs font-medium whitespace-nowrap',
-                  isActive || isCompleted ? 'text-carbon' : 'text-bronze',
+                  'whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.14em]',
+                  isActive && 'text-carbon',
+                  isCompleted && 'text-carbon',
+                  isUpcoming && 'text-bronze',
                 )}
               >
                 {label}
@@ -58,13 +47,15 @@ export function StepIndicator({ currentStep, labels }: StepIndicatorProps) {
             </div>
 
             {/* Connecting line */}
-            {step < 3 && (
-              <div
-                className={cn(
-                  'mx-2 mt-[-1.25rem] h-0.5 flex-1',
-                  isCompleted ? 'bg-gold' : 'bg-sand-pale',
-                )}
-              />
+            {step < 4 && (
+              <div className="relative mx-1 mt-4 h-0.5 flex-1 overflow-hidden rounded-full bg-sand-core">
+                <motion.div
+                  className="absolute inset-y-0 left-0 bg-gold"
+                  initial={false}
+                  animate={{ width: isCompleted ? '100%' : '0%' }}
+                  transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+                />
+              </div>
             )}
           </div>
         );
