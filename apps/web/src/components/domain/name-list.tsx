@@ -287,6 +287,26 @@ function SkeletonCard() {
   );
 }
 
+function SkeletonRow() {
+  return (
+    <div className="flex items-center gap-6 rounded-xl border border-sand-core bg-cream px-6 py-4 shadow-kid-sm">
+      <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+        <Skeleton className="h-3 w-64" />
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <Skeleton className="h-11 w-11 rounded-lg" />
+        <Skeleton className="h-11 w-11 rounded-lg" />
+        <Skeleton className="h-11 w-11 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
 interface NameListProps {
   names: string[];
   isLoading: boolean;
@@ -299,6 +319,7 @@ export function NameList({ names, isLoading, view = 'grid' }: NameListProps) {
   const handleCloseRenew = useCallback(() => setRenewFor(null), []);
 
   if (isLoading) {
+    const skeletonKeys = ['s1', 's2', 's3', 's4', 's5', 's6'];
     return (
       <div
         className={
@@ -307,10 +328,9 @@ export function NameList({ names, isLoading, view = 'grid' }: NameListProps) {
             : 'flex flex-col gap-3'
         }
       >
-        {Array.from({ length: 6 }).map((_, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list
-          <SkeletonCard key={i} />
-        ))}
+        {skeletonKeys.map((k) =>
+          view === 'grid' ? <SkeletonCard key={k} /> : <SkeletonRow key={k} />,
+        )}
       </div>
     );
   }

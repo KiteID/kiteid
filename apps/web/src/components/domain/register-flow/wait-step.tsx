@@ -40,6 +40,8 @@ export function WaitStep({ timer, commitTxHash }: WaitStepProps) {
             height={RING_SIZE}
             viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
             className="-rotate-90"
+            role="img"
+            aria-label={`${timer.secondsRemaining} seconds remaining until registration`}
           >
             <title>Commitment countdown</title>
             <circle
@@ -110,9 +112,10 @@ export function WaitStep({ timer, commitTxHash }: WaitStepProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-bronze hover:bg-sand-pale hover:text-carbon"
+                aria-label="View commit transaction on Kite explorer (opens in new tab)"
               >
                 Explorer
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
               </a>
             </div>
           </div>

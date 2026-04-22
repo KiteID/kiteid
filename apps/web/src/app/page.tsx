@@ -239,6 +239,7 @@ function HeroSection() {
                   <ArrowRight
                     className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100"
                     strokeWidth={1.5}
+                    aria-hidden="true"
                   />
                 </Link>
               ))}
@@ -250,7 +251,11 @@ function HeroSection() {
       {/* Scroll hint */}
       <FadeIn delay={1} duration={1}>
         <div className="relative z-10 flex flex-col items-center gap-2 pb-8">
-          <ChevronDown className="h-5 w-5 animate-bounce text-bronze" strokeWidth={1.5} />
+          <ChevronDown
+            className="h-5 w-5 animate-bounce text-bronze"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-stone">
             scroll
           </span>
@@ -334,6 +339,7 @@ function HowItWorksSection() {
                         <Icon
                           className="absolute right-6 top-6 h-5 w-5 text-bronze-antique"
                           strokeWidth={1.5}
+                          aria-hidden="true"
                         />
                         <p className="font-display text-[96px] font-normal leading-none tabular-nums text-gold-deep">
                           {step.number}
@@ -394,7 +400,7 @@ function PricingSection() {
                     )}
                     {tier.popular && (
                       <div className="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full bg-gold px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-cream shadow-kid-sm">
-                        <Sparkles className="h-3 w-3" strokeWidth={2} />
+                        <Sparkles className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
                         Most popular
                       </div>
                     )}
@@ -419,7 +425,11 @@ function PricingSection() {
                     <ul className="mt-8 space-y-3">
                       {tier.features.map((feat) => (
                         <li key={feat} className="flex items-start gap-2.5 text-sm text-graphite">
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold" strokeWidth={2} />
+                          <Check
+                            className="mt-0.5 h-4 w-4 shrink-0 text-gold"
+                            strokeWidth={2}
+                            aria-hidden="true"
+                          />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -428,7 +438,7 @@ function PricingSection() {
                     <Link href="/search" className="mt-8 block">
                       <Button variant={tier.popular ? 'default' : 'outline'} className="w-full">
                         See available
-                        <ArrowRight className="ml-2 h-4 w-4" strokeWidth={1.5} />
+                        <ArrowRight className="ml-2 h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                       </Button>
                     </Link>
                   </div>
@@ -486,7 +496,7 @@ function LiveFeedSection() {
                       <span className="font-mono text-sm text-gold-deep">.kite</span>
                     </div>
                     <div className="hidden items-center gap-1.5 font-mono text-xs text-stone md:inline-flex">
-                      <Clock className="h-3 w-3" strokeWidth={1.5} />
+                      <Clock className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
                       {row.ago}
                     </div>
                     <div className="justify-self-end">
@@ -504,7 +514,7 @@ function LiveFeedSection() {
               className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-bronze transition-colors hover:text-gold"
             >
               Browse the ledger
-              <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -571,7 +581,7 @@ function ClosingCta() {
         </div>
 
         <div className="relative mx-auto max-w-4xl px-6 text-center">
-          <Rocket className="mx-auto mb-8 h-8 w-8 text-gold" strokeWidth={1.5} />
+          <Rocket className="mx-auto mb-8 h-8 w-8 text-gold" strokeWidth={1.5} aria-hidden="true" />
           <h2 className="font-display text-5xl font-normal leading-[1.05] tracking-tight text-carbon md:text-7xl">
             Your name is waiting.
           </h2>
@@ -595,6 +605,7 @@ function ClosingCta() {
               <ArrowRight
                 className="h-4 w-4 transition-transform group-hover:translate-x-1"
                 strokeWidth={1.5}
+                aria-hidden="true"
               />
             </MagneticButton>
 
@@ -606,7 +617,7 @@ function ClosingCta() {
                 className="inline-flex items-center gap-1.5 text-bronze transition-colors hover:text-gold"
               >
                 GitHub
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
               </a>
               <span className="text-sand-core">&middot;</span>
               <a
@@ -616,7 +627,7 @@ function ClosingCta() {
                 className="inline-flex items-center gap-1.5 text-bronze transition-colors hover:text-gold"
               >
                 Docs
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
               </a>
               <span className="text-sand-core">&middot;</span>
               <a
@@ -626,7 +637,7 @@ function ClosingCta() {
                 className="inline-flex items-center gap-1.5 text-bronze transition-colors hover:text-gold"
               >
                 Status
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -683,12 +694,6 @@ function EditorialFooter() {
         <FooterColumn title="Resources" links={resourceLinks} />
         <FooterColumn title="Community" links={communityLinks} />
       </div>
-
-      <div className="editorial-rule" />
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 py-6 text-xs text-stone md:flex-row md:items-center">
-        <p>&copy; 2026 KiteID &middot; MIT License</p>
-        <p className="font-mono uppercase tracking-[0.2em]">Built on Kite AI &middot; Chain 2368</p>
-      </div>
     </section>
   );
 }
@@ -714,7 +719,7 @@ function FooterColumn({
                 className="inline-flex items-center gap-1 text-sm text-graphite transition-colors hover:text-gold"
               >
                 {link.label}
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
               </a>
             </li>
           ) : (

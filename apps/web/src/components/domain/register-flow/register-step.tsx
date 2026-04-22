@@ -2,8 +2,6 @@
 
 import { formatKitePriceWithSymbol } from '@kiteid/sdk';
 import { Sparkles } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { toast } from 'sonner';
 import { MagneticButton } from '@/components/motion';
 import { TLD } from '@/lib/constants';
 import { RegistrationState } from '@/stores/registration.types';
@@ -22,21 +20,13 @@ export function RegisterStep({ onSubmit, isPending, price, state, name }: Regist
   const isReady = state === RegistrationState.READY_TO_REGISTER && !isPending;
   const total = price ? price.base + price.premium : 0n;
   const hasPremium = price ? price.premium > 0n : false;
-
-  // Toast on state transitions
-  const lastState = useRef<RegistrationState | null>(null);
-  useEffect(() => {
-    if (lastState.current !== RegistrationState.REGISTER_PENDING && isConfirming) {
-      toast.success('Registration transaction submitted', { duration: 2200 });
-    }
-    lastState.current = state;
-  }, [state, isConfirming]);
+  // Toast feedback is centralized in use-register-flow.
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-gold" strokeWidth={1.5} />
+          <Sparkles className="h-4 w-4 text-gold" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-bronze">
             Step 4 of 4
           </span>

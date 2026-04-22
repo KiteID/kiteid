@@ -2,7 +2,7 @@
 
 import { useIndexedNames } from '@kiteid/sdk';
 import { Button, Skeleton } from '@kiteid/ui';
-import { ExternalLink, LogOut, User, Wallet } from 'lucide-react';
+import { ExternalLink, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -10,6 +10,7 @@ import { createSiweMessage } from 'viem/siwe';
 import { useAccount, useChainId, useSignMessage } from 'wagmi';
 import { AnimatedCounter, FadeIn, MagneticButton } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
+import { EmptyState } from '@/components/ui/empty-state';
 import { signOut, siwe, useSession } from '@/lib/auth-client';
 
 function initialsFromSource(source: string): string {
@@ -25,43 +26,13 @@ function truncateAddress(addr: string): string {
 
 function NotConnected() {
   return (
-    <section className="relative mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[20%] -translate-x-1/2 -translate-y-1/2"
-      >
-        <div className="h-40 w-40 rotate-45 rounded-xl bg-gradient-gold opacity-30 blur-2xl" />
-      </div>
-      <FadeIn>
-        <p className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-bronze">
-          KITEID · PROFILE
-        </p>
-      </FadeIn>
-      <FadeIn delay={0.1}>
-        <h1 className="font-display text-5xl leading-tight text-carbon sm:text-6xl">
-          Your identity,
-          <br />
-          <span className="text-gradient-gold">verified.</span>
-        </h1>
-      </FadeIn>
-      <FadeIn delay={0.2}>
-        <p className="mx-auto mt-6 max-w-md text-base text-graphite">
-          Connect a wallet to sign in with Ethereum, set a primary name, and show the world you own
-          your identity.
-        </p>
-      </FadeIn>
-      <FadeIn delay={0.3}>
-        <div className="mt-10 flex flex-col items-center gap-3">
-          <MagneticButton
-            disabled
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-carbon px-8 font-medium text-cream shadow-kid-md disabled:opacity-70"
-          >
-            <Wallet className="h-4 w-4" strokeWidth={1.5} />
-            Connect your wallet
-          </MagneticButton>
-          <p className="text-xs text-stone">Use the connect button in the top-right corner.</p>
-        </div>
-      </FadeIn>
+    <section className="flex min-h-[70vh] items-center justify-center">
+      <EmptyState
+        icon="kite"
+        title="Your identity, verified."
+        description="Connect your wallet to sign in with Ethereum and manage your primary name."
+        action={{ label: 'Learn more', href: '/#how-it-works' }}
+      />
     </section>
   );
 }
@@ -166,16 +137,33 @@ export default function ProfilePage() {
 
   if (sessionLoading) {
     return (
-      <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <Skeleton className="h-10 w-40" />
-        <div className="mt-8 rounded-2xl border border-sand-core bg-cream p-8">
-          <div className="flex items-center gap-6">
-            <Skeleton className="h-20 w-20 rounded-full" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-64" />
+      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Identity hero skeleton */}
+        <div className="rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-md sm:p-8">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-5">
+              <Skeleton className="h-20 w-20 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-10 w-56" />
+                <Skeleton className="h-4 w-40" />
+              </div>
             </div>
+            <Skeleton className="h-11 w-24 rounded-lg" />
           </div>
+        </div>
+
+        {/* Stats row skeleton */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {['s1', 's2', 's3'].map((k) => (
+            <div
+              key={k}
+              className="rounded-xl border border-sand-core bg-parchment p-6 shadow-kid-sm"
+            >
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="mt-3 h-12 w-24" />
+            </div>
+          ))}
         </div>
       </section>
     );
@@ -201,7 +189,7 @@ export default function ProfilePage() {
                   <span className="font-display text-4xl text-cream">{initials}</span>
                 </div>
                 <span className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-cream bg-gold">
-                  <User className="h-2.5 w-2.5 text-cream" strokeWidth={2.5} />
+                  <User className="h-2.5 w-2.5 text-cream" strokeWidth={2.5} aria-hidden="true" />
                 </span>
               </div>
               <div className="min-w-0">
@@ -228,7 +216,7 @@ export default function ProfilePage() {
               variant="ghost"
               className="min-h-[44px] text-bronze hover:text-carbon"
             >
-              <LogOut className="h-4 w-4" strokeWidth={1.5} />
+              <LogOut className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               Sign out
             </Button>
           </div>
@@ -268,7 +256,7 @@ export default function ProfilePage() {
                 className="inline-flex min-h-[44px] items-center gap-1 text-xs text-bronze transition-colors hover:text-carbon"
               >
                 Change
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
               </Link>
             </div>
             <h2 className="mt-4 break-words font-display text-6xl leading-none text-carbon sm:text-7xl">
@@ -294,7 +282,7 @@ export default function ProfilePage() {
               className="inline-flex min-h-[44px] items-center gap-1 text-sm text-bronze transition-colors hover:text-carbon"
             >
               View all
-              <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+              <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
             </Link>
           )}
         </div>
@@ -303,19 +291,25 @@ export default function ProfilePage() {
         <div className="mt-6">
           {domainsLoading ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: skeleton
-                <Skeleton key={i} className="h-16 w-full rounded-xl" />
+              {['d1', 'd2', 'd3', 'd4'].map((k) => (
+                <div
+                  key={k}
+                  className="flex items-center justify-between gap-4 rounded-xl border border-sand-core bg-cream px-4 py-3 shadow-kid-sm"
+                >
+                  <Skeleton className="h-7 w-32" />
+                  <Skeleton className="h-3 w-14" />
+                </div>
               ))}
             </div>
           ) : domains.length === 0 ? (
-            <div className="rounded-xl border border-sand-core bg-cream p-10 text-center shadow-kid-sm">
-              <p className="font-display text-2xl text-carbon">No names yet.</p>
-              <Link href="/" className="mt-4 inline-block">
-                <MagneticButton className="inline-flex h-11 items-center gap-2 rounded-xl bg-carbon px-6 text-sm font-medium text-cream shadow-kid-sm hover:shadow-kid-md">
-                  Search names
-                </MagneticButton>
-              </Link>
+            <div className="rounded-xl border border-sand-core bg-cream p-4 shadow-kid-sm">
+              <EmptyState
+                icon="kite"
+                title="No names yet."
+                description="Claim your first .kite name to personalize your profile."
+                action={{ label: 'Search names', href: '/' }}
+                className="py-10"
+              />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
