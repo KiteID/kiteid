@@ -1,7 +1,7 @@
 'use client';
 
-import { motion, useInView, useReducedMotion } from 'motion/react';
-import { type ReactNode, useRef } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
+import type { ReactNode } from 'react';
 
 interface RevealOnScrollProps {
   children: ReactNode;
@@ -11,6 +11,11 @@ interface RevealOnScrollProps {
   className?: string;
 }
 
+/**
+ * Uses `whileInView` (motion's built-in viewport detection) — more robust
+ * than manual `useInView` + conditional animate, because motion guarantees
+ * the animation fires even if hydration timing is off.
+ */
 export function RevealOnScroll({
   children,
   delay = 0,
@@ -18,15 +23,15 @@ export function RevealOnScroll({
   once = true,
   className,
 }: RevealOnScrollProps) {
-  const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
-  const inView = useInView(ref, { once, margin: '-60px' });
+
+  if (reduce) return <div className={className}>{children}</div>;
 
   return (
     <motion.div
-      ref={ref}
-      initial={reduce ? false : { opacity: 0, y }}
-      animate={inView ? { opacity: 1, y: 0 } : undefined}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once, margin: '-60px' }}
       transition={{ duration: 0.7, delay, ease: [0.4, 0, 0.2, 1] }}
       className={className}
     >
