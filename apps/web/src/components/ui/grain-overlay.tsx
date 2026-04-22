@@ -1,21 +1,21 @@
 /**
  * Fixed-position SVG grain that adds subtle parchment texture site-wide.
- * Non-blocking, pointer-events-none, respects reduce-motion.
+ * Non-blocking, pointer-events-none, respects reduce-motion, decorative-only.
  */
 export function GrainOverlay() {
   return (
     <div
-      aria-hidden
+      aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-[1] opacity-[0.05] mix-blend-multiply"
     >
       <svg
         width="100%"
         height="100%"
         xmlns="http://www.w3.org/2000/svg"
-        role="presentation"
+        aria-hidden="true"
+        focusable="false"
         style={{ width: '100%', height: '100%' }}
       >
-        <title>Paper grain texture</title>
         <filter id="grain-filter">
           <feTurbulence
             type="fractalNoise"

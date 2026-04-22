@@ -175,6 +175,33 @@
     padding-block: 2px;
   }
 
+  /* Editorial link — subtle underline that sweeps in on hover. */
+  .link-editorial {
+    position: relative;
+    transition: color 250ms var(--ease-kid);
+  }
+  .link-editorial::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms var(--ease-kid);
+  }
+  .link-editorial:hover::after,
+  .link-editorial:focus-visible::after {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .link-editorial::after {
+      transition: none;
+    }
+  }
+
   /* Subtle paper texture */
   .paper-texture {
     position: relative;

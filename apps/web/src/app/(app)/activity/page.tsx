@@ -2,18 +2,11 @@
 
 import { type ActivityEvent, useActivityFeed, useDomainStats } from '@kiteid/sdk';
 import { Button, Skeleton } from '@kiteid/ui';
-import { ArrowUpRight } from 'lucide-react';
-import Link from 'next/link';
+import { Activity, ArrowUpRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import {
-  AnimatedCounter,
-  FadeIn,
-  MagneticButton,
-  RevealOnScroll,
-  Stagger,
-  StaggerItem,
-} from '@/components/motion';
+import { AnimatedCounter, FadeIn, RevealOnScroll, Stagger, StaggerItem } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
+import { EmptyState } from '@/components/ui/empty-state';
 
 const EXPLORER_URL = 'https://testnet.kitescan.ai';
 const PAGE_SIZE = 20;
@@ -128,9 +121,10 @@ function EventCard({ event }: { event: ActivityEvent }) {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-2 font-mono text-[11px] text-bronze transition-colors hover:text-carbon"
+            aria-label="View transaction on Kite explorer (opens in new tab)"
           >
             tx
-            <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} />
+            <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
           </a>
         </div>
       </div>
@@ -138,16 +132,16 @@ function EventCard({ event }: { event: ActivityEvent }) {
   );
 }
 
-function EmptyState() {
+function ActivityEmpty() {
   return (
-    <div className="rounded-2xl border border-sand-core bg-cream p-16 text-center shadow-kid-sm">
-      <p className="font-display text-4xl text-carbon">No activity yet.</p>
-      <p className="mt-3 text-base text-graphite">Be the first to claim a .kite name.</p>
-      <Link href="/" className="mt-8 inline-block">
-        <MagneticButton className="inline-flex h-12 items-center gap-2 rounded-xl bg-carbon px-8 font-medium text-cream shadow-kid-md hover:shadow-kid-lg">
-          Search names
-        </MagneticButton>
-      </Link>
+    <div className="rounded-2xl border border-sand-core bg-cream p-4 shadow-kid-sm">
+      <EmptyState
+        icon={Activity}
+        title="No activity yet."
+        description="Be the first to register a .kite name."
+        action={{ label: 'Register a name', href: '/' }}
+        className="py-12"
+      />
     </div>
   );
 }
@@ -158,9 +152,15 @@ function LoadingTimeline() {
       {['sk-1', 'sk-2', 'sk-3', 'sk-4'].map((k) => (
         <div key={k} className="relative pl-10">
           <span className="absolute left-[11px] top-6 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-sand-core ring-4 ring-cream" />
-          <div className="rounded-xl border border-sand-core bg-cream p-5">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="mt-2 h-3 w-32" />
+          <div className="flex flex-col gap-3 rounded-xl border border-sand-core bg-cream p-5 shadow-kid-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Skeleton className="h-6 w-28 rounded-full" />
+              <Skeleton className="h-6 w-10 rounded-md" />
+            </div>
           </div>
         </div>
       ))}
@@ -249,7 +249,7 @@ export default function ActivityPage() {
         {isLoading ? (
           <LoadingTimeline />
         ) : events.length === 0 ? (
-          <EmptyState />
+          <ActivityEmpty />
         ) : (
           <div className="space-y-12">
             {grouped.map((group) => (

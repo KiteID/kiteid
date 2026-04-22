@@ -102,10 +102,19 @@ export function NameCard({ name, isAvailable, isReserved, isLoading, price }: Na
         {/* Name row */}
         <div className="mt-6">
           {status === 'loading' ? (
-            <div className="h-20 w-2/3 rounded-lg animate-shimmer" />
+            <div className="h-16 w-3/4 rounded-lg animate-shimmer sm:h-20 md:h-24" />
           ) : (
             <h2 className="flex items-baseline font-display text-5xl leading-none text-carbon sm:text-6xl md:text-7xl">
-              <span className="truncate">{name}</span>
+              {name.length > 16 ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="truncate">{name}</span>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={8}>{name}</TooltipContent>
+                </Tooltip>
+              ) : (
+                <span className="truncate">{name}</span>
+              )}
               <span className="ml-1 text-3xl text-gold sm:text-4xl">{TLD}</span>
             </h2>
           )}
@@ -228,11 +237,26 @@ export function NameCard({ name, isAvailable, isReserved, isLoading, price }: Na
           )}
 
           {status === 'loading' && (
-            <div className="space-y-3">
-              <div className="h-4 w-1/2 rounded animate-shimmer" />
-              <div className="h-4 w-1/3 rounded animate-shimmer" />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="rounded-xl bg-sand-pale/60 px-4 py-3">
+                  <div className="h-3 w-20 rounded animate-shimmer" />
+                  <div className="mt-2 h-5 w-24 rounded animate-shimmer" />
+                </div>
+                <div className="rounded-xl bg-sand-pale/60 px-4 py-3">
+                  <div className="h-3 w-20 rounded animate-shimmer" />
+                  <div className="mt-2 h-5 w-24 rounded animate-shimmer" />
+                </div>
+              </div>
               <div className="editorial-rule opacity-50" />
-              <div className="h-14 w-full rounded-xl animate-shimmer" />
+              <div className="flex items-baseline justify-between">
+                <div className="h-3 w-12 rounded animate-shimmer" />
+                <div className="h-7 w-32 rounded animate-shimmer" />
+              </div>
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <div className="h-14 flex-1 rounded-xl animate-shimmer" />
+                <div className="h-14 w-32 rounded-xl animate-shimmer" />
+              </div>
             </div>
           )}
         </div>

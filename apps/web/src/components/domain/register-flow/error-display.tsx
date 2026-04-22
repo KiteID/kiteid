@@ -13,7 +13,7 @@ export function ErrorDisplay({ message, onRetry }: ErrorDisplayProps) {
     <div className="space-y-6">
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-700">
-          <AlertCircle className="h-6 w-6" strokeWidth={1.5} />
+          <AlertCircle className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />
         </div>
         <div className="space-y-1">
           <h3 className="font-display text-2xl text-carbon">Something went wrong</h3>

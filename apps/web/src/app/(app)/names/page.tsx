@@ -1,12 +1,12 @@
 'use client';
 
 import { Badge, Button } from '@kiteid/ui';
-import { LayoutGrid, List, Settings, Wallet } from 'lucide-react';
-import Link from 'next/link';
+import { LayoutGrid, List, Search, Settings } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { NameList } from '@/components/domain/name-list';
-import { FadeIn, MagneticButton } from '@/components/motion';
+import { FadeIn } from '@/components/motion';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useOwnedNames } from '@/hooks/use-owned-names';
 
 type Filter = 'all' | 'active' | 'expiring';
@@ -19,91 +19,26 @@ function daysUntil(expiresAtSeconds: string): number {
 
 function ConnectPrompt() {
   return (
-    <section className="relative mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-      {/* Decorative rhombus */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[20%] -translate-x-1/2 -translate-y-1/2"
-      >
-        <div className="h-40 w-40 rotate-45 rounded-xl bg-gradient-gold opacity-30 blur-2xl" />
-      </div>
-
-      <FadeIn>
-        <p className="mb-6 font-mono text-xs uppercase tracking-[0.2em] text-bronze">
-          KITEID · NAMES
-        </p>
-      </FadeIn>
-
-      <FadeIn delay={0.1}>
-        <h1 className="font-display text-5xl leading-[1.05] text-carbon sm:text-6xl">
-          Your names,
-          <br />
-          <span className="text-gradient-gold">your rules.</span>
-        </h1>
-      </FadeIn>
-
-      <FadeIn delay={0.2}>
-        <p className="mx-auto mt-6 max-w-md text-base text-graphite">
-          Connect a wallet to claim, manage, and renew your .kite names across Kite AI.
-        </p>
-      </FadeIn>
-
-      <FadeIn delay={0.3}>
-        <div className="mt-10 flex flex-col items-center gap-3">
-          <MagneticButton
-            disabled
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-carbon px-8 font-medium text-cream shadow-kid-md disabled:opacity-70"
-          >
-            <Wallet className="h-4 w-4" strokeWidth={1.5} />
-            Connect your wallet
-          </MagneticButton>
-          <p className="text-xs text-stone">
-            Use the connect button in the top-right corner to begin.
-          </p>
-        </div>
-      </FadeIn>
+    <section className="flex min-h-[70vh] items-center justify-center">
+      <EmptyState
+        icon="kite"
+        title="Your names, your rules."
+        description="Connect your wallet to register and manage .kite domains."
+        action={{ label: 'Learn more', href: '/#how-it-works' }}
+      />
     </section>
   );
 }
 
-function EmptyState() {
-  const examples = ['vitalik', 'alice', 'satoshi'];
+function NoNamesYet() {
   return (
-    <section className="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
-      <FadeIn>
-        <p className="mb-6 font-mono text-xs uppercase tracking-[0.2em] text-bronze">
-          KITEID · LIBRARY
-        </p>
-      </FadeIn>
-      <FadeIn delay={0.1}>
-        <h1 className="font-display text-5xl leading-tight text-carbon">No names yet.</h1>
-      </FadeIn>
-      <FadeIn delay={0.2}>
-        <p className="mx-auto mt-5 max-w-md text-base text-graphite">
-          Claim your first .kite name — short, memorable, yours forever (as long as you renew).
-        </p>
-      </FadeIn>
-      <FadeIn delay={0.3}>
-        <div className="mt-10 flex flex-col items-center gap-6">
-          <Link href="/">
-            <MagneticButton className="inline-flex h-12 items-center gap-2 rounded-xl bg-carbon px-8 font-medium text-cream shadow-kid-md hover:shadow-kid-lg">
-              Search names
-            </MagneticButton>
-          </Link>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs text-stone">Try:</span>
-            {examples.map((ex) => (
-              <Link
-                key={ex}
-                href={`/?name=${ex}`}
-                className="rounded-full border border-sand-core bg-cream px-3 py-1 font-mono text-xs text-bronze transition-colors hover:border-gold hover:text-carbon"
-              >
-                {ex}.kite
-              </Link>
-            ))}
-          </div>
-        </div>
-      </FadeIn>
+    <section className="flex min-h-[70vh] items-center justify-center">
+      <EmptyState
+        icon={Search}
+        title="No names yet."
+        description="Claim your first .kite name."
+        action={{ label: 'Search names', href: '/' }}
+      />
     </section>
   );
 }
@@ -132,7 +67,7 @@ export default function NamesPage() {
   }
 
   if (!isLoading && isEmpty) {
-    return <EmptyState />;
+    return <NoNamesYet />;
   }
 
   return (
@@ -163,7 +98,7 @@ export default function NamesPage() {
               className="h-10 w-10 text-bronze hover:text-carbon"
               aria-label="Settings"
             >
-              <Settings className="h-4 w-4" strokeWidth={1.5} />
+              <Settings className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -200,7 +135,7 @@ export default function NamesPage() {
                 view === 'grid' ? 'bg-sand-pale text-carbon' : 'text-bronze hover:text-carbon'
               }`}
             >
-              <LayoutGrid className="h-4 w-4" strokeWidth={1.5} />
+              <LayoutGrid className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -210,7 +145,7 @@ export default function NamesPage() {
                 view === 'list' ? 'bg-sand-pale text-carbon' : 'text-bronze hover:text-carbon'
               }`}
             >
-              <List className="h-4 w-4" strokeWidth={1.5} />
+              <List className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </button>
           </div>
         </div>

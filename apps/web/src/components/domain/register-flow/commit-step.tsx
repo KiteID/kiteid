@@ -1,8 +1,6 @@
 'use client';
 
 import { ExternalLink, Lock } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { toast } from 'sonner';
 import { MagneticButton } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
 import { RegistrationState } from '@/stores/registration.types';
@@ -22,21 +20,14 @@ export function CommitStep({ onSubmit, isPending, commitTxHash, state }: CommitS
     state === RegistrationState.COMMIT_PENDING ||
     (state === RegistrationState.COMMITTING && !!commitTxHash);
   const isReady = state === RegistrationState.COMMIT_READY && !isPending;
-
-  // Toast when tx submitted (hash appears for first time)
-  const toastedHash = useRef<string | null>(null);
-  useEffect(() => {
-    if (commitTxHash && toastedHash.current !== commitTxHash) {
-      toast.success('Commit transaction submitted', { duration: 2200 });
-      toastedHash.current = commitTxHash;
-    }
-  }, [commitTxHash]);
+  // Toast feedback is centralized in use-register-flow to keep a single
+  // toast per flow (prevents stacking across step remounts).
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Lock className="h-4 w-4 text-gold" strokeWidth={1.5} />
+          <Lock className="h-4 w-4 text-gold" strokeWidth={1.5} aria-hidden="true" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-bronze">
             Step 2 of 4
           </span>
@@ -79,9 +70,10 @@ export function CommitStep({ onSubmit, isPending, commitTxHash, state }: CommitS
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-bronze hover:text-carbon"
+              aria-label="View commit transaction on Kite explorer (opens in new tab)"
             >
               Explorer
-              <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+              <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
             </a>
           )}
         </div>

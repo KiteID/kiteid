@@ -39,7 +39,12 @@ function SearchResults() {
       </FadeIn>
 
       <FadeIn delay={0.16}>
-        <SearchBar defaultValue={name} size="lg" autoFocus={!name} />
+        <SearchBar
+          defaultValue={name}
+          size="lg"
+          autoFocus={!name}
+          isChecking={Boolean(name) && isLoading}
+        />
       </FadeIn>
 
       {/* Results area */}

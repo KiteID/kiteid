@@ -336,10 +336,11 @@ export function NameDetailCard({
                       href={`${EXPLORER_URL}/block/${domain.createdAtBlock}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-bronze transition-colors hover:text-carbon"
+                      className="link-editorial inline-flex items-center gap-1 font-mono text-xs text-bronze transition-colors hover:text-carbon"
+                      aria-label={`View block ${domain.createdAtBlock} on Kite explorer (opens in new tab)`}
                     >
                       {domain.createdAtBlock}
-                      <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                      <ExternalLink className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
                     </a>
                   </MetaRow>
                 )}
@@ -421,9 +422,10 @@ export function NameDetailCard({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-2 text-xs text-bronze transition-colors hover:text-carbon"
+                        aria-label={`View transaction on Kite explorer (opens in new tab)`}
                       >
                         tx
-                        <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} />
+                        <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
                       </a>
                     </div>
                   </div>
@@ -460,6 +462,7 @@ function MetaRow({
 function DetailSkeleton({ name }: { name: string }) {
   return (
     <div>
+      {/* Hero skeleton matches real layout */}
       <div className="mb-12">
         <Skeleton className="h-3 w-32" />
         <div className="mt-4">
@@ -469,32 +472,67 @@ function DetailSkeleton({ name }: { name: string }) {
           </h1>
         </div>
         <div className="mt-6 editorial-rule" />
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Skeleton className="h-6 w-24 rounded-full" />
           <Skeleton className="h-6 w-40 rounded-full" />
+          <Skeleton className="h-6 w-32 rounded-full" />
         </div>
       </div>
+
+      {/* Two-column body skeleton */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-sand-core bg-cream p-8 lg:col-span-2">
-          <Skeleton className="h-10 w-48" />
+        {/* Left — Records card */}
+        <div className="rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-sm sm:p-8 lg:col-span-2">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-8 w-40" />
+            </div>
+            <Skeleton className="h-11 w-24 rounded-md" />
+          </div>
           <div className="my-6 editorial-rule" />
-          <Skeleton className="h-24 w-full" />
+          <div className="space-y-4 divide-y divide-sand-core/60">
+            {['r1', 'r2', 'r3'].map((k) => (
+              <div key={k} className="flex items-center justify-between pt-4">
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
+                <Skeleton className="h-6 w-40 rounded-md" />
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Right — Actions + Meta */}
         <div className="space-y-6">
-          <div className="rounded-2xl border border-sand-core bg-cream p-6">
-            <Skeleton className="h-4 w-20" />
+          <div className="rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-sm">
+            <Skeleton className="h-3 w-16" />
             <div className="mt-4 space-y-2">
-              <Skeleton className="h-11 w-full" />
-              <Skeleton className="h-11 w-full" />
-              <Skeleton className="h-11 w-full" />
+              <Skeleton className="h-11 w-full rounded-lg" />
+              <Skeleton className="h-11 w-full rounded-lg" />
+              <Skeleton className="h-11 w-full rounded-lg" />
             </div>
           </div>
-          <div className="rounded-2xl border border-sand-core bg-sand-pale p-6">
-            <Skeleton className="h-4 w-20" />
-            <div className="mt-4 space-y-3">
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-full" />
+          <div className="rounded-2xl border border-sand-core bg-sand-pale p-6 shadow-kid-sm">
+            <Skeleton className="h-3 w-12" />
+            <div className="mt-4 space-y-4">
+              {['m1', 'm2', 'm3', 'm4'].map((k) => (
+                <div key={k} className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              ))}
+              <div className="border-t border-sand-core pt-4">
+                <Skeleton className="h-3 w-16" />
+                <div className="mt-3 flex items-center gap-4">
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

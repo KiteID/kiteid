@@ -3,6 +3,7 @@
 import {
   generateSecret,
   getResolverAddress,
+  kiteAI,
   makeCommitment,
   normalizeLabel,
   useKiteCommit,
@@ -10,11 +11,31 @@ import {
   useKiteRentPrice,
   yearsToSeconds,
 } from '@kiteid/sdk';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { useAccount, useChainId, useWaitForTransactionReceipt } from 'wagmi';
+import { TLD } from '@/lib/constants';
 import { useRegistrationStore } from '@/stores/registration';
 import { RegistrationState } from '@/stores/registration.types';
 import { useCommitmentTimer } from './use-commitment-timer';
+
+const COMMIT_TOAST_ID = 'kiteid-commit';
+const WAIT_TOAST_ID = 'kiteid-wait';
+const REGISTER_TOAST_ID = 'kiteid-register';
+
+function explorerTxUrl(hash: string, chainId?: number): string {
+  const base = chainId === kiteAI.id ? 'https://kitescan.ai' : 'https://testnet.kitescan.ai';
+  return `${base}/tx/${hash}`;
+}
+
+function explorerAction(hash: string | undefined, chainId?: number) {
+  if (!hash) return undefined;
+  const url = explorerTxUrl(hash, chainId);
+  return {
+    label: 'View on explorer',
+    onClick: () => window.open(url, '_blank', 'noopener,noreferrer'),
+  };
+}
 
 export function useRegisterFlow(name: string) {
   const label = normalizeLabel(name);
@@ -70,6 +91,99 @@ export function useRegisterFlow(name: string) {
       store.updateState(label, RegistrationState.COMPLETED);
     }
   }, [registration?.state, registerReceipt.isSuccess, label, store]);
+
+  // --- Toast side-effects (do not change state logic) ---
+  // Track last-seen state so we only emit on transitions, not every render.
+  const lastStateRef = useRef<RegistrationState | undefined>(registration?.state);
+  const waitAnnouncedRef = useRef(false);
+  const registerSubmittedRef = useRef(false);
+
+  // Commit lifecycle
+  useEffect(() => {
+    const prev = lastStateRef.current;
+    const next = registration?.state;
+
+    // Commit submission announced when COMMIT_READY → COMMITTING
+    if (prev !== RegistrationState.COMMITTING && next === RegistrationState.COMMITTING) {
+      toast.loading('Confirming commitment…', { id: COMMIT_TOAST_ID });
+    }
+
+    // Commit confirmed when entering WAITING_MIN_AGE
+    if (prev !== RegistrationState.WAITING_MIN_AGE && next === RegistrationState.WAITING_MIN_AGE) {
+      toast.success('Commitment confirmed', {
+        id: COMMIT_TOAST_ID,
+        action: explorerAction(registration?.commitTxHash, chainId),
+      });
+      // Wait-step info toast — 60s visible
+      if (!waitAnnouncedRef.current) {
+        toast.info('Waiting 60 seconds…', {
+          id: WAIT_TOAST_ID,
+          duration: 60000,
+        });
+        waitAnnouncedRef.current = true;
+      }
+    }
+
+    // READY_TO_REGISTER → wait complete
+    if (
+      prev !== RegistrationState.READY_TO_REGISTER &&
+      next === RegistrationState.READY_TO_REGISTER
+    ) {
+      toast.success('Ready to register', { id: WAIT_TOAST_ID });
+      waitAnnouncedRef.current = false;
+    }
+
+    // Register submission → REGISTERING
+    if (
+      prev !== RegistrationState.REGISTERING &&
+      next === RegistrationState.REGISTERING &&
+      !registerSubmittedRef.current
+    ) {
+      toast.loading(`Registering ${label}${TLD}…`, { id: REGISTER_TOAST_ID });
+      registerSubmittedRef.current = true;
+    }
+
+    // Register confirmed → COMPLETED
+    if (prev !== RegistrationState.COMPLETED && next === RegistrationState.COMPLETED) {
+      toast.success(`${label}${TLD} is yours`, {
+        id: REGISTER_TOAST_ID,
+        action: explorerAction(registerData, chainId),
+      });
+      registerSubmittedRef.current = false;
+    }
+
+    // ERROR branch — surface a terminal error toast
+    if (prev !== RegistrationState.ERROR && next === RegistrationState.ERROR) {
+      // Decide which in-flight toast to replace based on what came before.
+      if (prev === RegistrationState.REGISTERING || prev === RegistrationState.REGISTER_PENDING) {
+        toast.error('Registration failed', {
+          id: REGISTER_TOAST_ID,
+          description: registration?.errorMessage,
+        });
+        registerSubmittedRef.current = false;
+      } else if (prev === RegistrationState.WAITING_MIN_AGE) {
+        toast.error('Commitment expired', {
+          id: WAIT_TOAST_ID,
+          description: registration?.errorMessage,
+        });
+        waitAnnouncedRef.current = false;
+      } else {
+        toast.error('Commitment failed', {
+          id: COMMIT_TOAST_ID,
+          description: registration?.errorMessage,
+        });
+      }
+    }
+
+    lastStateRef.current = next;
+  }, [
+    registration?.state,
+    registration?.commitTxHash,
+    registration?.errorMessage,
+    registerData,
+    chainId,
+    label,
+  ]);
 
   const initRegistration = useCallback(
     (years: number, reverseRecord: boolean) => {

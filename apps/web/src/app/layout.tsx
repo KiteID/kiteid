@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Fraunces, JetBrains_Mono } from 'next/font/google';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
+import { ScrollToTop } from '@/components/layout/scroll-to-top';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { GrainOverlay } from '@/components/ui/grain-overlay';
 import './globals.css';
 import { Providers } from './providers';
@@ -39,7 +42,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-parchment-grain font-sans text-foreground antialiased">
         <GrainOverlay />
-        <Providers>{children}</Providers>
+        <Suspense fallback={null}>
+          <ScrollToTop />
+        </Suspense>
+        <ErrorBoundary>
+          <Providers>{children}</Providers>
+        </ErrorBoundary>
         <Toaster
           position="top-right"
           toastOptions={{
