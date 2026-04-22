@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@source "../";
+@source "../../../../packages/ui/src";
+
 @theme {
   /* Brand Colors — Parchment Identity (full palette) */
   --color-cream: #faf7f0;
