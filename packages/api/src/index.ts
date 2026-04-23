@@ -39,6 +39,50 @@ app.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 // Health
 app.get('/health', (c) => c.json({ status: 'ok', service: 'kiteid-api', timestamp: Date.now() }));
 
+// Diagnostic: reports indexer reachability details
+app.get('/diagnose', async (c) => {
+  const ponderUrl = process.env.PONDER_URL || 'http://localhost:42069';
+  const started = Date.now();
+  const report: Record<string, unknown> = {
+    ponderUrl,
+    timestamp: started,
+  };
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(`${ponderUrl}/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    report.ok = res.ok;
+    report.status = res.status;
+    report.elapsedMs = Date.now() - started;
+    try {
+      report.body = await res.text();
+    } catch {
+      report.body = '<non-text>';
+    }
+  } catch (err) {
+    report.ok = false;
+    report.elapsedMs = Date.now() - started;
+    if (err instanceof Error) {
+      report.errorName = err.name;
+      report.errorMessage = err.message;
+      // Node fetch usually wraps DNS/connection errors in .cause
+      const cause = (err as Error & { cause?: unknown }).cause;
+      if (cause && typeof cause === 'object') {
+        report.cause = {
+          code: (cause as { code?: string }).code,
+          syscall: (cause as { syscall?: string }).syscall,
+          hostname: (cause as { hostname?: string }).hostname,
+          message: (cause as { message?: string }).message,
+        };
+      }
+    } else {
+      report.errorMessage = String(err);
+    }
+  }
+  return c.json(report, report.ok === true ? 200 : 502);
+});
+
 // Routes
 app.route('/names', namesRouter);
 app.route('/profile', profileRouter);
