@@ -65,6 +65,8 @@ function NameDetailContent() {
         isExpired={details.isExpired}
         isLoading={details.isLoading}
         isOwner={isOwner}
+        isRegistered={details.isRegistered}
+        hasError={details.hasError}
         records={indexed.records}
         domain={indexed.domain}
         events={indexed.events}

@@ -169,8 +169,10 @@ function LoadingTimeline() {
 }
 
 export default function ActivityPage() {
-  const { events, isLoading } = useActivityFeed(200);
-  const { stats } = useDomainStats();
+  const { events, isLoading, error: eventsError } = useActivityFeed(200);
+  const { stats, error: statsError } = useDomainStats();
+
+  const indexerDown = Boolean(eventsError || statsError);
 
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -213,6 +215,18 @@ export default function ActivityPage() {
           <span className="text-gradient-gold">in order.</span>
         </h1>
         <div className="mt-8 editorial-rule" />
+        {indexerDown && (
+          <div
+            role="alert"
+            className="mt-6 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm text-warning"
+          >
+            <p className="font-medium">Indexer unavailable</p>
+            <p className="mt-1 text-warning/80">
+              Live activity and stats couldn't be loaded. The blockchain data is safe — this is a
+              temporary issue with the indexer. Retry shortly.
+            </p>
+          </div>
+        )}
       </FadeIn>
 
       {/* Stats row */}
