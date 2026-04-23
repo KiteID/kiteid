@@ -80,7 +80,9 @@ app.get('/diagnose', async (c) => {
       report.errorMessage = String(err);
     }
   }
-  return c.json(report, report.ok === true ? 200 : 502);
+  // Always return 200 for diagnostics — CF Tunnel rewrites 5xx bodies with its own page.
+  // Caller must check `ok` field in JSON.
+  return c.json(report, 200);
 });
 
 // Routes
