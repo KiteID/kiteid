@@ -27,14 +27,21 @@ app.use(
   }),
 );
 
-// Global rate limit: 100 requests / 15 min
-app.use('*', rateLimit({ windowMs: 15 * 60 * 1000, max: 100, keyPrefix: 'global' }));
+// Global rate limit: 600 requests / 15 min (enough for active polling).
+// Exempt /health + /diagnose so monitoring never trips it.
+app.use('*', async (c, next) => {
+  const path = c.req.path;
+  if (path === '/api/health' || path === '/api/diagnose') return next();
+  return rateLimit({ windowMs: 15 * 60 * 1000, max: 600, keyPrefix: 'global' })(c, next);
+});
 
-// Auth rate limit: 10 requests / 1 min
-app.use('/auth/*', rateLimit({ windowMs: 60 * 1000, max: 10, keyPrefix: 'auth' }));
+// Auth rate limit: 30 requests / 1 min
+app.use('/auth/*', rateLimit({ windowMs: 60 * 1000, max: 30, keyPrefix: 'auth' }));
 
 // Better Auth handler — handles /api/auth/*
-app.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
+// Cover all methods (GET/POST/OPTIONS preflight) + single /auth leaf too.
+app.all('/auth', (c) => auth.handler(c.req.raw));
+app.all('/auth/*', (c) => auth.handler(c.req.raw));
 
 // Health
 app.get('/health', (c) => c.json({ status: 'ok', service: 'kiteid-api', timestamp: Date.now() }));

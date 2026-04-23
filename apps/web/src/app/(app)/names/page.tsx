@@ -7,6 +7,7 @@ import { useAccount } from 'wagmi';
 import { NameList } from '@/components/domain/name-list';
 import { FadeIn } from '@/components/motion';
 import { EmptyState } from '@/components/ui/empty-state';
+import { IndexerBanner } from '@/components/ui/indexer-banner';
 import { useOwnedNames } from '@/hooks/use-owned-names';
 
 type Filter = 'all' | 'active' | 'expiring';
@@ -45,7 +46,7 @@ function NoNamesYet() {
 
 export default function NamesPage() {
   const { isConnected } = useAccount();
-  const { data: names, domains, isLoading, isEmpty } = useOwnedNames();
+  const { data: names, domains, isLoading, isEmpty, error } = useOwnedNames();
 
   const [filter, setFilter] = useState<Filter>('all');
   const [view, setView] = useState<ViewMode>('grid');
@@ -103,6 +104,8 @@ export default function NamesPage() {
           </div>
         </div>
       </FadeIn>
+
+      <IndexerBanner show={Boolean(error)} />
 
       <div className="my-8 editorial-rule" />
 

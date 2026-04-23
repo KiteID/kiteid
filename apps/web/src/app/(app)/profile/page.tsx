@@ -6,11 +6,13 @@ import { ExternalLink, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { formatEther } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
-import { useAccount, useChainId, useSignMessage } from 'wagmi';
+import { useAccount, useBalance, useChainId, useSignMessage } from 'wagmi';
 import { AnimatedCounter, FadeIn, MagneticButton } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
 import { EmptyState } from '@/components/ui/empty-state';
+import { IndexerBanner } from '@/components/ui/indexer-banner';
 import { signOut, siwe, useSession } from '@/lib/auth-client';
 
 function initialsFromSource(source: string): string {
@@ -119,7 +121,8 @@ export default function ProfilePage() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { data: session, isPending: sessionLoading } = useSession();
-  const { domains, isLoading: domainsLoading } = useIndexedNames();
+  const { domains, isLoading: domainsLoading, error: domainsError } = useIndexedNames();
+  const { data: balance } = useBalance({ address });
 
   const handleSignOut = useCallback(async () => {
     await signOut();
@@ -179,6 +182,8 @@ export default function ProfilePage() {
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+      <IndexerBanner show={Boolean(domainsError)} />
+
       {/* Identity hero */}
       <FadeIn>
         <div className="rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-md sm:p-8">
@@ -355,8 +360,11 @@ export default function ProfilePage() {
             </div>
             <div>
               <dt className="font-mono text-[10px] uppercase tracking-wider text-stone">Balance</dt>
-              {/* TODO: wire useBalance from wagmi */}
-              <dd className="mt-1 font-mono text-sm text-carbon">0.5 KITE</dd>
+              <dd className="mt-1 font-mono text-sm text-carbon">
+                {balance
+                  ? `${Number(formatEther(balance.value)).toFixed(4)} ${balance.symbol}`
+                  : '—'}
+              </dd>
             </div>
           </dl>
         </div>

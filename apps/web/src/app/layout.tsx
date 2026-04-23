@@ -27,6 +27,8 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kiteid.xyz';
+
 export const metadata: Metadata = {
   title: {
     default: 'KiteID — Your Identity on Kite AI',
@@ -34,7 +36,26 @@ export const metadata: Metadata = {
   },
   description:
     'Register your .kite domain name on Kite AI. The decentralized identity layer for agents and humans.',
-  metadataBase: new URL('https://kiteid.xyz'),
+  metadataBase: new URL(siteUrl),
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: 'KiteID',
+    title: 'KiteID — Your Identity on Kite AI',
+    description: 'Register your .kite domain name on Kite AI.',
+    url: siteUrl,
+    images: [{ url: '/api/og/kiteid', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KiteID — Your Identity on Kite AI',
+    description: 'Register your .kite domain name on Kite AI.',
+    images: ['/api/og/kiteid'],
+  },
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
