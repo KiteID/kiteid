@@ -86,6 +86,8 @@ interface NameDetailCardProps {
   isExpired: boolean;
   isLoading: boolean;
   isOwner: boolean;
+  isRegistered?: boolean;
+  hasError?: boolean;
   records: ResolverRecord[];
   domain: IndexedDomain | undefined;
   events: ActivityEvent[];
@@ -101,6 +103,8 @@ export function NameDetailCard({
   isExpired,
   isLoading,
   isOwner,
+  isRegistered = true,
+  hasError = false,
   records,
   domain,
   events,
@@ -118,17 +122,25 @@ export function NameDetailCard({
     return <DetailSkeleton name={name} />;
   }
 
-  const statusText = isExpired
-    ? 'Grace period'
-    : daysLeft !== undefined && daysLeft <= 30
-      ? 'Expiring soon'
-      : 'Active';
+  const statusText = !isRegistered
+    ? 'Not registered'
+    : hasError
+      ? 'Status unknown'
+      : isExpired
+        ? 'Grace period'
+        : daysLeft !== undefined && daysLeft <= 30
+          ? 'Expiring soon'
+          : 'Active';
 
-  const statusColor = isExpired
-    ? 'bg-destructive text-destructive-foreground'
-    : daysLeft !== undefined && daysLeft <= 30
-      ? 'bg-warning text-white'
-      : 'bg-gold text-cream';
+  const statusColor = !isRegistered
+    ? 'bg-sand-core text-bronze'
+    : hasError
+      ? 'bg-sand-pale text-bronze'
+      : isExpired
+        ? 'bg-destructive text-destructive-foreground'
+        : daysLeft !== undefined && daysLeft <= 30
+          ? 'bg-warning text-white'
+          : 'bg-gold text-cream';
 
   return (
     <>
