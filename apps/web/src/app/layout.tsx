@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Fraunces, JetBrains_Mono } from 'next/font/google';
+import { headers } from 'next/headers';
 import { Suspense } from 'react';
 import { Toaster } from 'sonner';
+import { cookieToInitialState } from 'wagmi';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { GrainOverlay } from '@/components/ui/grain-overlay';
+import { getConfig } from '@/lib/wagmi';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -58,7 +61,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const initialState = cookieToInitialState(getConfig(), (await headers()).get('cookie'));
   return (
     <html lang="en" className={`${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-parchment-grain font-sans text-foreground antialiased">
@@ -67,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ScrollToTop />
         </Suspense>
         <ErrorBoundary>
-          <Providers>{children}</Providers>
+          <Providers initialState={initialState}>{children}</Providers>
         </ErrorBoundary>
         <Toaster
           position="top-right"

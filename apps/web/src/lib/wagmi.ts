@@ -1,17 +1,17 @@
-'use client';
-
 import { kiteAI, kiteAITestnet } from '@kiteid/sdk';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import type { Config } from 'wagmi';
+import { cookieStorage, createStorage } from 'wagmi';
 
 let cached: Config | undefined;
 
 /**
- * Build the wagmi config lazily. `getDefaultConfig` (RainbowKit) eagerly
- * instantiates the WalletConnect provider which hits `indexedDB` — that
- * global doesn't exist on the server, so calling this at module import
- * time crashes SSR with `ReferenceError: indexedDB is not defined`.
- * Callers MUST only invoke this after `useEffect` runs client-side.
+ * Build the wagmi config lazily and cache it. `cookieStorage` + `ssr: true`
+ * is the official wagmi v2 SSR pattern: state is serialized into a cookie
+ * that the server reads via `cookieToInitialState`, so the Wagmi tree
+ * renders identically on server and client (no hydration mismatch, no
+ * mount gate needed). Cookie-backed storage also avoids WalletConnect's
+ * `indexedDB` access on the server.
  */
 export function getConfig(): Config {
   if (cached) return cached;
@@ -25,6 +25,7 @@ export function getConfig(): Config {
     projectId,
     chains: isTestnet ? [kiteAITestnet, kiteAI] : [kiteAI, kiteAITestnet],
     ssr: true,
+    storage: createStorage({ storage: cookieStorage }),
   });
 
   return cached;
