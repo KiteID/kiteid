@@ -9,8 +9,8 @@ const app = new Hono();
 // GraphQL endpoint
 app.use('/graphql', graphql({ db, schema }));
 
-// Health check
-app.get('/health', (c) => {
+// Health check (app-level, distinct from Ponder's reserved /health)
+app.get('/app-health', (c) => {
   return c.json({ status: 'ok', service: 'kiteid-indexer', timestamp: Date.now() });
 });
 
