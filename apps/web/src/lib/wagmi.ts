@@ -1,3 +1,5 @@
+'use client';
+
 import { kiteAI, kiteAITestnet } from '@kiteid/sdk';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import type { Config } from 'wagmi';

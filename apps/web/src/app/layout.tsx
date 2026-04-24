@@ -3,13 +3,15 @@ import { DM_Sans, Fraunces, JetBrains_Mono } from 'next/font/google';
 import { headers } from 'next/headers';
 import { Suspense } from 'react';
 import { Toaster } from 'sonner';
-import { cookieToInitialState } from 'wagmi';
 import { ScrollToTop } from '@/components/layout/scroll-to-top';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { GrainOverlay } from '@/components/ui/grain-overlay';
-import { getConfig } from '@/lib/wagmi';
 import './globals.css';
 import { Providers } from './providers';
+
+// RainbowKit's getDefaultConfig is client-only. Forcing dynamic skips static
+// prerender (e.g. /_not-found) that would try to evaluate it server-side.
+export const dynamic = 'force-dynamic';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const initialState = cookieToInitialState(getConfig(), (await headers()).get('cookie'));
+  const cookie = (await headers()).get('cookie');
   return (
     <html lang="en" className={`${dmSans.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-parchment-grain font-sans text-foreground antialiased">
@@ -71,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ScrollToTop />
         </Suspense>
         <ErrorBoundary>
-          <Providers initialState={initialState}>{children}</Providers>
+          <Providers cookie={cookie}>{children}</Providers>
         </ErrorBoundary>
         <Toaster
           position="top-right"

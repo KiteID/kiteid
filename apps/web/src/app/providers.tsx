@@ -5,8 +5,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import type { State } from 'wagmi';
-import { WagmiProvider } from 'wagmi';
+import { cookieToInitialState, WagmiProvider } from 'wagmi';
 import { useWalletToasts } from '@/hooks/use-wallet-toasts';
 import { getConfig } from '@/lib/wagmi';
 
@@ -23,17 +22,13 @@ function WalletToastBridge() {
   return null;
 }
 
-export function Providers({
-  children,
-  initialState,
-}: {
-  children: ReactNode;
-  initialState?: State;
-}) {
+export function Providers({ children, cookie }: { children: ReactNode; cookie?: string | null }) {
+  const [config] = useState(() => getConfig());
   const [queryClient] = useState(() => new QueryClient());
+  const initialState = cookieToInitialState(config, cookie);
 
   return (
-    <WagmiProvider config={getConfig()} initialState={initialState}>
+    <WagmiProvider config={config} initialState={initialState}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={kiteTheme}>
           <WalletToastBridge />
