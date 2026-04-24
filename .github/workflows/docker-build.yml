@@ -36,14 +36,20 @@ jobs:
             web:
               - 'apps/web/**'
               - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
             indexer:
               - 'apps/indexer/**'
               - 'packages/contracts-abi/**'
               - 'packages/config-typescript/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
             workers:
               - 'apps/workers/**'
               - 'packages/db/**'
               - 'packages/config-typescript/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
 
   validate-migrations:
     name: Validate DB Migrations
