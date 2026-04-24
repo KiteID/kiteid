@@ -1,40 +1,19 @@
 'use client';
 
-import { lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import '@rainbow-me/rainbowkit/styles.css';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { cookieToInitialState, WagmiProvider } from 'wagmi';
-import { useWalletToasts } from '@/hooks/use-wallet-toasts';
-import { getConfig } from '@/lib/wagmi';
 
-const kiteTheme = lightTheme({
-  accentColor: '#C9986A',
-  accentColorForeground: '#FAF7F0',
-  borderRadius: 'medium',
-  fontStack: 'system',
+// Dynamic import with ssr:false is the only reliable way to keep
+// RainbowKit's getDefaultConfig (and WalletConnect's indexedDB access)
+// out of the Node runtime. Using `'use client'` alone does NOT prevent
+// SSR execution of the module — Next.js still runs it on the server
+// for streaming HTML. SSR-disabling this subtree trades a brief blank
+// first paint for a never-crashing server render.
+const WagmiProviders = dynamic(() => import('./_wagmi-providers'), {
+  ssr: false,
+  loading: () => null,
 });
 
-/** Mounts wallet-event toasts inside the Wagmi provider tree. */
-function WalletToastBridge() {
-  useWalletToasts();
-  return null;
-}
-
 export function Providers({ children, cookie }: { children: ReactNode; cookie?: string | null }) {
-  const [config] = useState(() => getConfig());
-  const [queryClient] = useState(() => new QueryClient());
-  const initialState = cookieToInitialState(config, cookie);
-
-  return (
-    <WagmiProvider config={config} initialState={initialState}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={kiteTheme}>
-          <WalletToastBridge />
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+  return <WagmiProviders cookie={cookie}>{children}</WagmiProviders>;
 }
