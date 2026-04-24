@@ -1,10 +1,5 @@
-import {
-  KiteBaseRegistrarAbi,
-  KiteControllerAbi,
-  KiteRegistryAbi,
-  KiteResolverAbi,
-} from '@kiteid/contracts-abi';
 import { createConfig } from 'ponder';
+import { KiteBaseRegistrarAbi, KiteControllerAbi, KiteRegistryAbi, KiteResolverAbi } from './abis';
 
 // Contract addresses — updated after deployment
 const CONTROLLER = (process.env.CONTROLLER_ADDRESS ||
