@@ -14,7 +14,7 @@ app.get('/app-health', (c) => {
   return c.json({ status: 'ok', service: 'kiteid-indexer', timestamp: Date.now() });
 });
 
-app.get('/ready', (c) => {
+app.get('/app-ready', (c) => {
   return c.json({ status: 'ready' });
 });
 
