@@ -122,7 +122,7 @@ export default function ProfilePage() {
   const chainId = useChainId();
   const { data: session, isPending: sessionLoading } = useSession();
   const { domains, isLoading: domainsLoading, error: domainsError } = useIndexedNames();
-  const { data: balance } = useBalance({ address });
+  const { data: balance } = useBalance({ address, query: { enabled: !!address } });
 
   const handleSignOut = useCallback(async () => {
     await signOut();
