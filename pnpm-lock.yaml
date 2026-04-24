@@ -10,8 +10,6 @@ overrides:
   happy-dom: '>=20.8.9'
   kysely: '>=0.28.14'
   esbuild: '>=0.25.0'
-  ponder>vite: ^6.4.2
-  vite-node>vite: ^6.4.2
   hono: '>=4.12.14'
   '@hono/node-server': '>=1.19.13'
   uuid: '>=14.0.0'
@@ -70,7 +68,7 @@ importers:
         version: 4.12.14
       ponder:
         specifier: ^0.16.6
-        version: 0.16.6(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(@types/pg@8.20.0)(bufferutil@4.1.0)(hono@4.12.14)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(viem@2.47.12(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6)
+        version: 0.16.6(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(@types/pg@8.20.0)(bufferutil@4.1.0)(hono@4.12.14)(lightningcss@1.32.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(viem@2.47.12(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6)
       viem:
         specifier: 2.47.12
         version: 2.47.12(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(zod@4.3.6)
@@ -5868,26 +5866,21 @@ packages:
       vite:
         optional: true
 
-  vite@6.4.2:
-    resolution: {integrity: sha512-2N/55r4JDJ4gdrCvGgINMy+HH3iRpNIz8K6SFwVsA+JbQScLiC+clmAxBgwiSPgcG9U15QmvqCGWzMbqda5zGQ==}
-    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+  vite@5.4.21:
+    resolution: {integrity: sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==}
+    engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
-      jiti: '>=1.21.0'
+      '@types/node': ^18.0.0 || >=20.0.0
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
       sass-embedded: '*'
       stylus: '*'
       sugarss: '*'
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
+      terser: ^5.4.0
     peerDependenciesMeta:
       '@types/node':
-        optional: true
-      jiti:
         optional: true
       less:
         optional: true
@@ -5902,10 +5895,6 @@ packages:
       sugarss:
         optional: true
       terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
         optional: true
 
   vite@8.0.8:
@@ -11333,7 +11322,7 @@ snapshots:
 
   pngjs@5.0.0: {}
 
-  ponder@0.16.6(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(@types/pg@8.20.0)(bufferutil@4.1.0)(hono@4.12.14)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(viem@2.47.12(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6):
+  ponder@0.16.6(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(@types/pg@8.20.0)(bufferutil@4.1.0)(hono@4.12.14)(lightningcss@1.32.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(viem@2.47.12(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6):
     dependencies:
       '@babel/code-frame': 7.29.0
       '@commander-js/extra-typings': 12.1.0(commander@12.1.0)
@@ -11369,9 +11358,9 @@ snapshots:
       superjson: 2.2.6
       terminal-size: 4.0.1
       viem: 2.47.12(bufferutil@4.1.0)(typescript@6.0.2)(utf-8-validate@5.0.10)(zod@4.3.6)
-      vite: 6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
-      vite-node: 1.0.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
-      vite-tsconfig-paths: 4.3.1(typescript@6.0.2)(vite@6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
+      vite: 5.4.21(@types/node@22.19.17)(lightningcss@1.32.0)
+      vite-node: 1.0.2(@types/node@22.19.17)(lightningcss@1.32.0)
+      vite-tsconfig-paths: 4.3.1(typescript@6.0.2)(vite@5.4.21(@types/node@22.19.17)(lightningcss@1.32.0))
       ws: 8.20.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     optionalDependencies:
       typescript: 6.0.2
@@ -11397,7 +11386,6 @@ snapshots:
       - bun-types
       - expo-sqlite
       - gel
-      - jiti
       - knex
       - less
       - lightningcss
@@ -11413,9 +11401,7 @@ snapshots:
       - sugarss
       - supports-color
       - terser
-      - tsx
       - utf-8-validate
-      - yaml
       - zod
 
   pony-cause@2.1.11: {}
@@ -12169,16 +12155,15 @@ snapshots:
       - utf-8-validate
       - zod
 
-  vite-node@1.0.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0):
+  vite-node@1.0.2(@types/node@22.19.17)(lightningcss@1.32.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3
       pathe: 1.1.2
       picocolors: 1.1.1
-      vite: 6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
+      vite: 5.4.21(@types/node@22.19.17)(lightningcss@1.32.0)
     transitivePeerDependencies:
       - '@types/node'
-      - jiti
       - less
       - lightningcss
       - sass
@@ -12187,34 +12172,27 @@ snapshots:
       - sugarss
       - supports-color
       - terser
-      - tsx
-      - yaml
 
-  vite-tsconfig-paths@4.3.1(typescript@6.0.2)(vite@6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)):
+  vite-tsconfig-paths@4.3.1(typescript@6.0.2)(vite@5.4.21(@types/node@22.19.17)(lightningcss@1.32.0)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@6.0.2)
     optionalDependencies:
-      vite: 6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
+      vite: 5.4.21(@types/node@22.19.17)(lightningcss@1.32.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@6.4.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0):
+  vite@5.4.21(@types/node@22.19.17)(lightningcss@1.32.0):
     dependencies:
       esbuild: 0.27.7
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
       postcss: 8.5.9
       rollup: 4.60.2
-      tinyglobby: 0.2.16
     optionalDependencies:
       '@types/node': 22.19.17
       fsevents: 2.3.3
-      jiti: 2.6.1
       lightningcss: 1.32.0
-      tsx: 4.21.0
 
   vite@8.0.8(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0):
     dependencies:
