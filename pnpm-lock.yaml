@@ -61,9 +61,6 @@ importers:
 
   apps/indexer:
     dependencies:
-      '@kiteid/contracts-abi':
-        specifier: workspace:*
-        version: link:../../packages/contracts-abi
       drizzle-orm:
         specifier: 0.41.0
         version: 0.41.0(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(kysely@0.28.16)(pg@8.20.0)

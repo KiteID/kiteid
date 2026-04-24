@@ -12,7 +12,6 @@
     "clean": "rimraf dist .ponder"
   },
   "dependencies": {
-    "@kiteid/contracts-abi": "workspace:*",
     "drizzle-orm": "0.41.0",
     "hono": "^4.12.12",
     "ponder": "^0.16.6",
