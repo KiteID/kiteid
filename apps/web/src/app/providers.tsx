@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { WagmiProvider } from 'wagmi';
 import { useWalletToasts } from '@/hooks/use-wallet-toasts';
-import { config } from '@/lib/wagmi';
+import { getConfig } from '@/lib/wagmi';
 
 const kiteTheme = lightTheme({
   accentColor: '#C9986A',
@@ -41,7 +41,7 @@ export function Providers({ children }: { children: ReactNode }) {
   }
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={getConfig()}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={kiteTheme}>
           <WalletToastBridge />
