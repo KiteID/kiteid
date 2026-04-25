@@ -1,6 +1,18 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
   "extends": ["./packages/config-biome/base.json"],
+  "css": {
+    "parser": {
+      "cssModules": true,
+      "tailwindDirectives": true
+    },
+    "linter": {
+      "enabled": true
+    },
+    "formatter": {
+      "enabled": true
+    }
+  },
   "files": {
     "includes": [
       "**",
@@ -14,7 +26,12 @@
       "!**/packages/contracts/lib",
       "!**/pnpm-lock.yaml",
       "!**/.changeset",
-      "!**/coverage"
+      "!**/coverage",
+      "!**/next-env.d.ts",
+      "!**/ponder-env.d.ts",
+      "!**/playwright-report",
+      "!**/test-results",
+      "!**/blob-report"
     ]
   }
 }

@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  contracts:
-    name: Forge
+  build-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -27,11 +27,15 @@ jobs:
 
       - name: Build
         working-directory: packages/contracts
-        run: forge build
+        run: forge build --sizes
 
-      - name: Test
+      - name: Test (default profile)
         working-directory: packages/contracts
         run: forge test -vvv
+
+      - name: Test (CI profile — high fuzz)
+        working-directory: packages/contracts
+        run: FOUNDRY_PROFILE=ci forge test -vvv
 
       - name: Format check
         working-directory: packages/contracts
@@ -40,3 +44,48 @@ jobs:
       - name: Gas snapshot
         working-directory: packages/contracts
         run: forge snapshot
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Generate coverage
+        working-directory: packages/contracts
+        run: forge coverage --report summary
+
+  slither:
+    name: Slither Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build for Slither
+        working-directory: packages/contracts
+        run: forge build
+
+      - uses: crytic/slither-action@v0.4.0
+        id: slither
+        with:
+          target: packages/contracts
+          sarif: results.sarif
+          fail-on: high
+          slither-config: packages/contracts/slither.config.json
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: results.sarif

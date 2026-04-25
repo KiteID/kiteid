@@ -1,0 +1,12 @@
+{
+  "filter_paths": "lib,test,script",
+  "exclude_informational": true,
+  "exclude_optimization": true,
+  "exclude_low": false,
+  "solc_remaps": [
+    "forge-std/=lib/forge-std/src/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+    "solady/=lib/solady/src/"
+  ]
+}

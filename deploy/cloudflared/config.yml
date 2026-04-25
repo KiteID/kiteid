@@ -1,0 +1,24 @@
+# KiteID Cloudflare Tunnel — Route Reference
+#
+# Routes are managed via CF Dashboard (Zero Trust > Networks > Tunnels > kiteid-prod > Public Hostname).
+# This file documents the intended routes for reference and DR rebuild.
+#
+# ACTIVE ROUTES (2026-04-12):
+#   kiteid.xyz          -> http://dokploy-traefik:80       (main site, 404 until Phase 3 deploy)
+#   admin.kiteid.xyz    -> http://dokploy:3000               (Dokploy UI, behind CF Access recommended)
+#
+# PLANNED ROUTES (Phase 3+):
+#   api.kiteid.xyz      -> http://dokploy-traefik:80       (Hono API)
+#   docs.kiteid.xyz     -> http://dokploy-traefik:80       (docs site)
+#   status.kiteid.xyz   -> http://dokploy-traefik:80       (Kener status page, Phase 4)
+#   staging.kiteid.xyz  -> http://dokploy-traefik:80       (staging, Phase 4)
+#
+# PRIVATE SERVICES (not exposed publicly, access via CF Access or SSH tunnel):
+#   Uptime Kuma:  kiteid-uptime-kuma:3001
+#   Beszel:       kiteid-beszel:8090
+#   Dozzle:       kiteid-dozzle:8080
+#
+# Docker command (see deploy/bootstrap/03-cloudflared.sh):
+#   docker run -d --name cloudflared --restart unless-stopped \
+#     --network dokploy-network \
+#     cloudflare/cloudflared:latest tunnel --no-autoupdate run --token <TOKEN>

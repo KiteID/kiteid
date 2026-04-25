@@ -1,0 +1,12 @@
+import { siweClient } from 'better-auth/client/plugins';
+import { createAuthClient } from 'better-auth/react';
+
+const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  plugins: [siweClient()],
+});
+
+export const useSession = authClient.useSession;
+export const signIn = authClient.signIn;
+export const signOut = authClient.signOut;
+export const siwe = authClient.siwe;

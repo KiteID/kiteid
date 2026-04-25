@@ -31,9 +31,19 @@ desktop.ini
 # Docker local data
 .docker-data/
 
+# Ponder
+.ponder/
+
+# Drizzle migration meta — DO commit (tracks migration state)
+
 # Test coverage
 coverage/
 lcov.info
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
 
 # Misc
 *.log

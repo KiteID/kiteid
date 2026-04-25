@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KiteID Favicon — Gold Orb
+  A glowing Burnished Gold orb on Carbon background.
+  Represents an "identity node" — single point of presence.
+  Designed for: favicon (16x16, 32x32), social avatars (1024x1024)
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 256 256"
+  width="256"
+  height="256"
+  role="img"
+  aria-label="KiteID icon"
+>
+  <title>KiteID</title>
+  <defs>
+    <radialGradient id="kid-orb-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#E8B987" stop-opacity="1"/>
+      <stop offset="40%"  stop-color="#C9986A" stop-opacity="1"/>
+      <stop offset="70%"  stop-color="#A87C52" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#A87C52" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="kid-orb-core" cx="40%" cy="40%" r="60%">
+      <stop offset="0%"   stop-color="#F5DCB8"/>
+      <stop offset="40%"  stop-color="#E8B987"/>
+      <stop offset="100%" stop-color="#C9986A"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Carbon background circle -->
+  <rect width="256" height="256" rx="56" fill="#141414"/>
+
+  <!-- Outer glow -->
+  <circle cx="128" cy="128" r="96" fill="url(#kid-orb-glow)"/>
+
+  <!-- Core orb -->
+  <circle cx="128" cy="128" r="44" fill="url(#kid-orb-core)"/>
+
+  <!-- Subtle highlight -->
+  <ellipse cx="116" cy="114" rx="14" ry="10" fill="#FAF7F0" opacity="0.35"/>
+</svg>

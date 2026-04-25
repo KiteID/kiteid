@@ -1,0 +1,197 @@
+name: Docker Build & Push
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - 'apps/indexer/**'
+      - 'apps/workers/**'
+      - 'packages/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker-build.yml'
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/kiteid
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      indexer: ${{ steps.filter.outputs.indexer }}
+      workers: ${{ steps.filter.outputs.workers }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            indexer:
+              - 'apps/indexer/**'
+              - 'packages/contracts-abi/**'
+              - 'packages/config-typescript/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            workers:
+              - 'apps/workers/**'
+              - 'packages/db/**'
+              - 'packages/config-typescript/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+
+  validate-migrations:
+    name: Validate DB Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check migrations are up to date
+        run: |
+          pnpm --filter @kiteid/db exec drizzle-kit generate
+          if [ -n "$(git diff --name-only packages/db/drizzle/)" ]; then
+            echo "::error::Migration files are out of sync with schema. Run 'pnpm db:generate' and commit."
+            git diff packages/db/drizzle/
+            exit 1
+          fi
+
+  build-web:
+    name: Build Web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "tag=staging" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/web:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
+          platforms: linux/arm64
+          build-args: |
+            NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=${{ secrets.WALLETCONNECT_PROJECT_ID }}
+            NEXT_PUBLIC_CHAIN_ID=2368
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-indexer:
+    name: Build Indexer
+    needs: changes
+    if: needs.changes.outputs.indexer == 'true'
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "tag=staging" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/indexer/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/indexer:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE_PREFIX }}/indexer:${{ github.sha }}
+          platforms: linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-workers:
+    name: Build Workers
+    needs: changes
+    if: needs.changes.outputs.workers == 'true'
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "tag=staging" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/workers/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/workers:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE_PREFIX }}/workers:${{ github.sha }}
+          platforms: linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
