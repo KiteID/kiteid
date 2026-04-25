@@ -21,6 +21,6 @@
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
-    "typescript": "^6.0.0"
+    "typescript": "^6.0.3"
   }
 }
