@@ -36,14 +36,16 @@
       "uuid": ">=14.0.0",
       "zod": "4.3.6",
       "viem": "2.47.12",
-      "wagmi": "2.19.5"
+      "wagmi": "2.19.5",
+      "postcss": ">=8.5.10"
     },
     "auditConfig": {
       "ignoreCves": [
         "CVE-2026-39356"
       ],
       "ignoreGhsas": [
-        "GHSA-4w7w-66w2-5vf9"
+        "GHSA-4w7w-66w2-5vf9",
+        "GHSA-qx2v-qp2m-jg93"
       ]
     }
   },
