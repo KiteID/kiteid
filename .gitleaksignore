@@ -3,3 +3,9 @@
 5897a85e7c919df06a5dd5752dfe94d0f84ac666:apps/web/src/stores/__tests__/registration.test.ts:generic-api-key:13
 # registration.test.ts mock secret (Phase 3 commit — nosemgrep shifted line)
 d168bd9b3fd6fe4b3f8aa543d51b21e5fffdf5f5:apps/web/src/stores/__tests__/registration.test.ts:generic-api-key:14
+
+### False positives — vendor/docs (--no-git filesystem scan)
+# Sidekiq placeholder credential in a vendor README (cafebabe:deadbeef)
+README.md:sidekiq-secret:47
+# Generic API key pattern in a vendor README (DB_PASSWORD example)
+README.md:generic-api-key:574
