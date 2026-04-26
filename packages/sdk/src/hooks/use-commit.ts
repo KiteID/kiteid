@@ -1,9 +1,14 @@
 'use client';
 
-import { useWriteContract } from 'wagmi';
+import { type UseWriteContractReturnType, useWriteContract } from 'wagmi';
 import { abis, getControllerAddress } from '../contracts';
 
-export function useKiteCommit(chainId?: number) {
+type WriteRest = Omit<UseWriteContractReturnType, 'writeContract' | 'writeContractAsync'>;
+
+export function useKiteCommit(chainId?: number): {
+  commit: (commitment: `0x${string}`) => void;
+  commitAsync: (commitment: `0x${string}`) => Promise<`0x${string}`>;
+} & WriteRest {
   const { writeContract, writeContractAsync, ...rest } = useWriteContract();
 
   const commit = (commitment: `0x${string}`) => {
