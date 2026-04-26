@@ -3,12 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./auth": "./src/auth.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./auth": {
+      "import": "./dist/auth.js"
+    }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsdown && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist"
   },
@@ -21,6 +31,7 @@
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
+    "tsdown": "^0.21.10",
     "typescript": "^6.0.3"
   }
 }

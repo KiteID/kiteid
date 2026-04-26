@@ -1,12 +1,17 @@
 'use client';
 
-import { useWriteContract } from 'wagmi';
+import { type UseWriteContractReturnType, useWriteContract } from 'wagmi';
 import { abis, getControllerAddress } from '../contracts';
 import type { RegistrationParams } from '../types';
 
 const PRICE_BUFFER_PERCENT = 5n;
 
-export function useKiteRegister(chainId?: number) {
+type WriteRest = Omit<UseWriteContractReturnType, 'writeContract' | 'writeContractAsync'>;
+
+export function useKiteRegister(chainId?: number): {
+  register: (params: RegistrationParams, totalPrice: bigint) => void;
+  registerAsync: (params: RegistrationParams, totalPrice: bigint) => Promise<`0x${string}`>;
+} & WriteRest {
   const { writeContract, writeContractAsync, ...rest } = useWriteContract();
 
   const register = (params: RegistrationParams, totalPrice: bigint) => {
