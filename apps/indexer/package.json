@@ -12,6 +12,7 @@
     "clean": "rimraf dist .ponder"
   },
   "dependencies": {
+    "@sentry/node": "^10.50.0",
     "drizzle-orm": "0.41.0",
     "hono": "^4.12.12",
     "ponder": "^0.16.6",
