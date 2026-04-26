@@ -48,7 +48,7 @@ jobs:
           sudo mv gitleaks /usr/local/bin/
 
       - name: Run gitleaks
-        run: gitleaks detect --source=. --no-git --verbose
+        run: gitleaks detect --source=. --no-git --config .gitleaks.toml --verbose
 
   gitleaks-history:
     name: Secret Scanning (full history)
