@@ -37,7 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          # PR/push checks scan only the working tree (respects gitleaks:allow).
+          # Full history scan runs separately on schedule below.
+          fetch-depth: 1
 
       - name: Install gitleaks
         run: |
@@ -46,6 +48,24 @@ jobs:
           sudo mv gitleaks /usr/local/bin/
 
       - name: Run gitleaks
+        run: gitleaks detect --source=. --no-git --verbose
+
+  gitleaks-history:
+    name: Secret Scanning (full history)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar xz
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run gitleaks (git history)
         run: gitleaks detect --source=. --verbose
 
   codeql:
