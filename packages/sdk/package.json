@@ -22,21 +22,21 @@
   },
   "dependencies": {
     "@kiteid/contracts-abi": "workspace:*",
-    "viem": "^2.31.0"
+    "viem": "^2.48.4"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.80.0",
+    "@tanstack/react-query": "^5.100.5",
     "react": "^19.1.0",
-    "wagmi": "^2.15.0"
+    "wagmi": "^3.6.5"
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
-    "@tanstack/react-query": "^5.80.0",
+    "@tanstack/react-query": "^5.100.5",
     "@types/react": "^19.1.0",
     "react": "^19.1.0",
     "tsdown": "^0.21.10",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5",
-    "wagmi": "^2.15.0"
+    "wagmi": "^3.6.5"
   }
 }

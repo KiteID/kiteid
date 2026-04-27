@@ -24,10 +24,10 @@
   },
   "dependencies": {
     "@kiteid/db": "workspace:*",
-    "better-auth": "^1.6.2",
+    "better-auth": "^1.6.9",
     "drizzle-orm": "^0.45.2",
-    "hono": "^4.12.12",
-    "viem": "^2.31.0"
+    "hono": "^4.12.15",
+    "viem": "^2.48.4"
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
