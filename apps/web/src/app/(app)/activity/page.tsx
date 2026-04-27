@@ -172,6 +172,14 @@ function LoadingTimeline() {
   );
 }
 
+const EVENT_TYPES = [
+  { value: 'all', label: 'All Events' },
+  { value: 'NameRegistered', label: 'Registered' },
+  { value: 'NameRenewed', label: 'Renewed' },
+  { value: 'Transfer', label: 'Transferred' },
+  { value: 'AddrChanged', label: 'Address Updated' },
+] as const;
+
 export default function ActivityPage() {
   const { events, isLoading, error: eventsError } = useActivityFeed(200);
   const { stats, error: statsError } = useDomainStats();
@@ -179,22 +187,28 @@ export default function ActivityPage() {
   const indexerDown = Boolean(eventsError || statsError);
 
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [filterType, setFilterType] = useState<string>('all');
+
+  const filteredEvents = useMemo(
+    () => (filterType === 'all' ? events : events.filter((e) => e.eventType === filterType)),
+    [events, filterType],
+  );
 
   // TODO: wire active-wallet + today counts to dedicated endpoints
   const todayCount = useMemo(() => {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     const startTs = Math.floor(start.getTime() / 1000);
-    return events.filter((e) => Number(e.timestamp) >= startTs).length;
-  }, [events]);
+    return filteredEvents.filter((e) => Number(e.timestamp) >= startTs).length;
+  }, [filteredEvents]);
 
   const activeWallets = useMemo(() => {
     const cutoff = Math.floor(Date.now() / 1000) - 7 * 86400;
     const set = new Set(
-      events.filter((e) => Number(e.timestamp) >= cutoff).map((e) => e.actor.toLowerCase()),
+      filteredEvents.filter((e) => Number(e.timestamp) >= cutoff).map((e) => e.actor.toLowerCase()),
     );
     return set.size;
-  }, [events]);
+  }, [filteredEvents]);
 
   const avgPerDay = useMemo(() => {
     const oldest = events[events.length - 1];
@@ -204,7 +218,35 @@ export default function ActivityPage() {
     return Math.round(stats.totalDomains / spanDays);
   }, [events, stats.totalDomains]);
 
-  const grouped = useMemo(() => groupByDay(events.slice(0, visible)), [events, visible]);
+  const grouped = useMemo(
+    () => groupByDay(filteredEvents.slice(0, visible)),
+    [filteredEvents, visible],
+  );
+
+  const handleCsvExport = () => {
+    const headers = ['Date', 'Domain', 'Event Type', 'Actor', 'TX Hash', 'Price (KITE)'];
+    const rows = filteredEvents.map((e) => [
+      new Date(Number(e.timestamp) * 1000).toISOString(),
+      e.name || '—',
+      eventLabel(e.eventType),
+      e.actor,
+      e.txHash,
+      e.priceKite || '—',
+    ]);
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(','))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kiteid-activity-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
@@ -254,6 +296,36 @@ export default function ActivityPage() {
         </div>
       </FadeIn>
 
+      {/* Filters & Export */}
+      <FadeIn delay={0.2}>
+        <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {EVENT_TYPES.map((type) => (
+              <button
+                key={type.value}
+                type="button"
+                onClick={() => setFilterType(type.value)}
+                className={`rounded-full px-3 py-1.5 font-mono text-xs uppercase transition-all ${
+                  filterType === type.value
+                    ? 'bg-gold text-carbon'
+                    : 'border border-sand-core bg-cream text-bronze hover:bg-parchment'
+                }`}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCsvExport}
+            className="border-sand-core"
+          >
+            Export CSV
+          </Button>
+        </div>
+      </FadeIn>
+
       {/* Timeline */}
       <div className="relative mt-14">
         {/* Vertical dashed line */}
@@ -268,6 +340,16 @@ export default function ActivityPage() {
           <LoadingTimeline />
         ) : events.length === 0 ? (
           <ActivityEmpty />
+        ) : filteredEvents.length === 0 ? (
+          <div className="rounded-2xl border border-sand-core bg-cream p-4 shadow-kid-sm">
+            <EmptyState
+              icon={Activity}
+              title="No events found."
+              description={`No ${EVENT_TYPES.find((t) => t.value === filterType)?.label.toLowerCase()} events in the archive.`}
+              action={{ label: 'Clear filters', onClick: () => setFilterType('all') }}
+              className="py-12"
+            />
+          </div>
         ) : (
           <div className="space-y-12">
             {grouped.map((group) => (
@@ -298,7 +380,7 @@ export default function ActivityPage() {
             ))}
 
             {/* Load more */}
-            {visible < events.length && (
+            {visible < filteredEvents.length && (
               <div className="pl-10 pt-4 text-center">
                 <Button
                   variant="outline"
