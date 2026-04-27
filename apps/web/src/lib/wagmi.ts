@@ -25,7 +25,6 @@ export function getConfig(): Config {
   cached = getDefaultConfig({
     appName: 'KiteID',
     projectId,
-    // @ts-expect-error duplicate viem instance (TS6 peer-dep hash mismatch — runtime correct)
     chains: isTestnet ? [kiteAITestnet, kiteAI] : [kiteAI, kiteAITestnet],
     ssr: true,
     storage: createStorage({ storage: cookieStorage }),
