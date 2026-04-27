@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { AnimatedCounter, FadeIn, RevealOnScroll, Stagger, StaggerItem } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ReverseLabel } from '@/components/ui/reverse-label';
 
 const EXPLORER_URL = 'https://testnet.kitescan.ai';
 const PAGE_SIZE = 20;
@@ -114,8 +115,11 @@ function EventCard({ event }: { event: ActivityEvent }) {
             {event.priceKite ? ` · ${event.priceKite} KITE` : ''}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <CopyAddress value={event.actor} />
+        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+          <div className="flex items-center gap-2">
+            <ReverseLabel address={event.actor} />
+            <CopyAddress value={event.actor} />
+          </div>
           <a
             href={`${EXPLORER_URL}/tx/${event.txHash}`}
             target="_blank"
