@@ -22,6 +22,7 @@ const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { href: '/', label: 'Search', exact: true },
   { href: '/names', label: 'My Names' },
   { href: '/activity', label: 'Activity' },
+  { href: '/wrapper', label: 'V2 Preview' },
   { href: 'https://docs.kiteid.xyz', label: 'Docs', external: true },
 ];
 
