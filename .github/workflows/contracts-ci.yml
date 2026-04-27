@@ -89,3 +89,57 @@ jobs:
         continue-on-error: true
         with:
           sarif_file: results.sarif
+
+  aderyn:
+    name: Aderyn Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build for Aderyn
+        working-directory: packages/contracts
+        run: forge build
+
+      - name: Install Aderyn
+        run: cargo install aderyn --locked
+
+      - name: Run Aderyn
+        working-directory: packages/contracts
+        run: aderyn --config aderyn.toml --output aderyn-report.md
+
+      - name: Upload Aderyn report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aderyn-report
+          path: packages/contracts/aderyn-report.md
+
+  halmos:
+    name: Halmos Symbolic Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build contracts
+        working-directory: packages/contracts
+        run: forge build
+
+      - name: Install Halmos
+        run: pip install halmos
+
+      - name: Run Halmos
+        working-directory: packages/contracts
+        run: |
+          halmos \
+            --contract HalmosProperties \
+            --solver-timeout-assertion 30000 \
+            --solver z3 \
+            -vvv

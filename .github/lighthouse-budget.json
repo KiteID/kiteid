@@ -1,0 +1,16 @@
+[
+  {
+    "path": "/*",
+    "resourceSizes": [
+      { "resourceType": "total", "budget": 1500 },
+      { "resourceType": "script", "budget": 600 },
+      { "resourceType": "image", "budget": 200 }
+    ],
+    "scores": [
+      { "category": "performance", "minScore": 0.7 },
+      { "category": "accessibility", "minScore": 0.85 },
+      { "category": "best-practices", "minScore": 0.85 },
+      { "category": "seo", "minScore": 0.85 }
+    ]
+  }
+]

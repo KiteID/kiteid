@@ -1,0 +1,15 @@
+[general]
+root = "."
+
+[output]
+markdown = "aderyn-report.md"
+
+[scope]
+exclude_paths = [
+    "lib",
+    "out",
+    "cache",
+    "test",
+    "script",
+    "scripts",
+]
