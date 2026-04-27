@@ -1,0 +1,64 @@
+---
+title: Contract Addresses
+description: Deployed contract addresses on Kite AI testnet and mainnet.
+---
+
+## Testnet (Chain ID 2368 — Ozone)
+
+| Contract                  | Address                                      |
+| ------------------------- | -------------------------------------------- |
+| KiteRegistry              | `0xb54a0D86d9059bC2db72BFfD1FAf6a87b9F0B036` |
+| KiteBaseRegistrar         | `0x485cB7C9a8aC6fa4Cc60C489AE0221aFfdCC5841` |
+| KiteController (proxy)    | `0xBD6a09D7227F56E79327d680183317C10A1370Df` |
+| KiteController (impl)     | `0xC165E2F95d4e947b37dA894C6a601A0ad002b1b1` |
+| KiteResolver              | `0xfC69694BBd6b85Fd9b4aC5ddBD647b4f2196CC68` |
+| LinearPremiumPriceOracle  | `0x97972ee9Ca8cdB78d4897B016FDF4755240b6F77` |
+| KiteReverseRegistrar      | `0x442FEe8572F4314A45bA2D81e32Db91fCB079E2D` |
+
+Deploy block: `20858663` · Deployer: `0x3bE253D2Da78335999Cc7F7317B5CDeec82b0eCa`
+
+## Mainnet (Chain ID 2366)
+
+Mainnet contracts will be deployed when Kite AI mainnet opens. Addresses will be updated here and in `packages/contracts-abi/addresses.ts`.
+
+## ABIs
+
+The full ABI package is available as `@kiteid/contracts-abi` in the monorepo:
+
+```ts
+import {
+  KiteControllerABI,
+  KiteRegistryABI,
+  KiteResolverABI,
+  ADDRESSES,
+} from '@kiteid/contracts-abi';
+```
+
+## Contract architecture
+
+```
+KiteController (UUPS proxy)
+  └── manages registrations + renewals
+  └── calls KiteBaseRegistrar to mint/burn
+  └── calls KiteResolver to set initial records
+
+KiteBaseRegistrar (ERC-721)
+  └── mints name NFTs
+  └── tracks expiry timestamps
+
+KiteRegistry
+  └── maps namehash node → (owner, resolver, TTL)
+
+KiteResolver (ERC-137 + ERC-181)
+  └── stores addr, text, contenthash per node
+
+KiteReverseRegistrar
+  └── manages addr.reverse claims
+
+LinearPremiumPriceOracle
+  └── computes base + Dutch-auction premium
+```
+
+## Source code
+
+[github.com/KiteID/kiteid — packages/contracts](https://github.com/KiteID/kiteid/tree/main/packages/contracts)

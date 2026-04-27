@@ -1,0 +1,56 @@
+---
+title: Commit-Reveal Protocol
+description: How KiteID prevents front-running attacks during name registration.
+---
+
+## The problem
+
+On a public mempool, a bot watching pending transactions could see your name registration and submit its own with higher gas, stealing the name before your transaction lands.
+
+## The solution
+
+KiteID uses a **commit-reveal** scheme:
+
+### Phase 1 — Commit
+
+You submit a sealed commitment:
+
+```solidity
+bytes32 commitment = keccak256(abi.encode(
+  label,        // "alice"
+  owner,        // your address
+  duration,     // registration length in seconds
+  resolver,     // resolver address
+  secret,       // random 32-byte nonce (generated client-side)
+  reverseRecord // bool
+));
+
+KiteController.commit(commitment);
+```
+
+The commitment reveals nothing about the name. Bots see a hash they cannot decode.
+
+### Phase 2 — Wait (60 seconds minimum)
+
+`KiteController` enforces a **minimum commitment age** of 60 seconds. This ensures the commitment is included in a finalized block before the reveal can proceed.
+
+Commitments expire after **24 hours** — you must reveal within this window or restart.
+
+### Phase 3 — Register (reveal)
+
+You submit the plaintext parameters. The controller:
+
+1. Recomputes the commitment hash from the parameters
+2. Verifies it matches the stored commitment
+3. Checks the commitment age is between `minCommitmentAge` (60s) and `maxCommitmentAge` (24h)
+4. Mints the name and deletes the commitment
+
+```solidity
+KiteController.register(
+  label, owner, duration, resolver, secret, reverseRecord
+);
+```
+
+## Why a secret nonce?
+
+Without the secret, two users could submit identical commitments for the same name. The secret makes each commitment unique to its submitter, preventing collision attacks.
