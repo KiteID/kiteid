@@ -9,6 +9,7 @@ import { Wordmark } from '../brand/wordmark';
 import { ConnectButton } from '../web3/connect-button';
 import { MobileMenu } from './mobile-menu';
 import { NavLink } from './nav-link';
+import { ThemeToggle } from './theme-toggle';
 
 type NavItem = {
   href: string;
@@ -57,8 +58,10 @@ export function Header() {
             </nav>
           </LayoutGroup>
 
-          {/* Right: connect + hamburger */}
+          {/* Right: connect + theme toggle + hamburger */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
+
             <div className="hidden md:block">
               <ConnectButton />
             </div>
@@ -69,7 +72,7 @@ export function Header() {
               aria-label="Open menu"
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-md text-bronze transition-colors hover:bg-parchment hover:text-carbon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 md:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md text-bronze transition-colors hover:bg-parchment hover:text-carbon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 dark:text-gold dark:hover:bg-carbon-soft dark:hover:text-gold md:hidden"
             >
               <Menu className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
