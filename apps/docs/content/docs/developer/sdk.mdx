@@ -1,0 +1,89 @@
+---
+title: SDK Reference
+description: React hooks and utilities from @kiteid/sdk.
+---
+
+## Installation
+
+`@kiteid/sdk` is a workspace package. For external integrations, copy the relevant ABI from `@kiteid/contracts-abi` and use [wagmi](https://wagmi.sh) hooks directly.
+
+## Hooks
+
+### `useKiteAvailable(label, chainId)`
+
+Returns whether a label is available for registration.
+
+```ts
+import { useKiteAvailable } from '@kiteid/sdk';
+
+const { data: isAvailable, isLoading } = useKiteAvailable('alice', chainId);
+```
+
+| Returns  | Type               | Description                          |
+| -------- | ------------------ | ------------------------------------ |
+| `data`   | `boolean \| undefined` | `true` if available                |
+| `isLoading` | `boolean`       | Fetching on-chain availability       |
+
+### `useKiteRentPrice(label, duration, chainId)`
+
+Returns the base + premium price for a given name and duration.
+
+```ts
+import { useKiteRentPrice, yearsToSeconds } from '@kiteid/sdk';
+
+const duration = yearsToSeconds(1);
+const price = useKiteRentPrice('alice', duration, chainId);
+
+// price.data.base  — base annual fee (bigint, in wei)
+// price.data.premium — Dutch auction premium (bigint, in wei)
+```
+
+### `useNameDetails(label)`
+
+Resolves on-chain owner, resolver, expiry, and derived fields.
+
+```ts
+import { useNameDetails } from '@/hooks/use-name-details'; // app hook wrapping SDK
+
+const { owner, resolver, expiryTimestamp, daysLeft, isExpired, isRegistered } =
+  useNameDetails('alice');
+```
+
+### `useDomainDetail(label)`
+
+Returns indexed data from the Ponder indexer: records, domain metadata, and events.
+
+```ts
+import { useDomainDetail } from '@kiteid/sdk';
+
+const { domain, records, events } = useDomainDetail('alice');
+```
+
+## Utilities
+
+### `normalizeLabel(raw)`
+
+Converts raw user input to a valid label: lowercased, trimmed, `.kite` suffix stripped.
+
+```ts
+import { normalizeLabel } from '@kiteid/sdk';
+
+normalizeLabel('Alice.kite') // → "alice"
+normalizeLabel('  BOB  ')    // → "bob"
+```
+
+### `formatKitePriceWithSymbol(bigint)`
+
+Formats a wei amount as a human-readable KITE string.
+
+```ts
+formatKitePriceWithSymbol(5_000_000_000_000_000_000n) // → "5 KITE"
+```
+
+### `yearsToSeconds(years)`
+
+Converts a year count to seconds (used as registration duration).
+
+```ts
+yearsToSeconds(1) // → 31536000
+```

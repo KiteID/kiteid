@@ -1,0 +1,51 @@
+---
+title: Pricing
+description: KITE-denominated registration and renewal fees.
+---
+
+## Fee schedule
+
+Fees are denominated in **KITE** (native token of Kite AI) and determined by name length:
+
+| Length    | Annual fee       | Notes                              |
+| --------- | ---------------- | ---------------------------------- |
+| 1–2 chars | Reserved         | DAO auction in V2                  |
+| 3 chars   | 640 KITE / year  |                                    |
+| 4 chars   | 160 KITE / year  |                                    |
+| 5+ chars  | 5 KITE / year    | Most names fall here               |
+
+### Multi-year discounts
+
+There are no protocol-level discounts, but you can register for multiple years upfront (1, 2, or 5 years) to lock in the current price.
+
+## Dutch auction premium
+
+Newly released names (expired or previously never registered) carry a **premium** that decays to zero over 14 days:
+
+- Day 0: premium starts high (set by `LinearPremiumPriceOracle`)
+- Day 14: premium = 0, only base fee applies
+
+This prevents sniping of desirable names the moment they expire.
+
+## Grace period
+
+After expiry, names enter a **90-day grace period**:
+
+- The owner can still renew at the base rate
+- No new registrations are accepted
+- After 90 days, the name is released to the public with a Dutch auction premium
+
+## Revenue split
+
+| Bucket         | Share |
+| -------------- | ----- |
+| Operations     | 60%   |
+| Reserve        | 25%   |
+| Ecosystem fund | 10%   |
+| Buyback (V1.5) | 5%    |
+
+## Getting KITE
+
+During testnet: use the [faucet](https://faucet.gokite.ai) — 0.5 KITE per drip.
+
+On mainnet: KITE is the native gas token of Kite AI, available on DEXes and bridges.

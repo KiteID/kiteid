@@ -43,7 +43,8 @@
         "CVE-2026-39356"
       ],
       "ignoreGhsas": [
-        "GHSA-4w7w-66w2-5vf9"
+        "GHSA-4w7w-66w2-5vf9",
+        "GHSA-qx2v-qp2m-jg93"
       ]
     }
   },

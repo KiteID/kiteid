@@ -1,0 +1,64 @@
+---
+title: REST API
+description: Public endpoints served by the KiteID indexer.
+---
+
+## Base URL
+
+| Environment | URL                          |
+| ----------- | ---------------------------- |
+| Staging     | `https://staging.kiteid.xyz` |
+| Production  | `https://kiteid.xyz`         |
+
+All API endpoints are prefixed with `/api`.
+
+## Endpoints
+
+### `GET /api/names/stats`
+
+Returns aggregate domain statistics.
+
+```json
+{
+  "totalDomains": 142,
+  "activeDomains": 138,
+  "expiredDomains": 4
+}
+```
+
+### `GET /api/names/recent`
+
+Returns recently registered domains.
+
+**Query params:**
+- `limit` — number of results (default: 20, max: 100)
+
+```json
+{
+  "events": [
+    {
+      "name": "alice",
+      "owner": "0xABCD...",
+      "expiresAt": "1777777777",
+      "registeredAt": "1745000000"
+    }
+  ],
+  "count": 1
+}
+```
+
+### `GET /api/names/:name`
+
+Returns full domain details including records and event history.
+
+### `GET /api/diagnose`
+
+Health check endpoint.
+
+```json
+{ "ok": true, "status": 200 }
+```
+
+<Callout title="Rate limits">
+  600 requests per 15 minutes globally. `/api/diagnose` is exempt.
+</Callout>

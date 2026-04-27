@@ -3,3 +3,5 @@
 5897a85e7c919df06a5dd5752dfe94d0f84ac666:apps/web/src/stores/__tests__/registration.test.ts:generic-api-key:13
 # registration.test.ts mock secret (Phase 3 commit — nosemgrep shifted line)
 d168bd9b3fd6fe4b3f8aa543d51b21e5fffdf5f5:apps/web/src/stores/__tests__/registration.test.ts:generic-api-key:14
+# registration.test.ts mock secret (Phase 4 commit — same fake hex fixture)
+db258b6dc41b3b98b9d9b50a29094d11126cd629:apps/web/src/stores/__tests__/registration.test.ts:generic-api-key:14

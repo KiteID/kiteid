@@ -1,8 +1,14 @@
 {
   "extends": "@kiteid/config-typescript/react",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist"
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/.source": ["./.source/server"],
+      "@/*": ["./src/*"]
+    },
+    "plugins": [{ "name": "next" }]
   },
-  "include": ["src"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
