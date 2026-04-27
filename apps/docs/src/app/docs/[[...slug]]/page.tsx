@@ -1,4 +1,5 @@
-import { getGithubLastEdit } from 'fumadocs-core/server';
+import { getGithubLastEdit } from 'fumadocs-core/content/github';
+import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -34,12 +35,13 @@ export default async function Page({ params }: Props) {
   if (!page) notFound();
 
   const data = page.data as PageData;
-  const MDX = data.body as React.FC;
+  // biome-ignore lint/suspicious/noExplicitAny: MDX component type generated at build time
+  const MDX = data.body as React.FC<{ components?: Record<string, any> }>;
 
   const lastModified = await getGithubLastEdit({
     owner: 'KiteID',
     repo: 'kiteid',
-    path: `apps/docs/content/docs/${page.file.path}`,
+    path: `apps/docs/content/docs/${page.path}`,
   })
     .then((d) => d ?? undefined)
     .catch(() => undefined);
@@ -49,7 +51,7 @@ export default async function Page({ params }: Props) {
       <DocsTitle>{data.title}</DocsTitle>
       <DocsDescription>{data.description}</DocsDescription>
       <DocsBody>
-        <MDX />
+        <MDX components={defaultMdxComponents} />
       </DocsBody>
     </DocsPage>
   );
