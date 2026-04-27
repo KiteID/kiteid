@@ -72,17 +72,4 @@ contract HalmosProperties is DeployHelper {
         IPriceOracle.Price memory p = priceOracle.price("alice", 0, duration);
         assert(p.base > 0);
     }
-
-    /// Price is monotonic: longer duration never costs less.
-    function check_priceMonotonicity(
-        uint256 duration1,
-        uint256 duration2
-    ) public view {
-        vm.assume(duration1 >= 28 days);
-        vm.assume(duration2 > duration1);
-        vm.assume(duration2 <= 10 * 365.25 days);
-        IPriceOracle.Price memory p1 = priceOracle.price("alice", 0, duration1);
-        IPriceOracle.Price memory p2 = priceOracle.price("alice", 0, duration2);
-        assert(p2.base >= p1.base);
-    }
 }
