@@ -8,6 +8,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
 ARG NEXT_PUBLIC_CHAIN_ID=2368
 RUN pnpm install --frozen-lockfile --filter @kiteid/web...
+RUN pnpm --filter @kiteid/web^... build
 RUN pnpm --filter @kiteid/web build
 
 FROM node:22-alpine AS runner
