@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DM_Sans, Fraunces, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { headers } from 'next/headers';
 import { Suspense } from 'react';
 import { Toaster } from 'sonner';
@@ -13,21 +13,29 @@ import { Providers } from './providers';
 // prerender (e.g. /_not-found) that would try to evaluate it server-side.
 export const dynamic = 'force-dynamic';
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
+const dmSans = localFont({
+  src: [
+    { path: '../fonts/dm-sans.woff2', style: 'normal', weight: '100 900' },
+    { path: '../fonts/dm-sans-italic.woff2', style: 'italic', weight: '100 900' },
+  ],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const fraunces = Fraunces({
-  subsets: ['latin'],
+const fraunces = localFont({
+  src: [
+    { path: '../fonts/fraunces.woff2', style: 'normal', weight: '100 900' },
+    { path: '../fonts/fraunces-italic.woff2', style: 'italic', weight: '100 900' },
+  ],
   variable: '--font-serif',
   display: 'swap',
-  axes: ['opsz', 'SOFT'],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
+const jetbrainsMono = localFont({
+  src: [
+    { path: '../fonts/jetbrains-mono.woff2', style: 'normal', weight: '100 800' },
+    { path: '../fonts/jetbrains-mono-italic.woff2', style: 'italic', weight: '100 800' },
+  ],
   variable: '--font-mono',
   display: 'swap',
 });

@@ -5,6 +5,13 @@ on:
     branches: [main]
     paths:
       - 'apps/web/**'
+      - '.github/lighthouse-budget.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - '.github/lighthouse-budget.json'
+  workflow_dispatch:
   schedule:
     - cron: '0 8 * * 1'
 

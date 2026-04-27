@@ -107,7 +107,7 @@ jobs:
       - name: Install Aderyn
         run: |
           ADERYN_VER=$(curl -s https://api.github.com/repos/Cyfrin/aderyn/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
-          curl -sSfL "https://github.com/Cyfrin/aderyn/releases/download/${ADERYN_VER}/aderyn-x86_64-unknown-linux-musl.tar.gz" | tar xz
+          curl -sSfL "https://github.com/Cyfrin/aderyn/releases/download/${ADERYN_VER}/aderyn-x86_64-unknown-linux-gnu.tar.xz" | tar xJ
           sudo mv aderyn /usr/local/bin/
 
       - name: Run Aderyn
