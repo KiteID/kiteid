@@ -1,0 +1,3 @@
+version = 1
+root = "."
+exclude = ["lib", "out", "cache", "test", "script", "scripts"]
