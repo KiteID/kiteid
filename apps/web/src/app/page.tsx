@@ -682,7 +682,7 @@ function EditorialFooter() {
             The naming service for the Kite AI network. Your name, as a parchment dossier.
           </p>
           <div className="mt-6 flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gold-deep">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-carbon">
               <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-gold" />
               Testnet
             </span>

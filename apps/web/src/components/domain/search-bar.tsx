@@ -65,7 +65,7 @@ export function SearchBar({
             }
           />
           <span
-            className="pointer-events-none absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-bronze"
+            className="pointer-events-none absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-carbon/70"
             aria-hidden="true"
           >
             {isChecking && <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />}
@@ -77,7 +77,7 @@ export function SearchBar({
           onClick={handleSearch}
           disabled={disableSubmit}
           className={cn(
-            'shrink-0 rounded-xl bg-gold font-medium text-cream transition-colors hover:bg-bronze disabled:cursor-not-allowed disabled:opacity-60',
+            'shrink-0 rounded-xl bg-gold font-medium text-carbon transition-colors hover:bg-bronze hover:text-cream disabled:cursor-not-allowed disabled:opacity-60',
             size === 'lg' ? 'h-14 px-8 text-base' : 'h-10 px-5 text-sm',
           )}
           aria-label="Search"

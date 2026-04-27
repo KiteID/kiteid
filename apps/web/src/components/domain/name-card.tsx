@@ -130,7 +130,11 @@ export function NameCard({ name, isAvailable, isReserved, isLoading, price }: Na
                     Base price
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button type="button" className="text-bronze/70 hover:text-bronze">
+                        <button
+                          type="button"
+                          className="text-bronze/70 hover:text-bronze"
+                          aria-label="Learn more about base price"
+                        >
                           <Info className="h-3 w-3" strokeWidth={1.5} />
                         </button>
                       </TooltipTrigger>
@@ -148,7 +152,11 @@ export function NameCard({ name, isAvailable, isReserved, isLoading, price }: Na
                       Premium
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button type="button" className="text-amber-700/70 hover:text-amber-800">
+                          <button
+                            type="button"
+                            className="text-amber-700/70 hover:text-amber-800"
+                            aria-label="Learn more about premium pricing"
+                          >
                             <Info className="h-3 w-3" strokeWidth={1.5} />
                           </button>
                         </TooltipTrigger>
