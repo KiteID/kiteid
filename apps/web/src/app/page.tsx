@@ -247,7 +247,7 @@ function HeroSection() {
             strokeWidth={1.5}
             aria-hidden="true"
           />
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-stone">
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-bronze">
             scroll
           </span>
         </div>

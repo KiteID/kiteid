@@ -51,7 +51,7 @@ test.describe('Registration Flow', () => {
     });
 
     // Navigate to register page with a 5+ char name
-    await page.goto('/register/mysite');
+    await page.goto('/register/mysite', { waitUntil: 'networkidle' });
 
     // Wait for name to be loaded on page
     await expect(page.getByText(/mysite/i).first()).toBeVisible({
