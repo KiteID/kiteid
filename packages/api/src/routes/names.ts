@@ -41,21 +41,6 @@ export const namesRouter = new Hono()
       return c.json({ error: 'Indexer unreachable', detail: message }, 502);
     }
   })
-  .get('/:name', async (c) => {
-    const name = c.req.param('name').toLowerCase();
-    try {
-      const res = await fetchIndexer(`/names/detail/${encodeURIComponent(name)}`);
-      if (!res.ok) {
-        if (res.status === 404) return c.json({ error: 'Domain not found' }, 404);
-        return c.json({ error: 'Indexer unavailable', status: res.status }, 502);
-      }
-      const data = await res.json();
-      return c.json(data);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown indexer error';
-      return c.json({ error: 'Indexer unreachable', detail: message }, 502);
-    }
-  })
   .get('/owners', async (c) => {
     const addresses = c.req.query('addresses')?.split(',') || [];
     if (addresses.length === 0) {
@@ -85,6 +70,21 @@ export const namesRouter = new Hono()
     try {
       const res = await fetchIndexer(`/names/${address}`);
       if (!res.ok) {
+        return c.json({ error: 'Indexer unavailable', status: res.status }, 502);
+      }
+      const data = await res.json();
+      return c.json(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown indexer error';
+      return c.json({ error: 'Indexer unreachable', detail: message }, 502);
+    }
+  })
+  .get('/:name', async (c) => {
+    const name = c.req.param('name').toLowerCase();
+    try {
+      const res = await fetchIndexer(`/names/detail/${encodeURIComponent(name)}`);
+      if (!res.ok) {
+        if (res.status === 404) return c.json({ error: 'Domain not found' }, 404);
         return c.json({ error: 'Indexer unavailable', status: res.status }, 502);
       }
       const data = await res.json();
