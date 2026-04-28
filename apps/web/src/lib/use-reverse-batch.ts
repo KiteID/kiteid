@@ -8,8 +8,8 @@ interface DomainData {
 type BatchResult = Record<string, DomainData | undefined>;
 
 /**
- * Batch reverse lookup hook - fetches domain names for multiple addresses at once.
- * Uses React Query's batching and caching to avoid N+1 requests.
+ * Batch reverse lookup hook - fetches domain names for multiple addresses in a single API call.
+ * Uses a dedicated /api/names/owners?addresses=0x1,0x2,... endpoint to avoid N+1 requests.
  */
 export function useReverseBatch(addresses: string[]): BatchResult {
   const uniqueAddresses = [...new Set(addresses.map((a) => a.toLowerCase()))];
@@ -17,26 +17,23 @@ export function useReverseBatch(addresses: string[]): BatchResult {
   const { data = {} } = useQuery<BatchResult>({
     queryKey: ['reverse-batch', JSON.stringify(uniqueAddresses.sort())],
     queryFn: async () => {
-      const result: BatchResult = {};
+      if (uniqueAddresses.length === 0) return {};
 
-      // Fetch all addresses in parallel
-      const promises = uniqueAddresses.map(async (address) => {
-        try {
-          const res = await fetch(`/api/names/owner/${address}`);
-          if (res.ok) {
-            const data: DomainData = await res.json();
-            result[address] = data;
-          }
-        } catch {
-          // Silently fail for individual addresses
+      try {
+        const queryString = uniqueAddresses.join(',');
+        const res = await fetch(`/api/names/owners?addresses=${queryString}`);
+        if (res.ok) {
+          const { owners } = await res.json();
+          return owners as BatchResult;
         }
-      });
-
-      await Promise.all(promises);
-      return result;
+      } catch {
+        // Silently fail and return empty
+      }
+      return {};
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 30, // 30 minutes
+    enabled: uniqueAddresses.length > 0,
   });
 
   return data;

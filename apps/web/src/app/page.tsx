@@ -568,6 +568,8 @@ function FaqSection() {
 // 7. Closing CTA
 // ---------------------------------------------------------------------------
 
+('use client');
+
 function ClosingCta() {
   return (
     <RevealOnScroll y={40}>
