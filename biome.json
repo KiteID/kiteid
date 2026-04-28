@@ -28,6 +28,7 @@
       "!**/.changeset",
       "!**/coverage",
       "!**/next-env.d.ts",
+      "!**/apps/docs/.source",
       "!**/ponder-env.d.ts",
       "!**/playwright-report",
       "!**/test-results",

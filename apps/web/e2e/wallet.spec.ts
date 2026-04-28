@@ -29,7 +29,7 @@ test.describe('Wallet Connection', () => {
     await expect(walletOption).toBeVisible({ timeout: 5_000 });
   });
 
-  test.skip('modal can be closed', async ({ page }) => {
+  test.skip('modal can be closed', async () => {
     // RainbowKit modal closing behavior tested manually
     // Automated closing via Escape key varies by environment
   });
