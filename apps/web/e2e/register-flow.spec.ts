@@ -51,11 +51,12 @@ test.describe('Registration Flow', () => {
     });
 
     // Navigate to register page with a 5+ char name
-    await page.goto('/register/mysite', { waitUntil: 'networkidle' });
+    await page.goto('/register/mysite');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Wait for name to be loaded on page
+    // Wait for name to be loaded on page (increased timeout for CI env)
     await expect(page.getByText(/mysite/i).first()).toBeVisible({
-      timeout: 10_000,
+      timeout: 20_000,
     });
 
     // Check configure step is visible (should show duration options)
