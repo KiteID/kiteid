@@ -176,15 +176,13 @@ export default function WrapperPage() {
 
       {/* Features Grid */}
       <FadeIn delay={0.1}>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2">
-          <Stagger>
-            {WRAPPER_FEATURES.map((feature) => (
-              <StaggerItem key={feature.title}>
-                <FeatureCard {...feature} />
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
+        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2">
+          {WRAPPER_FEATURES.map((feature) => (
+            <StaggerItem key={feature.title}>
+              <FeatureCard {...feature} />
+            </StaggerItem>
+          ))}
+        </Stagger>
       </FadeIn>
 
       {/* Demo Sections */}
