@@ -1,26 +1,18 @@
 'use client';
 
 import { Badge } from '@kiteid/ui';
-import { useQuery } from '@tanstack/react-query';
 
 interface DomainData {
   domains: Array<{ name: string }>;
   count: number;
 }
 
-export function ReverseLabel({ address }: { address: string }) {
-  const { data, isLoading } = useQuery<DomainData>({
-    queryKey: ['reverse', address.toLowerCase()],
-    queryFn: async () => {
-      const res = await fetch(`/api/names/owner/${address.toLowerCase()}`);
-      if (!res.ok) throw new Error('Failed to fetch reverse data');
-      return res.json();
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes (replaces cacheTime)
-  });
+interface ReverseLabelProps {
+  data?: DomainData;
+}
 
-  if (isLoading || !data?.domains || data.domains.length === 0) {
+export function ReverseLabel({ data }: ReverseLabelProps) {
+  if (!data?.domains || data.domains.length === 0) {
     return null;
   }
 

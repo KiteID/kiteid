@@ -8,6 +8,7 @@ import { AnimatedCounter, FadeIn, RevealOnScroll, Stagger, StaggerItem } from '@
 import { CopyAddress } from '@/components/ui/copy-address';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ReverseLabel } from '@/components/ui/reverse-label';
+import { useReverseBatch } from '@/lib/use-reverse-batch';
 
 const EXPLORER_URL = 'https://testnet.kitescan.ai';
 const PAGE_SIZE = 20;
@@ -90,7 +91,15 @@ function groupByDay(events: ActivityEvent[]): { day: string; events: ActivityEve
   return Array.from(map.entries()).map(([day, evts]) => ({ day, events: evts }));
 }
 
-function EventCard({ event }: { event: ActivityEvent }) {
+interface EventCardProps {
+  event: ActivityEvent;
+  reverseData?: Record<string, { domains: Array<{ name: string }>; count: number } | undefined>;
+}
+
+function EventCard({ event, reverseData }: EventCardProps) {
+  const actorLower = event.actor.toLowerCase();
+  const domainData = reverseData?.[actorLower];
+
   return (
     <div className="relative pl-10">
       {/* Timeline dot */}
@@ -117,7 +126,7 @@ function EventCard({ event }: { event: ActivityEvent }) {
         </div>
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
           <div className="flex items-center gap-2">
-            <ReverseLabel address={event.actor} />
+            <ReverseLabel data={domainData} />
             <CopyAddress value={event.actor} />
           </div>
           <a
@@ -193,6 +202,14 @@ export default function ActivityPage() {
     () => (filterType === 'all' ? events : events.filter((e) => e.eventType === filterType)),
     [events, filterType],
   );
+
+  // Batch fetch all unique addresses to avoid N+1
+  const uniqueAddresses = useMemo(() => {
+    const set = new Set(filteredEvents.map((e) => e.actor.toLowerCase()));
+    return Array.from(set);
+  }, [filteredEvents]);
+
+  const reverseData = useReverseBatch(uniqueAddresses);
 
   // TODO: wire active-wallet + today counts to dedicated endpoints
   const todayCount = useMemo(() => {
@@ -371,7 +388,7 @@ export default function ActivityPage() {
                   <Stagger className="space-y-4">
                     {group.events.map((evt) => (
                       <StaggerItem key={evt.id}>
-                        <EventCard event={evt} />
+                        <EventCard event={evt} reverseData={reverseData} />
                       </StaggerItem>
                     ))}
                   </Stagger>
