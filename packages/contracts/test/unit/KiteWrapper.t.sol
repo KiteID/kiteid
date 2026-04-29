@@ -70,7 +70,7 @@ contract KiteWrapperTest is Test {
 
     function test_wrap_SuccessfulWrap() public {
         vm.prank(controller);
-        wrapper.wrap(testNode, user1, 0, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, uint256(testNode), user1, 0, uint64(block.timestamp + 365 days));
 
         assertEq(wrapper.getExpiry(testNode), uint64(block.timestamp + 365 days));
         assertEq(wrapper.getFuses(testNode), 0);
@@ -79,18 +79,18 @@ contract KiteWrapperTest is Test {
 
     function test_wrap_AlreadyWrapped() public {
         vm.prank(controller);
-        wrapper.wrap(testNode, user1, 0, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, uint256(testNode), user1, 0, uint64(block.timestamp + 365 days));
 
         vm.prank(controller);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.NameAlreadyWrapped.selector, testNode));
-        wrapper.wrap(testNode, user1, 0, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, uint256(testNode), user1, 0, uint64(block.timestamp + 365 days));
     }
 
     function test_wrap_WithFuses() public {
         uint96 fuses = CANNOT_UNWRAP | CANNOT_TRANSFER;
 
         vm.prank(controller);
-        wrapper.wrap(testNode, user1, fuses, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, uint256(testNode), user1, fuses, uint64(block.timestamp + 365 days));
 
         assertEq(wrapper.getFuses(testNode), fuses);
     }
@@ -101,7 +101,7 @@ contract KiteWrapperTest is Test {
         _setupWrappedName(user1, 0);
 
         vm.prank(controller);
-        wrapper.unwrap(testNode, user1);
+        wrapper.unwrap(testNode, uint256(testNode), user1);
 
         assertEq(wrapper.getExpiry(testNode), 0);
         assertEq(wrapper.balanceOf(user1, uint256(testNode)), 0);
@@ -110,7 +110,7 @@ contract KiteWrapperTest is Test {
     function test_unwrap_NotWrapped() public {
         vm.prank(controller);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.NameNotWrapped.selector, testNode));
-        wrapper.unwrap(testNode, user1);
+        wrapper.unwrap(testNode, uint256(testNode), user1);
     }
 
     function test_unwrap_CannotUnwrapFuseBurned() public {
@@ -118,7 +118,7 @@ contract KiteWrapperTest is Test {
 
         vm.prank(controller);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.FuseBurned.selector, CANNOT_UNWRAP));
-        wrapper.unwrap(testNode, user1);
+        wrapper.unwrap(testNode, uint256(testNode), user1);
     }
 
     // ============ Fuse Tests ============
@@ -259,6 +259,6 @@ contract KiteWrapperTest is Test {
         uint96 fuses
     ) internal {
         vm.prank(controller);
-        wrapper.wrap(testNode, wrappedOwner, fuses, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, uint256(testNode), wrappedOwner, fuses, uint64(block.timestamp + 365 days));
     }
 }

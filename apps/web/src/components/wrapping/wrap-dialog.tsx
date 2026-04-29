@@ -85,8 +85,15 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Wrap Name to V2</DialogTitle>
-          <DialogDescription>Lock permissions and bind identity to your name</DialogDescription>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Wrap Name to V2</DialogTitle>
+            <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-medium text-amber-800 dark:text-amber-200">
+              Demo Preview
+            </span>
+          </div>
+          <DialogDescription>
+            This is a preview interface. Contract integration coming in Phase 6b
+          </DialogDescription>
         </DialogHeader>
 
         {step === 'select' && <FuseSelector onSelect={handleSelectFuses} />}

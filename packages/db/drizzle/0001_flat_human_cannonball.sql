@@ -55,7 +55,7 @@ CREATE INDEX "agent_auth_active_expiry_idx" ON "agent_authorizations" USING btre
 CREATE INDEX "passport_bindings_node_idx" ON "passport_bindings" USING btree ("node");--> statement-breakpoint
 CREATE INDEX "passport_bindings_status_idx" ON "passport_bindings" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "passport_bindings_passport_id_hash_idx" ON "passport_bindings" USING btree ("passport_id_hash");--> statement-breakpoint
-CREATE UNIQUE INDEX "passport_bindings_unique_node_active" ON "passport_bindings" USING btree ("node");--> statement-breakpoint
+CREATE UNIQUE INDEX "passport_bindings_unique_node_active" ON "passport_bindings" USING btree ("node") WHERE "status" = 'active';--> statement-breakpoint
 CREATE INDEX "wrapped_names_owner_idx" ON "wrapped_names" USING btree ("owner");--> statement-breakpoint
 CREATE INDEX "wrapped_names_expiry_idx" ON "wrapped_names" USING btree ("expiry");--> statement-breakpoint
 CREATE INDEX "x402_log_agent_node_idx" ON "x402_payment_log" USING btree ("agent_node");--> statement-breakpoint

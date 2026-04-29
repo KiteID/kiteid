@@ -71,6 +71,7 @@ interface IKiteWrapper is IERC1155 {
 
     function wrap(
         bytes32 node,
+        uint256 tokenId,
         address owner,
         uint96 fuses,
         uint64 expiry
@@ -78,6 +79,7 @@ interface IKiteWrapper is IERC1155 {
 
     function unwrap(
         bytes32 node,
+        uint256 tokenId,
         address owner
     ) external;
 

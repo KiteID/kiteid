@@ -148,8 +148,11 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     // ============ Wrapping Functions ============
 
     /// @notice Wrap a V1 name (ERC-721) into V2 (ERC-1155) with optional Passport binding
+    /// @param node Registry namehash (stored key for wrapped name metadata)
+    /// @param tokenId ERC-721 token ID in baseRegistrar (must match actual token)
     function wrap(
         bytes32 node,
+        uint256 tokenId,
         address owner,
         uint96 fuses,
         uint64 expiry
@@ -162,7 +165,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         $.fuses[node] = fuses;
         $.expiries[node] = expiry;
 
-        $.baseRegistrar.safeTransferFrom(owner, address(this), uint256(node));
+        $.baseRegistrar.safeTransferFrom(owner, address(this), tokenId);
 
         _mint(owner, uint256(node), 1, "");
 
@@ -170,8 +173,11 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     }
 
     /// @notice Unwrap a name (convert ERC-1155 back to control of V1)
+    /// @param node Registry namehash
+    /// @param tokenId ERC-721 token ID in baseRegistrar (must match actual token)
     function unwrap(
         bytes32 node,
+        uint256 tokenId,
         address owner
     ) external onlyController {
         WrapperStorage storage $ = _getStorage();
@@ -181,7 +187,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
         _burn(owner, uint256(node), 1);
 
-        $.baseRegistrar.safeTransferFrom(address(this), owner, uint256(node));
+        $.baseRegistrar.safeTransferFrom(address(this), owner, tokenId);
 
         delete $.owners[node];
         delete $.fuses[node];
@@ -313,6 +319,8 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
             if (from != address(0) && KiteWrapperTypes.isFuseBurned($.fuses[node], CANNOT_TRANSFER)) {
                 revert FuseBurned(CANNOT_TRANSFER);
             }
+            // Update owner when transfer occurs (from != address(0) = existing token)
+            if (from != address(0) && to != address(0)) $.owners[node] = to;
         }
 
         super._update(from, to, ids, values);
