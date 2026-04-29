@@ -29,21 +29,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     }
 
     // keccak256(abi.encode(uint256(keccak256("kiteid.wrapper.storage")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant STORAGE_LOCATION = 0xa9d45ab0b6b8c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d00;
-
-    // ============ Errors ============
-
-    error NameAlreadyWrapped(bytes32 node);
-    error NameNotWrapped(bytes32 node);
-    error FuseNotBurned(uint96 fuse);
-    error FuseBurned(uint96 fuse);
-    error AgentAlreadyAuthorized(bytes32 parentNode, bytes32 agentNode);
-    error AgentNotAuthorized(bytes32 parentNode, bytes32 agentNode);
-    error PassportAlreadyBound(bytes32 node);
-    error PassportNotBound(bytes32 node);
-    error CallerNotOwner(bytes32 node);
-    error CallerNotController();
-    error Unauthorized();
+    bytes32 private constant STORAGE_LOCATION = 0xa9d45ab0b6b8c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d700;
 
     // ============ Events ============
 
@@ -324,8 +310,8 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override returns (bool) {
-        return interfaceId == type(IKiteWrapper).interfaceId || super.supportsInterface(interfaceId);
+    ) public view override(ERC1155Upgradeable) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
     // ============ IERC721Receiver ============

@@ -20,6 +20,20 @@ interface IKiteWrapper is IERC1155 {
     );
     event AgentRevoked(bytes32 indexed parentNode, bytes32 indexed agentNode, address indexed agentAddress);
 
+    // ============ Errors ============
+
+    error NameAlreadyWrapped(bytes32 node);
+    error NameNotWrapped(bytes32 node);
+    error FuseNotBurned(uint96 fuse);
+    error FuseBurned(uint96 fuse);
+    error AgentAlreadyAuthorized(bytes32 parentNode, bytes32 agentNode);
+    error AgentNotAuthorized(bytes32 parentNode, bytes32 agentNode);
+    error PassportAlreadyBound(bytes32 node);
+    error PassportNotBound(bytes32 node);
+    error CallerNotOwner(bytes32 node);
+    error CallerNotController();
+    error Unauthorized();
+
     // ============ Structs ============
 
     struct AgentAuth {
