@@ -6,17 +6,12 @@ import { persist } from 'zustand/middleware';
 export type WrapStep = 'select' | 'preview' | 'confirm' | 'pending' | 'done';
 
 interface WrappingState {
-  // UI state
   step: WrapStep;
   selectedFuses: bigint;
   node: string | null;
   owner: string | null;
-
-  // Transaction state
   txHash: string | null;
   errorMessage: string | null;
-
-  // Wrapped names cache
   wrappedNames: Record<
     string,
     {
@@ -28,7 +23,6 @@ interface WrappingState {
     }
   >;
 
-  // Actions
   startWrap: (node: string, owner: string) => void;
   setFuses: (fuses: bigint) => void;
   advanceStep: (step: WrapStep) => void;

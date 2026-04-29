@@ -24,6 +24,15 @@ contract MockERC721 {
     ) public {
         owners[tokenId] = to;
     }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public {
+        require(owners[tokenId] == from, "Not owner");
+        owners[tokenId] = to;
+    }
 }
 
 contract KiteWrapperTest is Test {

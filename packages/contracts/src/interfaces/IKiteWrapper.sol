@@ -43,13 +43,6 @@ interface IKiteWrapper is IERC1155 {
         bool active;
     }
 
-    // ============ Fuse Constants ============
-
-    uint96 constant CANNOT_UNWRAP = 1;
-    uint96 constant CANNOT_TRANSFER = 1 << 2;
-    uint96 constant CANNOT_UNBIND_PASSPORT = 1 << 18;
-    uint96 constant CANNOT_REVOKE_AGENTS = 1 << 19;
-
     // ============ Read Functions ============
 
     function getFuses(

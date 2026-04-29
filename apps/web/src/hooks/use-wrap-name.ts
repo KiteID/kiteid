@@ -16,7 +16,7 @@ interface SetFusesParams {
 }
 
 // MVP: Placeholder hook for wrapping functionality
-// Full integration with wagmi will be implemented in Phase 6b
+// Full wagmi integration will be implemented in Phase 6b
 export function useWrapName() {
   const queryClient = useQueryClient();
 

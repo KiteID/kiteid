@@ -72,9 +72,8 @@ export const wrapperRouter = new Hono()
         return c.json({ error: 'Missing required fields: node, owner, fuses' }, 400);
       }
 
-      // Estimate gas (static estimate for MVP)
-      // Real implementation would call contract's wrap() via RPC
-      const gasEstimate = {
+      // Estimate gas for wrap transaction (static estimate for MVP)
+      const gasEstimate: Record<string, string> = {
         wrap: '150000',
         unwrap: '100000',
         setFuses: '80000',

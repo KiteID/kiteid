@@ -6,6 +6,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {IKiteWrapper} from "../interfaces/IKiteWrapper.sol";
 import {KiteWrapperTypes} from "./KiteWrapperTypes.sol";
@@ -21,6 +22,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     /// @custom:storage-location erc7201:kiteid.wrapper.storage
     struct WrapperStorage {
         IERC721 baseRegistrar;
+        mapping(bytes32 => address) owners;
         mapping(bytes32 => uint96) fuses;
         mapping(bytes32 => uint64) expiries;
         mapping(bytes32 => bytes32) passportCommitments;
@@ -30,6 +32,13 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
     // keccak256(abi.encode(uint256(keccak256("kiteid.wrapper.storage")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant STORAGE_LOCATION = 0x9c0ab0b18e2a3abd56a0c6c3d45f8e7b1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f00;
+
+    // ============ Fuse Constants ============
+
+    uint96 public constant CANNOT_UNWRAP = 1;
+    uint96 public constant CANNOT_TRANSFER = 1 << 2;
+    uint96 public constant CANNOT_UNBIND_PASSPORT = 1 << 18;
+    uint96 public constant CANNOT_REVOKE_AGENTS = 1 << 19;
 
     // ============ Events ============
 
@@ -149,8 +158,11 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
         if ($.expiries[node] != 0) revert NameAlreadyWrapped(node);
 
+        $.owners[node] = owner;
         $.fuses[node] = fuses;
         $.expiries[node] = expiry;
+
+        $.baseRegistrar.safeTransferFrom(owner, address(this), uint256(node));
 
         _mint(owner, uint256(node), 1, "");
 
@@ -169,6 +181,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
         _burn(owner, uint256(node), 1);
 
+        $.baseRegistrar.safeTransferFrom(address(this), owner, uint256(node));
+
+        delete $.owners[node];
         delete $.fuses[node];
         delete $.expiries[node];
         delete $.passportCommitments[node];
@@ -188,7 +203,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         if ($.expiries[node] == 0) revert NameNotWrapped(node);
 
         uint96 currentFuses = $.fuses[node];
-        if ((currentFuses & fuses) != fuses) revert FuseBurned(fuses);
+        if ((currentFuses & fuses) != 0) revert FuseBurned(fuses);
 
         $.fuses[node] = currentFuses | fuses;
 
@@ -285,6 +300,24 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
     // ============ ERC-1155 Overrides ============
 
+    function _update(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values
+    ) internal override {
+        WrapperStorage storage $ = _getStorage();
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            bytes32 node = bytes32(ids[i]);
+            if (from != address(0) && KiteWrapperTypes.isFuseBurned($.fuses[node], CANNOT_TRANSFER)) {
+                revert FuseBurned(CANNOT_TRANSFER);
+            }
+        }
+
+        super._update(from, to, ids, values);
+    }
+
     function _ownerOf(
         bytes32 node
     ) internal view returns (address) {
@@ -295,22 +328,18 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         uint256 tokenId
     ) internal view returns (address owner) {
         WrapperStorage storage $ = _getStorage();
-        if ($.expiries[bytes32(tokenId)] == 0) return address(0);
-
-        // ERC-1155 doesn't have ownerOf, so we track via balances
-        address[] memory approvals = new address[](1);
-        return owner; // Simplified; full impl would track owner mapping or use external registry
+        return $.owners[bytes32(tokenId)];
     }
 
     function uri(
-        uint256 tokenId
-    ) public view override returns (string memory) {
+        uint256
+    ) public pure override returns (string memory) {
         return "";
     }
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC1155Upgradeable) returns (bool) {
+    ) public view override(ERC1155Upgradeable, IERC165) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
