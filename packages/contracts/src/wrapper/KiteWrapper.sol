@@ -179,7 +179,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         WrapperStorage storage $ = _getStorage();
 
         if ($.expiries[node] == 0) revert NameNotWrapped(node);
-        if (isFuseBurned($.fuses[node], CANNOT_UNWRAP)) revert FuseBurned(CANNOT_UNWRAP);
+        if (KiteWrapperTypes.isFuseBurned($.fuses[node], CANNOT_UNWRAP)) revert FuseBurned(CANNOT_UNWRAP);
 
         _burn(owner, uint256(node), 1);
 
@@ -236,7 +236,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         if (msg.sender != owner) revert CallerNotOwner(node);
         if ($.expiries[node] == 0) revert NameNotWrapped(node);
         if ($.passportCommitments[node] == 0) revert PassportNotBound(node);
-        if (isFuseBurned($.fuses[node], CANNOT_UNBIND_PASSPORT)) revert FuseBurned(CANNOT_UNBIND_PASSPORT);
+        if (KiteWrapperTypes.isFuseBurned($.fuses[node], CANNOT_UNBIND_PASSPORT)) {
+            revert FuseBurned(CANNOT_UNBIND_PASSPORT);
+        }
 
         delete $.passportCommitments[node];
 
@@ -258,7 +260,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         address parentOwner = _ownerOf(parentNode);
         if (msg.sender != parentOwner) revert CallerNotOwner(parentNode);
         if ($.expiries[parentNode] == 0) revert NameNotWrapped(parentNode);
-        if (isFuseBurned($.fuses[parentNode], CANNOT_REVOKE_AGENTS)) revert FuseBurned(CANNOT_REVOKE_AGENTS);
+        if (KiteWrapperTypes.isFuseBurned($.fuses[parentNode], CANNOT_REVOKE_AGENTS)) {
+            revert FuseBurned(CANNOT_REVOKE_AGENTS);
+        }
 
         AgentAuth memory auth = $.agentAuths[parentNode][agentNode];
         if (auth.active) revert AgentAlreadyAuthorized(parentNode, agentNode);
@@ -284,7 +288,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
         AgentAuth memory auth = $.agentAuths[parentNode][agentNode];
         if (!auth.active) revert AgentNotAuthorized(parentNode, agentNode);
-        if (isFuseBurned($.fuses[parentNode], CANNOT_REVOKE_AGENTS)) revert FuseBurned(CANNOT_REVOKE_AGENTS);
+        if (KiteWrapperTypes.isFuseBurned($.fuses[parentNode], CANNOT_REVOKE_AGENTS)) {
+            revert FuseBurned(CANNOT_REVOKE_AGENTS);
+        }
 
         $.agentAuths[parentNode][agentNode].active = false;
 
