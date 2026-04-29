@@ -44,7 +44,10 @@ contract KiteWrapperTest is Test {
     address public user2 = address(0x3);
     address public controller = address(0x4);
 
-    bytes32 public testNode = keccak256(abi.encodePacked("test"));
+    bytes32 public testLabelhash = keccak256(bytes("test"));
+    uint256 public testTokenId = uint256(testLabelhash);
+    bytes32 public kiteNode = keccak256(abi.encodePacked(bytes32(0), keccak256(bytes("kite"))));
+    bytes32 public testNode = keccak256(abi.encodePacked(kiteNode, testLabelhash));
     bytes32 public agentNode = keccak256(abi.encodePacked("agent"));
 
     uint96 constant CANNOT_UNWRAP = 1;
@@ -54,7 +57,7 @@ contract KiteWrapperTest is Test {
 
     function setUp() public {
         mockRegistrar = new MockERC721();
-        mockRegistrar.mint(user1, uint256(testNode));
+        mockRegistrar.mint(user1, testTokenId);
 
         // Deploy wrapper via proxy
         KiteWrapper impl = new KiteWrapper();
@@ -70,7 +73,7 @@ contract KiteWrapperTest is Test {
 
     function test_wrap_SuccessfulWrap() public {
         vm.prank(controller);
-        wrapper.wrap(testNode, uint256(testNode), user1, 0, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, testTokenId, user1, 0, uint64(block.timestamp + 365 days));
 
         assertEq(wrapper.getExpiry(testNode), uint64(block.timestamp + 365 days));
         assertEq(wrapper.getFuses(testNode), 0);
@@ -79,18 +82,18 @@ contract KiteWrapperTest is Test {
 
     function test_wrap_AlreadyWrapped() public {
         vm.prank(controller);
-        wrapper.wrap(testNode, uint256(testNode), user1, 0, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, testTokenId, user1, 0, uint64(block.timestamp + 365 days));
 
         vm.prank(controller);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.NameAlreadyWrapped.selector, testNode));
-        wrapper.wrap(testNode, uint256(testNode), user1, 0, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, testTokenId, user1, 0, uint64(block.timestamp + 365 days));
     }
 
     function test_wrap_WithFuses() public {
         uint96 fuses = CANNOT_UNWRAP | CANNOT_TRANSFER;
 
         vm.prank(controller);
-        wrapper.wrap(testNode, uint256(testNode), user1, fuses, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, testTokenId, user1, fuses, uint64(block.timestamp + 365 days));
 
         assertEq(wrapper.getFuses(testNode), fuses);
     }
@@ -101,7 +104,7 @@ contract KiteWrapperTest is Test {
         _setupWrappedName(user1, 0);
 
         vm.prank(controller);
-        wrapper.unwrap(testNode, uint256(testNode), user1);
+        wrapper.unwrap(testNode, testTokenId, user1);
 
         assertEq(wrapper.getExpiry(testNode), 0);
         assertEq(wrapper.balanceOf(user1, uint256(testNode)), 0);
@@ -110,7 +113,7 @@ contract KiteWrapperTest is Test {
     function test_unwrap_NotWrapped() public {
         vm.prank(controller);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.NameNotWrapped.selector, testNode));
-        wrapper.unwrap(testNode, uint256(testNode), user1);
+        wrapper.unwrap(testNode, testTokenId, user1);
     }
 
     function test_unwrap_CannotUnwrapFuseBurned() public {
@@ -118,7 +121,17 @@ contract KiteWrapperTest is Test {
 
         vm.prank(controller);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.FuseBurned.selector, CANNOT_UNWRAP));
-        wrapper.unwrap(testNode, uint256(testNode), user1);
+        wrapper.unwrap(testNode, testTokenId, user1);
+    }
+
+    function test_unwrap_TokenIdMismatch() public {
+        _setupWrappedName(user1, 0);
+
+        uint256 wrongTokenId = uint256(keccak256(bytes("wrong")));
+
+        vm.prank(controller);
+        vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.TokenIdMismatch.selector, testNode, wrongTokenId));
+        wrapper.unwrap(testNode, wrongTokenId, user1);
     }
 
     // ============ Fuse Tests ============
@@ -146,6 +159,44 @@ contract KiteWrapperTest is Test {
         vm.prank(user1);
         vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.FuseBurned.selector, CANNOT_UNWRAP));
         wrapper.setFuses(testNode, CANNOT_UNWRAP);
+    }
+
+    function test_transfer_UpdatesOwner() public {
+        _setupWrappedName(user1, 0);
+
+        vm.prank(user1);
+        wrapper.safeTransferFrom(user1, user2, uint256(testNode), 1, "");
+
+        vm.prank(user1);
+        vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.CallerNotOwner.selector, testNode));
+        wrapper.setFuses(testNode, CANNOT_UNWRAP);
+
+        vm.prank(user2);
+        wrapper.setFuses(testNode, CANNOT_UNWRAP);
+
+        assertEq(wrapper.getFuses(testNode), CANNOT_UNWRAP);
+    }
+
+    function test_transfer_ZeroValueDoesNotChangeOwner() public {
+        _setupWrappedName(user1, 0);
+
+        vm.prank(user1);
+        wrapper.safeTransferFrom(user1, user2, uint256(testNode), 0, "");
+
+        vm.prank(user2);
+        vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.CallerNotOwner.selector, testNode));
+        wrapper.setFuses(testNode, CANNOT_UNWRAP);
+
+        vm.prank(user1);
+        wrapper.setFuses(testNode, CANNOT_UNWRAP);
+    }
+
+    function test_transfer_CannotTransferFuseBurned() public {
+        _setupWrappedName(user1, CANNOT_TRANSFER);
+
+        vm.prank(user1);
+        vm.expectRevert(abi.encodeWithSelector(IKiteWrapper.FuseBurned.selector, CANNOT_TRANSFER));
+        wrapper.safeTransferFrom(user1, user2, uint256(testNode), 1, "");
     }
 
     // ============ Passport Tests ============
@@ -259,6 +310,6 @@ contract KiteWrapperTest is Test {
         uint96 fuses
     ) internal {
         vm.prank(controller);
-        wrapper.wrap(testNode, uint256(testNode), wrappedOwner, fuses, uint64(block.timestamp + 365 days));
+        wrapper.wrap(testNode, testTokenId, wrappedOwner, fuses, uint64(block.timestamp + 365 days));
     }
 }

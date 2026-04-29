@@ -23,6 +23,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     struct WrapperStorage {
         IERC721 baseRegistrar;
         mapping(bytes32 => address) owners;
+        mapping(bytes32 => uint256) tokenIds;
         mapping(bytes32 => uint96) fuses;
         mapping(bytes32 => uint64) expiries;
         mapping(bytes32 => bytes32) passportCommitments;
@@ -162,6 +163,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         if ($.expiries[node] != 0) revert NameAlreadyWrapped(node);
 
         $.owners[node] = owner;
+        $.tokenIds[node] = tokenId;
         $.fuses[node] = fuses;
         $.expiries[node] = expiry;
 
@@ -183,6 +185,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         WrapperStorage storage $ = _getStorage();
 
         if ($.expiries[node] == 0) revert NameNotWrapped(node);
+        if ($.tokenIds[node] != tokenId) revert TokenIdMismatch(node, tokenId);
         if (KiteWrapperTypes.isFuseBurned($.fuses[node], CANNOT_UNWRAP)) revert FuseBurned(CANNOT_UNWRAP);
 
         _burn(owner, uint256(node), 1);
@@ -190,6 +193,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         $.baseRegistrar.safeTransferFrom(address(this), owner, tokenId);
 
         delete $.owners[node];
+        delete $.tokenIds[node];
         delete $.fuses[node];
         delete $.expiries[node];
         delete $.passportCommitments[node];
@@ -319,8 +323,8 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
             if (from != address(0) && KiteWrapperTypes.isFuseBurned($.fuses[node], CANNOT_TRANSFER)) {
                 revert FuseBurned(CANNOT_TRANSFER);
             }
-            // Update owner when transfer occurs (from != address(0) = existing token)
-            if (from != address(0) && to != address(0)) $.owners[node] = to;
+            // Zero-value ERC-1155 transfers must not mutate ownership metadata.
+            if (from != address(0) && to != address(0) && values[i] > 0) $.owners[node] = to;
         }
 
         super._update(from, to, ids, values);

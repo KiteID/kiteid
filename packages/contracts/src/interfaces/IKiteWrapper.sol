@@ -32,6 +32,7 @@ interface IKiteWrapper is IERC1155 {
     error PassportNotBound(bytes32 node);
     error CallerNotOwner(bytes32 node);
     error CallerNotController();
+    error TokenIdMismatch(bytes32 node, uint256 tokenId);
     error Unauthorized();
 
     // ============ Structs ============

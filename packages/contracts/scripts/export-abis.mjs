@@ -15,21 +15,22 @@ const ABI_PKG_DIR = join(CONTRACTS_DIR, '..', 'contracts-abi', 'src', 'abis');
 
 // Contracts to export
 const CONTRACTS = [
-  { name: 'KiteRegistry', file: 'KiteRegistry.sol/KiteRegistry.json' },
+  {
+    name: 'IPriceOracle',
+    file: 'IPriceOracle.sol/IPriceOracle.json',
+  },
   {
     name: 'KiteBaseRegistrar',
     file: 'KiteBaseRegistrar.sol/KiteBaseRegistrar.json',
   },
   { name: 'KiteController', file: 'KiteController.sol/KiteController.json' },
+  { name: 'KiteRegistry', file: 'KiteRegistry.sol/KiteRegistry.json' },
   { name: 'KiteResolver', file: 'KiteResolver.sol/KiteResolver.json' },
   {
     name: 'KiteReverseRegistrar',
     file: 'KiteReverseRegistrar.sol/KiteReverseRegistrar.json',
   },
-  {
-    name: 'IPriceOracle',
-    file: 'IPriceOracle.sol/IPriceOracle.json',
-  },
+  { name: 'KiteWrapper', file: 'KiteWrapper.sol/KiteWrapper.json' },
 ];
 
 function main() {
@@ -76,6 +77,7 @@ export { addresses } from './addresses';
 `;
 
   writeFileSync(indexPath, fullIndex);
+
   console.log(`\n✓ Exported ${exports.length} ABIs to ${ABI_PKG_DIR}`);
 }
 

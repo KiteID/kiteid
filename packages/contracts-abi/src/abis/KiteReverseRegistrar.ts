@@ -31,6 +31,19 @@ export const KiteReverseRegistrarAbi = [
   },
   {
     type: 'function',
+    name: 'addController',
+    inputs: [
+      {
+        name: '_controller',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'cancelOwnershipHandover',
     inputs: [],
     outputs: [],
@@ -67,6 +80,25 @@ export const KiteReverseRegistrarAbi = [
     ],
     outputs: [],
     stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    name: 'controllers',
+    inputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -144,6 +176,19 @@ export const KiteReverseRegistrarAbi = [
       },
     ],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'removeController',
+    inputs: [
+      {
+        name: '_controller',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -227,6 +272,25 @@ export const KiteReverseRegistrarAbi = [
     ],
     outputs: [],
     stateMutability: 'payable',
+  },
+  {
+    type: 'event',
+    name: 'ControllerChanged',
+    inputs: [
+      {
+        name: 'controller',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'active',
+        type: 'bool',
+        indexed: false,
+        internalType: 'bool',
+      },
+    ],
+    anonymous: false,
   },
   {
     type: 'event',
