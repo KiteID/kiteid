@@ -6,6 +6,7 @@ import { rateLimit } from './middleware/rate-limit';
 import { namesRouter } from './routes/names';
 import { notificationsRouter } from './routes/notifications';
 import { profileRouter } from './routes/profile';
+import { wrapperRouter } from './routes/wrapper';
 
 const app = new Hono().basePath('/api');
 
@@ -96,6 +97,7 @@ app.get('/diagnose', async (c) => {
 app.route('/names', namesRouter);
 app.route('/profile', profileRouter);
 app.route('/notifications', notificationsRouter);
+app.route('/v2/wrap', wrapperRouter);
 
 export default app;
 export type AppType = typeof app;
