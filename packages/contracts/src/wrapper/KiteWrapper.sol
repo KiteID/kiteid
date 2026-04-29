@@ -29,7 +29,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     }
 
     // keccak256(abi.encode(uint256(keccak256("kiteid.wrapper.storage")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant STORAGE_LOCATION = 0xa9d45ab0b6b8c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d7c3b0d4d700;
+    bytes32 private constant STORAGE_LOCATION = 0x9c0ab0b18e2a3abd56a0c6c3d45f8e7b1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f00;
 
     // ============ Events ============
 
@@ -310,7 +310,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC1155Upgradeable) returns (bool) {
+    ) public view override(ERC1155Upgradeable, IERC721Receiver) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
