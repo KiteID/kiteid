@@ -310,7 +310,7 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC1155Upgradeable, IERC721Receiver) returns (bool) {
+    ) public view override(ERC1155Upgradeable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
