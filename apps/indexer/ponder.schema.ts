@@ -58,3 +58,38 @@ export const activityEvent = onchainTable(
     timestampIdx: index().on(table.timestamp),
   }),
 );
+
+export const wrappedName = onchainTable(
+  'wrapped_name',
+  (t) => ({
+    node: t.hex().primaryKey(),
+    owner: t.hex().notNull(),
+    fuses: t.bigint().notNull().default(0n),
+    expiry: t.bigint().notNull(),
+    txHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    ownerIdx: index().on(table.owner),
+    expiryIdx: index().on(table.expiry),
+  }),
+);
+
+export const agentAuth = onchainTable(
+  'agent_auth',
+  (t) => ({
+    id: t.text().primaryKey(), // format: {parentNode}:{agentNode}
+    parentNode: t.hex().notNull(),
+    agentNode: t.hex().notNull(),
+    agentAddress: t.hex().notNull(),
+    spendCapPerTx: t.bigint().notNull(),
+    expiry: t.bigint().notNull(),
+    active: t.boolean().notNull().default(true),
+    txHash: t.hex().notNull(),
+  }),
+  (table) => ({
+    parentNodeIdx: index().on(table.parentNode),
+    agentNodeIdx: index().on(table.agentNode),
+    agentAddressIdx: index().on(table.agentAddress),
+    activeIdx: index().on(table.active),
+  }),
+);

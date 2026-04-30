@@ -1,8 +1,10 @@
 'use client';
 
+import { useWrapName } from '@kiteid/sdk';
 import { Button } from '@kiteid/ui';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
 
 import {
   Dialog,
@@ -25,6 +27,9 @@ interface WrapDialogProps {
 type Step = 'select' | 'preview' | 'confirm' | 'pending' | 'done';
 
 export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps) {
+  const chainId = useChainId();
+  const { address: account } = useAccount();
+  const { wrapAsync } = useWrapName(chainId);
   const [step, setStep] = useState<Step>('select');
   const [selectedFuses, setSelectedFuses] = useState<bigint>(0n);
   const [txHash, setTxHash] = useState<string>('');
@@ -63,13 +68,20 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
     try {
       setStep('pending');
       setError('');
-      // TODO: Call wagmi to sign wrap transaction
-      // For MVP, just show pending state
-      setTxHash('0x...');
+      if (!account) throw new Error('Wallet not connected');
+      const expiry = BigInt(Math.floor(Date.now() / 1000) + 31536000);
+      const hash = await wrapAsync(
+        node as `0x${string}`,
+        BigInt(0),
+        account,
+        selectedFuses,
+        expiry,
+      );
+      setTxHash(hash);
       setStep('done');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
-      setStep('preview');
+      setStep('confirm');
     }
   };
 
@@ -85,15 +97,8 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Wrap Name to V2</DialogTitle>
-            <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-medium text-amber-800 dark:text-amber-200">
-              Demo Preview
-            </span>
-          </div>
-          <DialogDescription>
-            This is a preview interface. Contract integration coming in Phase 6b
-          </DialogDescription>
+          <DialogTitle>Wrap Name to V2</DialogTitle>
+          <DialogDescription>Lock your name with custom permissions (fuses)</DialogDescription>
         </DialogHeader>
 
         {step === 'select' && <FuseSelector onSelect={handleSelectFuses} />}

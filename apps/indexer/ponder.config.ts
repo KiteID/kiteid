@@ -1,5 +1,11 @@
 import { createConfig } from 'ponder';
-import { KiteBaseRegistrarAbi, KiteControllerAbi, KiteRegistryAbi, KiteResolverAbi } from './abis';
+import {
+  KiteBaseRegistrarAbi,
+  KiteControllerAbi,
+  KiteRegistryAbi,
+  KiteResolverAbi,
+  KiteWrapperAbi,
+} from './abis';
 
 // Contract addresses — updated after deployment
 const CONTROLLER = (process.env.CONTROLLER_ADDRESS ||
@@ -9,6 +15,8 @@ const BASE_REGISTRAR = (process.env.BASE_REGISTRAR_ADDRESS ||
 const REGISTRY = (process.env.REGISTRY_ADDRESS ||
   '0x0000000000000000000000000000000000000000') as `0x${string}`;
 const RESOLVER = (process.env.RESOLVER_ADDRESS ||
+  '0x0000000000000000000000000000000000000000') as `0x${string}`;
+const WRAPPER = (process.env.WRAPPER_ADDRESS ||
   '0x0000000000000000000000000000000000000000') as `0x${string}`;
 
 const START_BLOCK = Number(process.env.START_BLOCK || '0');
@@ -63,6 +71,15 @@ export default createConfig({
         },
       },
       abi: KiteResolverAbi,
+    },
+    KiteWrapper: {
+      chain: {
+        kiteAITestnet: {
+          address: WRAPPER,
+          startBlock: START_BLOCK,
+        },
+      },
+      abi: KiteWrapperAbi,
     },
   },
 });

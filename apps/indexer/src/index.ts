@@ -3,3 +3,4 @@ import './handlers/controller';
 import './handlers/base-registrar';
 import './handlers/registry';
 import './handlers/resolver';
+import './handlers/wrapper';

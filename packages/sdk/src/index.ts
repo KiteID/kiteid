@@ -6,6 +6,7 @@ export {
   getAddresses,
   getControllerAddress,
   getResolverAddress,
+  getWrapperAddress,
 } from './contracts';
 export type { ActivityEvent, IndexedDomain } from './hooks';
 export {
@@ -23,6 +24,7 @@ export {
   useKiteRenew,
   useKiteRentPrice,
   useKiteResolver,
+  useWrapName,
 } from './hooks';
 export type { Price, RegistrationParams } from './types';
 export type { ValidationResult } from './utils';

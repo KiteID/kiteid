@@ -262,6 +262,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@kiteid/contracts-abi':
+        specifier: workspace:*
+        version: link:../contracts-abi
       '@kiteid/db':
         specifier: workspace:*
         version: link:../db
