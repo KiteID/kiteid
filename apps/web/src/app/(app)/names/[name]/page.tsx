@@ -1,6 +1,6 @@
 'use client';
 
-import { normalizeLabel, useDomainDetail } from '@kiteid/sdk';
+import { labelhash, normalizeLabel, useDomainDetail } from '@kiteid/sdk';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -83,6 +83,7 @@ function NameDetailContent() {
         open={wrapOpen}
         onOpenChange={setWrapOpen}
         node={namehash(`${name}.kite`)}
+        tokenId={BigInt(labelhash(name))}
         owner={details.owner || '0x'}
       />
     </section>

@@ -21,12 +21,13 @@ interface WrapDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   node: string;
+  tokenId: bigint;
   owner: string;
 }
 
 type Step = 'select' | 'preview' | 'confirm' | 'pending' | 'done';
 
-export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps) {
+export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDialogProps) {
   const chainId = useChainId();
   const { address: account } = useAccount();
   const { wrapAsync } = useWrapName(chainId);
@@ -70,7 +71,6 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
       setError('');
       if (!account) throw new Error('Wallet not connected');
       const expiry = BigInt(Math.floor(Date.now() / 1000) + 31536000);
-      const tokenId = BigInt(node);
       const hash = await wrapAsync(node as `0x${string}`, tokenId, account, selectedFuses, expiry);
       setTxHash(hash);
       setStep('done');
