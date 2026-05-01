@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-01
 
-## Current Phase: Phase 6c (KiteWrapper EIP-712 & Mainnet Deploy)
+## Current Phase: Phase 5 (Hackathon + Mainnet Integration)
 
 ---
 
@@ -71,19 +71,40 @@
   - Staging deployment live + all smoke tests passing
   - See `docs/phase-lessons.md` for blocker details & solutions
 
-### 🎯 Phase 6c: KiteWrapper EIP-712 & Mainnet Deploy (CURRENT)
-- **Blocked by:** Phase 6b completion (✅ done 2026-05-01)
+### ✅ Phase 6c: KiteWrapper EIP-712 Relayer
+- **Completed:** 2026-05-01 (commit 0e31bfb)
 - **Design Decisions:**
   1. **EIP-712 Model:** User signs typed data → API verifies signature → controller relayer calls KiteWrapper.onlyController functions
-  2. **Replay Protection:** Typed data includes nonce, deadline, chainId, wrapper address, node, tokenId, owner, fuses, expiry
-  3. **Deployment Gate:** Testnet relayer E2E tests must pass before mainnet contract/relayer deploy
+  2. **Replay Protection:** Server-issued nonce (single-use, 5min TTL), deadline in typed data, chainId + verifyingContract in EIP712Domain
+  3. **Off-chain MVP:** No contract changes. Trustless on-chain verification deferred to Phase 7 (wrapWithSig + contract nonce)
 - **Deliverables:**
-  - [ ] EIP-712 threat model & signature scheme spec (typed data structure, nonce/deadline flow)
-  - [ ] Relayer API endpoints: POST /api/v2/wrap/sign (collect signature), POST /api/v2/wrap/relay (broadcast on-chain)
-  - [ ] Relayer backend: signature verification (ECDSA), nonce tracking, deadline validation
-  - [ ] KiteWrapper testnet → mainnet deployment script + env var setup
-  - [ ] E2E test: user signs EIP-712, API verifies, relayer broadcasts, on-chain success
-  - [ ] Documentation: EIP-712 threat model, relayer security assumptions, mainnet checklist
+  - [x] Nonce table (relayer_nonces): single-use, TTL-enforced, server-issued
+  - [x] EIP-712 domain + typed data definitions (WRAP_REQUEST_TYPES, UNWRAP_REQUEST_TYPES)
+  - [x] API endpoints: GET /v2/wrap/nonce (issue nonce), POST /v2/wrap/relay (verify sig, broadcast)
+  - [x] Signature verification (viem recoverTypedDataAddress)
+  - [x] SDK hook update (wrapAsync/unwrapAsync via relayer pattern)
+  - [x] Web UI integration (wrap-dialog wired to relayer)
+  - [x] All quality gates pass: 191 contract tests, 41 SDK tests, 17 web tests
+  - [x] Push to develop (0e31bfb)
+- **Threat Model:**
+  - Replay: nonce (server-issued, single-use, DB tracked)
+  - Staleness: deadline in typed data (max 300s TTL)
+  - Domain confusion: verifyingContract + chainId in domain separator
+  - Parameter tamper: all wrap params inside signed struct
+  - Identity spoof: SIWE session wallet must match typed.signer
+  - Nonce grinding: server-issued (not client-chosen)
+
+### 🎯 Phase 6d: KiteWrapper Testnet E2E + Mainnet Deploy (NEXT)
+- **Blocked by:** Phase 6c completion (✅ done)
+- **Gate:** Testnet relayer E2E test passing before mainnet deploy
+- **Deliverables:**
+  - [ ] Testnet relayer E2E test (user signs EIP-712 → verify → relay → on-chain ✓)
+  - [ ] KiteWrapper deployment to testnet (if not already done)
+  - [ ] KiteWrapper deployment to mainnet (after gate passes)
+  - [ ] Contract addresses in packages/contracts-abi/src/addresses.ts updated
+  - [ ] Environment variables (RELAYER_PRIVATE_KEY, WRAPPER_ADDRESS) configured on prod
+  - [ ] Smoke test on mainnet (wrap a test name, verify Ponder picks up event)
+  - [ ] Documentation: relayer security assumptions, mainnet rollout checklist
 
 ### 📋 Phase 7: V2 Identity Layer (Post-hackathon)
 - **Blocked by:** Phase 5 completion, hackathon results
