@@ -18,6 +18,7 @@ import {
   Calendar,
   ExternalLink,
   Hash,
+  Lock,
   RefreshCw,
   Settings2,
   Shield,
@@ -92,6 +93,7 @@ interface NameDetailCardProps {
   domain: IndexedDomain | undefined;
   events: ActivityEvent[];
   onRenew: () => void;
+  onWrap?: () => void;
 }
 
 export function NameDetailCard({
@@ -109,6 +111,7 @@ export function NameDetailCard({
   domain,
   events,
   onRenew,
+  onWrap,
 }: NameDetailCardProps) {
   const [isPrimary, setIsPrimary] = useState(false);
 
@@ -294,6 +297,15 @@ export function NameDetailCard({
                 >
                   <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
                   Renew
+                </Button>
+                <Button
+                  onClick={onWrap}
+                  variant="outline"
+                  className="min-h-[44px] w-full justify-start border-sand-core"
+                  disabled={!isOwner}
+                >
+                  <Lock className="h-4 w-4" strokeWidth={1.5} />
+                  Wrap to V2
                 </Button>
                 <TooltipProvider>
                   <Tooltip delayDuration={200}>

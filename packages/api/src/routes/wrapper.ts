@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { createPublicClient, http } from 'viem';
 
-const WRAPPER_ADDRESS = process.env.KITE_WRAPPER_ADDRESS;
+const WRAPPER_ADDRESS = process.env.WRAPPER_ADDRESS;
 
 interface WrapPreviewRequest {
   node: string; // hex node

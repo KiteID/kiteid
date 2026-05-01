@@ -6,16 +6,25 @@ ponder.on('KiteWrapper:NameWrapped', async ({ event, context }) => {
   const { node, owner, fuses, expiry } = event.args;
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
 
-  await context.db.insert(wrappedName).values({
-    node,
-    owner,
-    fuses,
-    expiry,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(wrappedName)
+    .values({
+      node,
+      owner,
+      fuses,
+      expiry,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      owner: owner,
+      fuses: fuses,
+      expiry: expiry,
+      txHash: event.transaction.hash,
+    }));
 
   await context.db.insert(activityEvent).values({
     id: eventId,
+    name: '',
     eventType: 'NameWrapped',
     actor: owner,
     toAddr: owner,
@@ -29,21 +38,23 @@ ponder.on('KiteWrapper:NameUnwrapped', async ({ event, context }) => {
   const { node, owner } = event.args;
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
 
-  const wrapped = await context.db.sql
-    .select({ node: wrappedName.node })
-    .from(wrappedName)
-    .where(eq(wrappedName.node, node))
-    .limit(1);
-
-  if (wrapped.length > 0) {
-    await context.db.update(wrappedName, { node }).set({
+  await context.db
+    .insert(wrappedName)
+    .values({
+      node,
+      owner,
       fuses: 0n,
       expiry: 0n,
-    });
-  }
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      fuses: 0n,
+      expiry: 0n,
+    }));
 
   await context.db.insert(activityEvent).values({
     id: eventId,
+    name: '',
     eventType: 'NameUnwrapped',
     actor: owner,
     fromAddr: owner,
@@ -63,11 +74,20 @@ ponder.on('KiteWrapper:FusesBurned', async ({ event, context }) => {
     .limit(1);
 
   const [existingWrapped] = wrapped;
-  if (existingWrapped) {
-    await context.db.update(wrappedName, { node }).set({
-      fuses: (existingWrapped.fuses ?? 0n) | fuses,
-    });
-  }
+  const newFuses = existingWrapped ? (existingWrapped.fuses ?? 0n) | fuses : fuses;
+
+  await context.db
+    .insert(wrappedName)
+    .values({
+      node,
+      owner: '0x0000000000000000000000000000000000000000',
+      fuses: newFuses,
+      expiry: 0n,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      fuses: newFuses,
+    }));
 });
 
 ponder.on('KiteWrapper:AgentAuthorized', async ({ event, context }) => {
@@ -75,19 +95,28 @@ ponder.on('KiteWrapper:AgentAuthorized', async ({ event, context }) => {
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
   const id = `${parentNode}:${agentNode}`;
 
-  await context.db.insert(agentAuth).values({
-    id,
-    parentNode,
-    agentNode,
-    agentAddress,
-    spendCapPerTx,
-    expiry,
-    active: true,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(agentAuth)
+    .values({
+      id,
+      parentNode,
+      agentNode,
+      agentAddress,
+      spendCapPerTx,
+      expiry,
+      active: true,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      spendCapPerTx: spendCapPerTx,
+      expiry: expiry,
+      active: true,
+      txHash: event.transaction.hash,
+    }));
 
   await context.db.insert(activityEvent).values({
     id: eventId,
+    name: '',
     eventType: 'AgentAuthorized',
     actor: agentAddress,
     toAddr: agentAddress,
@@ -103,19 +132,39 @@ ponder.on('KiteWrapper:AgentRevoked', async ({ event, context }) => {
   const id = `${parentNode}:${agentNode}`;
 
   const auth = await context.db.sql
-    .select({ id: agentAuth.id })
+    .select({
+      parentNode: agentAuth.parentNode,
+      agentNode: agentAuth.agentNode,
+      spendCapPerTx: agentAuth.spendCapPerTx,
+      expiry: agentAuth.expiry,
+    })
     .from(agentAuth)
     .where(eq(agentAuth.id, id))
     .limit(1);
 
-  if (auth.length > 0) {
-    await context.db.update(agentAuth, { id }).set({
-      active: false,
-    });
+  const [existingAuth] = auth;
+  if (existingAuth) {
+    await context.db
+      .insert(agentAuth)
+      .values({
+        id,
+        parentNode: existingAuth.parentNode,
+        agentNode: existingAuth.agentNode,
+        agentAddress,
+        spendCapPerTx: existingAuth.spendCapPerTx,
+        expiry: existingAuth.expiry,
+        active: false,
+        txHash: event.transaction.hash,
+      })
+      .onConflictDoUpdate((_existing) => ({
+        active: false,
+        txHash: event.transaction.hash,
+      }));
   }
 
   await context.db.insert(activityEvent).values({
     id: eventId,
+    name: '',
     eventType: 'AgentRevoked',
     actor: agentAddress,
     fromAddr: agentAddress,

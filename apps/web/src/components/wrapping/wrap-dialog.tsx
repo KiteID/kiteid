@@ -64,7 +64,7 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
     setStep('confirm');
   };
 
-  const handleSign = async () => {
+  const _handleSign = async () => {
     try {
       setStep('pending');
       setError('');
@@ -123,6 +123,15 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
 
         {step === 'confirm' && (
           <div className="space-y-4">
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
+              <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+                Phase 6c Coming Soon
+              </p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                EIP-712 signatures required for decentralized wrapping. This feature launches in
+                Phase 6c.
+              </p>
+            </div>
             <p className="text-sm text-stone-600 dark:text-stone-400">
               Review your wrapping settings
             </p>
@@ -142,8 +151,8 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
               <Button variant="outline" onClick={() => setStep('preview')} className="flex-1">
                 Back
               </Button>
-              <Button onClick={handleSign} className="flex-1">
-                Sign & Wrap
+              <Button disabled className="flex-1">
+                Coming in Phase 6c
               </Button>
             </div>
           </div>
