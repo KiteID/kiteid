@@ -1,15 +1,22 @@
 'use client';
 
+import type { UseWriteContractReturnType } from 'wagmi';
 import { useWriteContract } from 'wagmi';
 import { abis, getControllerAddress } from '../contracts';
 import type { RegistrationParams } from '../types';
 
 const PRICE_BUFFER_PERCENT = 5n;
 
-export function useKiteRegister(chainId?: number) {
+export function useKiteRegister(chainId?: number): Omit<
+  UseWriteContractReturnType,
+  'writeContract' | 'writeContractAsync'
+> & {
+  register: (params: RegistrationParams, totalPrice: bigint) => void;
+  registerAsync: (params: RegistrationParams, totalPrice: bigint) => Promise<`0x${string}`>;
+} {
   const { writeContract, writeContractAsync, ...rest } = useWriteContract();
 
-  const register = (params: RegistrationParams, totalPrice: bigint) => {
+  const register = (params: RegistrationParams, totalPrice: bigint): void => {
     if (!chainId) return;
     const address = getControllerAddress(chainId);
     if (!address) return;
@@ -32,7 +39,10 @@ export function useKiteRegister(chainId?: number) {
     });
   };
 
-  const registerAsync = (params: RegistrationParams, totalPrice: bigint) => {
+  const registerAsync = (
+    params: RegistrationParams,
+    totalPrice: bigint,
+  ): Promise<`0x${string}`> => {
     if (!chainId) throw new Error('Chain ID not set');
     const address = getControllerAddress(chainId);
     if (!address) throw new Error(`Unsupported chain ID: ${chainId}`);

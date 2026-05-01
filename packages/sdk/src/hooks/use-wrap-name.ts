@@ -1,10 +1,25 @@
 'use client';
 
 import type { Address } from 'viem';
+import type { UseWriteContractReturnType } from 'wagmi';
 import { useWriteContract } from 'wagmi';
 import { abis, getWrapperAddress } from '../contracts';
 
-export function useWrapName(chainId?: number) {
+export function useWrapName(chainId?: number): Omit<
+  UseWriteContractReturnType,
+  'writeContract' | 'writeContractAsync'
+> & {
+  wrapAsync: (
+    node: `0x${string}`,
+    tokenId: bigint,
+    owner: Address,
+    fuses: bigint,
+    expiry: bigint,
+  ) => Promise<`0x${string}`>;
+  unwrapAsync: (node: `0x${string}`, tokenId: bigint, owner: Address) => Promise<`0x${string}`>;
+  setFusesAsync: (node: `0x${string}`, fuses: bigint) => Promise<`0x${string}`>;
+  bindPassportAsync: (node: `0x${string}`, commitment: `0x${string}`) => Promise<`0x${string}`>;
+} {
   const { writeContractAsync, ...rest } = useWriteContract();
 
   const wrapAsync = (
@@ -13,7 +28,7 @@ export function useWrapName(chainId?: number) {
     owner: Address,
     fuses: bigint,
     expiry: bigint,
-  ) => {
+  ): Promise<`0x${string}`> => {
     if (!chainId) throw new Error('Chain ID not set');
     const address = getWrapperAddress(chainId);
     if (!address || address === '0x0000000000000000000000000000000000000000') {
@@ -27,7 +42,11 @@ export function useWrapName(chainId?: number) {
     });
   };
 
-  const unwrapAsync = (node: `0x${string}`, tokenId: bigint, owner: Address) => {
+  const unwrapAsync = (
+    node: `0x${string}`,
+    tokenId: bigint,
+    owner: Address,
+  ): Promise<`0x${string}`> => {
     if (!chainId) throw new Error('Chain ID not set');
     const address = getWrapperAddress(chainId);
     if (!address || address === '0x0000000000000000000000000000000000000000') {
@@ -41,7 +60,7 @@ export function useWrapName(chainId?: number) {
     });
   };
 
-  const setFusesAsync = (node: `0x${string}`, fuses: bigint) => {
+  const setFusesAsync = (node: `0x${string}`, fuses: bigint): Promise<`0x${string}`> => {
     if (!chainId) throw new Error('Chain ID not set');
     const address = getWrapperAddress(chainId);
     if (!address || address === '0x0000000000000000000000000000000000000000') {
@@ -55,7 +74,10 @@ export function useWrapName(chainId?: number) {
     });
   };
 
-  const bindPassportAsync = (node: `0x${string}`, commitment: `0x${string}`) => {
+  const bindPassportAsync = (
+    node: `0x${string}`,
+    commitment: `0x${string}`,
+  ): Promise<`0x${string}`> => {
     if (!chainId) throw new Error('Chain ID not set');
     const address = getWrapperAddress(chainId);
     if (!address || address === '0x0000000000000000000000000000000000000000') {

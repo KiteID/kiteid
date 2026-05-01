@@ -1,15 +1,13 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  // Two entries — `index` for the Hono app, `auth` for the Better Auth
-  // instance (used directly inside the API package only).
-  entry: ['src/index.ts', 'src/auth.ts'],
+  // Single entry — `index` for the Hono app; `auth` imported internally
+  entry: ['src/index.ts'],
   format: ['esm'],
   outDir: 'dist',
   outExtensions: () => ({ js: '.js' }),
   // Better Auth's inferred type references zod's internal `$strip` symbol
-  // which can't be portably emitted; emit `.d.ts` separately via tsc and
-  // exclude `auth.ts` from the public type surface.
+  // which can't be portably emitted; skip bundling auth.ts types.
   dts: false,
   sourcemap: true,
   clean: true,

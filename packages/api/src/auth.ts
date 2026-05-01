@@ -16,7 +16,8 @@ const kiteClient = createPublicClient({
   transport: http(process.env.KITE_RPC_URL || 'https://rpc.gokite.ai/'),
 });
 
-export const auth = betterAuth({
+// biome-ignore lint/suspicious/noExplicitAny: Better Auth type references zod internals which can't be portably emitted
+export const auth: any = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
@@ -67,4 +68,4 @@ export const auth = betterAuth({
     .filter(Boolean),
 });
 
-export type Auth = typeof auth;
+export type Auth = ReturnType<typeof betterAuth>;
