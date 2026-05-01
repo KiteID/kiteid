@@ -101,8 +101,10 @@ jobs:
 
       - name: Determine image tag
         id: meta
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          if [[ "$GITHUB_REF" == "refs/heads/develop" ]]; then
             echo "tag=staging" >> $GITHUB_OUTPUT
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
@@ -144,8 +146,10 @@ jobs:
 
       - name: Determine image tag
         id: meta
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          if [[ "$GITHUB_REF" == "refs/heads/develop" ]]; then
             echo "tag=staging" >> $GITHUB_OUTPUT
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
@@ -184,8 +188,10 @@ jobs:
 
       - name: Determine image tag
         id: meta
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          if [[ "$GITHUB_REF" == "refs/heads/develop" ]]; then
             echo "tag=staging" >> $GITHUB_OUTPUT
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
@@ -224,8 +230,10 @@ jobs:
 
       - name: Determine image tag
         id: meta
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          if [[ "$GITHUB_REF" == "refs/heads/develop" ]]; then
             echo "tag=staging" >> $GITHUB_OUTPUT
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
