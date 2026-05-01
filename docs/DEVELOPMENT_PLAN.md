@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-01
 
-## Current Phase: Phase 5 (Hackathon + Mainnet Integration)
+## Current Phase: Phase 6c (KiteWrapper EIP-712 & Mainnet Deploy)
 
 ---
 
@@ -40,7 +40,7 @@
   - CI Docker build job for docs app
   - Gitleaks + PostCSS audit ignores (false positives)
 
-### 🎯 Phase 5: Hackathon + Mainnet Integration (CURRENT)
+### 🎯 Phase 5: Hackathon + Mainnet Integration
 - **Start:** 2026-04-27
 - **Gate:** Hackathon acceptance + Kite AI mainnet launch
 - **Deliverables:**
@@ -71,13 +71,19 @@
   - Staging deployment live + all smoke tests passing
   - See `docs/phase-lessons.md` for blocker details & solutions
 
-### 📋 Phase 6c: KiteWrapper EIP-712 & Mainnet Deploy (NEXT)
-- **Blocked by:** Phase 6b completion
+### 🎯 Phase 6c: KiteWrapper EIP-712 & Mainnet Deploy (CURRENT)
+- **Blocked by:** Phase 6b completion (✅ done 2026-05-01)
+- **Design Decisions:**
+  1. **EIP-712 Model:** User signs typed data → API verifies signature → controller relayer calls KiteWrapper.onlyController functions
+  2. **Replay Protection:** Typed data includes nonce, deadline, chainId, wrapper address, node, tokenId, owner, fuses, expiry
+  3. **Deployment Gate:** Testnet relayer E2E tests must pass before mainnet contract/relayer deploy
 - **Deliverables:**
-  - [ ] EIP-712 signature scheme for wrap/unwrap (controller model sufficient for MVP; full signature model deferred)
-  - [ ] KiteWrapper testnet → mainnet deployment script
-  - [ ] Contract address env vars for mainnet
-  - [ ] E2E test with real wrapping flow
+  - [ ] EIP-712 threat model & signature scheme spec (typed data structure, nonce/deadline flow)
+  - [ ] Relayer API endpoints: POST /api/v2/wrap/sign (collect signature), POST /api/v2/wrap/relay (broadcast on-chain)
+  - [ ] Relayer backend: signature verification (ECDSA), nonce tracking, deadline validation
+  - [ ] KiteWrapper testnet → mainnet deployment script + env var setup
+  - [ ] E2E test: user signs EIP-712, API verifies, relayer broadcasts, on-chain success
+  - [ ] Documentation: EIP-712 threat model, relayer security assumptions, mainnet checklist
 
 ### 📋 Phase 7: V2 Identity Layer (Post-hackathon)
 - **Blocked by:** Phase 5 completion, hackathon results
@@ -100,7 +106,7 @@
 - [x] Security scans passing (gitleaks, trivy, semgrep)
 - [x] Documentation site live
 - [x] Status page config ready
-- [ ] Docker build + deploy to staging (in progress)
+- [x] Docker build + deploy to staging (complete, d94c90f live)
 
 ### Hackathon submission
 - [ ] Write compelling pitch (why KiteID matters for Kite AI agents)
