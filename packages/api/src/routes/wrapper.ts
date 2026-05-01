@@ -1,8 +1,17 @@
+import { randomBytes } from 'node:crypto';
 import { KiteWrapperAbi } from '@kiteid/contracts-abi';
-import { db, wrappedNames } from '@kiteid/db';
-import { eq } from 'drizzle-orm';
+import { db, relayerNonces, walletAddresses, wrappedNames } from '@kiteid/db';
+import { and, eq, gt, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, getAddress, http } from 'viem';
+import {
+  getWrapDomain,
+  UNWRAP_REQUEST_TYPES,
+  verifyRelaySignature,
+  WRAP_REQUEST_TYPES,
+} from '../lib/eip712';
+import { relayerWalletClient } from '../lib/wallet';
+import { requireAuth } from '../middleware/session';
 
 const WRAPPER_ADDRESS = process.env.WRAPPER_ADDRESS;
 
@@ -130,5 +139,165 @@ export const wrapperRouter = new Hono()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       return c.json({ error: 'Failed to generate wrap preview', detail: message }, 400);
+    }
+  })
+
+  // GET /v2/wrap/nonce - Issue a server nonce for EIP-712 relay
+  .get('/nonce', requireAuth(), async (c) => {
+    try {
+      const user = c.get('user');
+      if (!user?.id) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+
+      // Get user's primary wallet address
+      const walletAddress = await db.query.walletAddresses.findFirst({
+        where: and(eq(walletAddresses.userId, user.id), eq(walletAddresses.isPrimary, true)),
+      });
+
+      if (!walletAddress) {
+        return c.json({ error: 'No primary wallet found' }, 400);
+      }
+
+      const address = getAddress(walletAddress.address);
+      const nonce = `0x${randomBytes(32).toString('hex')}`;
+      const expiresAt = new Date(Date.now() + 300_000); // 5 minutes
+
+      // Store nonce in DB
+      await db.insert(relayerNonces).values({
+        address,
+        nonce,
+        expiresAt,
+      });
+
+      return c.json({ nonce, expiresAt: expiresAt.toISOString() });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      return c.json({ error: 'Failed to issue nonce', detail: message }, 500);
+    }
+  })
+
+  // POST /v2/wrap/relay - Relay a signed wrap/unwrap request
+  .post('/relay', requireAuth(), async (c) => {
+    try {
+      const user = c.get('user');
+      if (!user?.id) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+
+      if (!relayerWalletClient) {
+        return c.json({ error: 'Relayer not configured' }, 503);
+      }
+
+      if (!WRAPPER_ADDRESS || WRAPPER_ADDRESS === '0x0000000000000000000000000000000000000000') {
+        return c.json({ error: 'KiteWrapper not deployed' }, 400);
+      }
+
+      const body = (await c.req.json()) as {
+        action: 'wrap' | 'unwrap';
+        params: Record<string, unknown>;
+        signer: string;
+        nonce: string;
+        deadline: number;
+        signature: `0x${string}`;
+      };
+
+      const { action, params, signer, nonce, deadline, signature } = body;
+
+      // Validate action
+      if (!['wrap', 'unwrap'].includes(action)) {
+        return c.json({ error: 'Invalid action' }, 400);
+      }
+
+      // Get user's primary wallet address
+      const walletAddress = await db.query.walletAddresses.findFirst({
+        where: and(eq(walletAddresses.userId, user.id), eq(walletAddresses.isPrimary, true)),
+      });
+
+      if (!walletAddress) {
+        return c.json({ error: 'No primary wallet found' }, 400);
+      }
+
+      const sessionWallet = getAddress(walletAddress.address);
+      const signerAddress = getAddress(signer);
+
+      // Signer must match session wallet
+      if (signerAddress !== sessionWallet) {
+        return c.json({ error: 'Signer does not match session wallet' }, 401);
+      }
+
+      // Validate deadline is in the future
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      if (deadline <= nowSeconds) {
+        return c.json({ error: 'Deadline has passed' }, 400);
+      }
+
+      // Check nonce: must exist, match address, not expired, not used
+      const nonceRecord = await db.query.relayerNonces.findFirst({
+        where: and(
+          eq(relayerNonces.address, sessionWallet),
+          eq(relayerNonces.nonce, nonce),
+          gt(relayerNonces.expiresAt, new Date()),
+          isNull(relayerNonces.usedAt),
+        ),
+      });
+
+      if (!nonceRecord) {
+        return c.json({ error: 'Invalid or expired nonce' }, 409);
+      }
+
+      // Verify EIP-712 signature
+      const primaryType = action === 'wrap' ? ('WrapRequest' as const) : ('UnwrapRequest' as const);
+      const types = action === 'wrap' ? WRAP_REQUEST_TYPES : UNWRAP_REQUEST_TYPES;
+      const domain = getWrapDomain(
+        Number(process.env.NEXT_PUBLIC_CHAIN_ID || '2368'),
+        WRAPPER_ADDRESS as `0x${string}`,
+      );
+
+      const message = {
+        signer: signerAddress,
+        ...params,
+        nonce,
+        deadline,
+      };
+
+      // biome-ignore lint/suspicious/noExplicitAny: types are dynamic from request
+      const recoveredSigner = await verifyRelaySignature(
+        primaryType,
+        types as any,
+        message,
+        signature,
+        domain,
+      );
+
+      if (!recoveredSigner || recoveredSigner !== signerAddress) {
+        return c.json({ error: 'Invalid signature' }, 401);
+      }
+
+      // Mark nonce as used
+      await db
+        .update(relayerNonces)
+        .set({ usedAt: new Date() })
+        .where(eq(relayerNonces.nonce, nonce));
+
+      // Broadcast transaction via relayer wallet
+      // biome-ignore lint/suspicious/noExplicitAny: runtime params require any
+      const p = params as any;
+      // biome-ignore lint/suspicious/noExplicitAny: viem writeContract requires any for dynamic args
+      const txHash = await relayerWalletClient.writeContract({
+        address: WRAPPER_ADDRESS as `0x${string}`,
+        abi: KiteWrapperAbi,
+        functionName: action,
+        args:
+          action === 'wrap'
+            ? [p.node, p.tokenId, p.owner, p.fuses, p.expiry]
+            : [p.node, p.tokenId, p.owner],
+      } as any);
+
+      return c.json({ txHash });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Relay error:', err);
+      return c.json({ error: 'Failed to relay transaction', detail: message }, 500);
     }
   });
