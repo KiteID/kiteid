@@ -10,8 +10,8 @@ describe('RegistrationStore', () => {
   const mockParams = {
     owner: '0x1234567890123456789012345678901234567890' as `0x${string}`,
     duration: 31536000n,
-    // nosemgrep: generic.secrets.security.detected-generic-secret.detected-generic-secret
-    secret: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890' as `0x${string}`,
+    // gitleaks:allow
+    secret: `0x${'abcdef12'.repeat(8)}` as `0x${string}`,
     commitment:
       '0x1111111111111111111111111111111111111111111111111111111111111111' as `0x${string}`,
     resolver: '0x2222222222222222222222222222222222222222' as `0x${string}`,
