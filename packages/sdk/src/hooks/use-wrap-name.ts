@@ -66,6 +66,7 @@ export function useWrapName(chainId?: number): Omit<
         nonce: nonce as `0x${string}`,
         deadline,
       },
+      // biome-ignore lint/suspicious/noExplicitAny: wagmi signTypedDataAsync argument types not fully typed
     } as any);
 
     // Post to relay
@@ -74,7 +75,13 @@ export function useWrapName(chainId?: number): Omit<
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'wrap',
-        params: { node, tokenId, owner, fuses, expiry },
+        params: {
+          node,
+          tokenId: tokenId.toString(),
+          owner,
+          fuses: fuses.toString(),
+          expiry: expiry.toString(),
+        },
         signer: account,
         nonce,
         deadline,
@@ -125,6 +132,7 @@ export function useWrapName(chainId?: number): Omit<
         nonce: nonce as `0x${string}`,
         deadline,
       },
+      // biome-ignore lint/suspicious/noExplicitAny: wagmi signTypedDataAsync argument types not fully typed
     } as any);
 
     // Post to relay
@@ -133,7 +141,7 @@ export function useWrapName(chainId?: number): Omit<
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'unwrap',
-        params: { node, tokenId, owner },
+        params: { node, tokenId: tokenId.toString(), owner },
         signer: account,
         nonce,
         deadline,

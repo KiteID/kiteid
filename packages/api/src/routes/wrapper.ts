@@ -226,23 +226,33 @@ export const wrapperRouter = new Hono()
         return c.json({ error: 'Signer does not match session wallet' }, 401);
       }
 
+      // Owner in params must match signer/session wallet (prevent grief wrapping)
+      // biome-ignore lint/suspicious/noExplicitAny: runtime params require any
+      const paramsOwner = getAddress((params as any).owner);
+      if (paramsOwner !== sessionWallet) {
+        return c.json({ error: 'Owner must match authorized wallet' }, 401);
+      }
+
       // Validate deadline is in the future
       const nowSeconds = Math.floor(Date.now() / 1000);
       if (deadline <= nowSeconds) {
         return c.json({ error: 'Deadline has passed' }, 400);
       }
 
-      // Check nonce: must exist, match address, not expired, not used
-      const nonceRecord = await db.query.relayerNonces.findFirst({
-        where: and(
-          eq(relayerNonces.address, sessionWallet),
-          eq(relayerNonces.nonce, nonce),
-          gt(relayerNonces.expiresAt, new Date()),
-          isNull(relayerNonces.usedAt),
-        ),
-      });
+      // Atomically consume nonce: update only if conditions match, return count
+      const updateResult = await db
+        .update(relayerNonces)
+        .set({ usedAt: new Date() })
+        .where(
+          and(
+            eq(relayerNonces.address, sessionWallet),
+            eq(relayerNonces.nonce, nonce),
+            gt(relayerNonces.expiresAt, new Date()),
+            isNull(relayerNonces.usedAt),
+          ),
+        );
 
-      if (!nonceRecord) {
+      if (updateResult.rowCount === 0) {
         return c.json({ error: 'Invalid or expired nonce' }, 409);
       }
 
@@ -261,9 +271,9 @@ export const wrapperRouter = new Hono()
         deadline,
       };
 
-      // biome-ignore lint/suspicious/noExplicitAny: types are dynamic from request
       const recoveredSigner = await verifyRelaySignature(
         primaryType,
+        // biome-ignore lint/suspicious/noExplicitAny: viem types dynamic from request
         types as any,
         message,
         signature,
@@ -274,25 +284,23 @@ export const wrapperRouter = new Hono()
         return c.json({ error: 'Invalid signature' }, 401);
       }
 
-      // Mark nonce as used
-      await db
-        .update(relayerNonces)
-        .set({ usedAt: new Date() })
-        .where(eq(relayerNonces.nonce, nonce));
-
       // Broadcast transaction via relayer wallet
       // biome-ignore lint/suspicious/noExplicitAny: runtime params require any
       const p = params as any;
-      // biome-ignore lint/suspicious/noExplicitAny: viem writeContract requires any for dynamic args
-      const txHash = await relayerWalletClient.writeContract({
+      const tokenId = BigInt(p.tokenId);
+      const fuses = action === 'wrap' ? BigInt(p.fuses) : 0n;
+      const expiry = action === 'wrap' ? BigInt(p.expiry) : 0n;
+      const writeContractParams = {
         address: WRAPPER_ADDRESS as `0x${string}`,
         abi: KiteWrapperAbi,
         functionName: action,
         args:
           action === 'wrap'
-            ? [p.node, p.tokenId, p.owner, p.fuses, p.expiry]
-            : [p.node, p.tokenId, p.owner],
-      } as any);
+            ? [p.node, tokenId, p.owner, fuses, expiry]
+            : [p.node, tokenId, p.owner],
+        // biome-ignore lint/suspicious/noExplicitAny: viem writeContract requires any for dynamic args
+      } as any;
+      const txHash = await relayerWalletClient.writeContract(writeContractParams);
 
       return c.json({ txHash });
     } catch (err) {

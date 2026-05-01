@@ -70,13 +70,8 @@ export function WrapDialog({ open, onOpenChange, node, owner }: WrapDialogProps)
       setError('');
       if (!account) throw new Error('Wallet not connected');
       const expiry = BigInt(Math.floor(Date.now() / 1000) + 31536000);
-      const hash = await wrapAsync(
-        node as `0x${string}`,
-        BigInt(0),
-        account,
-        selectedFuses,
-        expiry,
-      );
+      const tokenId = BigInt(node);
+      const hash = await wrapAsync(node as `0x${string}`, tokenId, account, selectedFuses, expiry);
       setTxHash(hash);
       setStep('done');
     } catch (err) {

@@ -15,6 +15,13 @@
       "when": 1777481787995,
       "tag": "0001_flat_human_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777506600000,
+      "tag": "0002_stiff_arclight",
+      "breakpoints": true
     }
   ]
 }

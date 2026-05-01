@@ -1,0 +1,79 @@
+{
+  "id": "39250daf-e8ed-44c4-8d42-be2bc275feb7",
+  "prevId": "f35ead17-0cc7-4f3b-871e-13eaf1813d6f",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.relayer_nonces": {
+      "name": "relayer_nonces",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nonce": {
+          "name": "nonce",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issued_at": {
+          "name": "issued_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "used_at": {
+          "name": "used_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "relayer_nonces_address_idx": {
+          "name": "relayer_nonces_address_idx",
+          "columns": ["address"],
+          "isUnique": false
+        },
+        "relayer_nonces_expires_at_idx": {
+          "name": "relayer_nonces_expires_at_idx",
+          "columns": ["expires_at"],
+          "isUnique": false
+        },
+        "relayer_nonces_used_at_idx": {
+          "name": "relayer_nonces_used_at_idx",
+          "columns": ["used_at"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "relayer_nonces_address_nonce_pk": {
+          "name": "relayer_nonces_address_nonce_pk",
+          "columns": ["address", "nonce"]
+        }
+      },
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
