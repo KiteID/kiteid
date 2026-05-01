@@ -1,10 +1,18 @@
 import { ponder } from 'ponder:registry';
 import { eq } from 'drizzle-orm';
-import { activityEvent, agentAuth, wrappedName } from '../../ponder.schema';
+import { activityEvent, agentAuth, domain, wrappedName } from '../../ponder.schema';
 
 ponder.on('KiteWrapper:NameWrapped', async ({ event, context }) => {
   const { node, owner, fuses, expiry } = event.args;
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
+
+  const domainRecord = await context.db.sql
+    .select({ name: domain.name })
+    .from(domain)
+    .where(eq(domain.namehash, node))
+    .limit(1);
+
+  const [domainData] = domainRecord;
 
   await context.db
     .insert(wrappedName)
@@ -22,21 +30,40 @@ ponder.on('KiteWrapper:NameWrapped', async ({ event, context }) => {
       txHash: event.transaction.hash,
     }));
 
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: '',
-    eventType: 'NameWrapped',
-    actor: owner,
-    toAddr: owner,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainData?.name || '',
+      eventType: 'NameWrapped',
+      actor: owner,
+      toAddr: owner,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      name: domainData?.name || '',
+      eventType: 'NameWrapped',
+      actor: owner,
+      toAddr: owner,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    }));
 });
 
 ponder.on('KiteWrapper:NameUnwrapped', async ({ event, context }) => {
   const { node, owner } = event.args;
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
+
+  const domainRecord = await context.db.sql
+    .select({ name: domain.name })
+    .from(domain)
+    .where(eq(domain.namehash, node))
+    .limit(1);
+
+  const [domainData] = domainRecord;
 
   await context.db
     .insert(wrappedName)
@@ -52,16 +79,27 @@ ponder.on('KiteWrapper:NameUnwrapped', async ({ event, context }) => {
       expiry: 0n,
     }));
 
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: '',
-    eventType: 'NameUnwrapped',
-    actor: owner,
-    fromAddr: owner,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainData?.name || '',
+      eventType: 'NameUnwrapped',
+      actor: owner,
+      fromAddr: owner,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      name: domainData?.name || '',
+      eventType: 'NameUnwrapped',
+      actor: owner,
+      fromAddr: owner,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    }));
 });
 
 ponder.on('KiteWrapper:FusesBurned', async ({ event, context }) => {
@@ -95,6 +133,14 @@ ponder.on('KiteWrapper:AgentAuthorized', async ({ event, context }) => {
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
   const id = `${parentNode}:${agentNode}`;
 
+  const domainRecord = await context.db.sql
+    .select({ name: domain.name })
+    .from(domain)
+    .where(eq(domain.namehash, parentNode))
+    .limit(1);
+
+  const [domainData] = domainRecord;
+
   await context.db
     .insert(agentAuth)
     .values({
@@ -114,22 +160,41 @@ ponder.on('KiteWrapper:AgentAuthorized', async ({ event, context }) => {
       txHash: event.transaction.hash,
     }));
 
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: '',
-    eventType: 'AgentAuthorized',
-    actor: agentAddress,
-    toAddr: agentAddress,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainData?.name || '',
+      eventType: 'AgentAuthorized',
+      actor: agentAddress,
+      toAddr: agentAddress,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      name: domainData?.name || '',
+      eventType: 'AgentAuthorized',
+      actor: agentAddress,
+      toAddr: agentAddress,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    }));
 });
 
 ponder.on('KiteWrapper:AgentRevoked', async ({ event, context }) => {
   const { parentNode, agentNode, agentAddress } = event.args;
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
   const id = `${parentNode}:${agentNode}`;
+
+  const domainRecord = await context.db.sql
+    .select({ name: domain.name })
+    .from(domain)
+    .where(eq(domain.namehash, parentNode))
+    .limit(1);
+
+  const [domainData] = domainRecord;
 
   const auth = await context.db.sql
     .select({
@@ -162,14 +227,25 @@ ponder.on('KiteWrapper:AgentRevoked', async ({ event, context }) => {
       }));
   }
 
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: '',
-    eventType: 'AgentRevoked',
-    actor: agentAddress,
-    fromAddr: agentAddress,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainData?.name || '',
+      eventType: 'AgentRevoked',
+      actor: agentAddress,
+      fromAddr: agentAddress,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoUpdate((_existing) => ({
+      name: domainData?.name || '',
+      eventType: 'AgentRevoked',
+      actor: agentAddress,
+      fromAddr: agentAddress,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    }));
 });
