@@ -1,6 +1,6 @@
 # KiteID Development Plan
 
-**Last updated:** 2026-04-27
+**Last updated:** 2026-05-01
 
 ## Current Phase: Phase 5 (Hackathon + Mainnet Integration)
 
@@ -50,10 +50,38 @@
   - [ ] Testnet → mainnet contract redeploy decision
   - [ ] Phase 5 testing (live faucet, real registration flow)
 
-### 📋 Phase 6: V2 Identity Layer (Post-hackathon)
+### ✅ Phase 6a: KiteWrapper Contract Development
+- **Completed:** 2026-04-28
+- **Deliverables:**
+  - KiteWrapper contract (wrap/unwrap/fuses/agent auth)
+  - 25/25 unit + integration tests
+  - Testnet deployment (address `0x...` — see Phase 6b notes for when address is set)
+
+### ✅ Phase 6b: KiteWrapper Frontend & Indexer Integration
+- **Completed:** 2026-05-01 (commit d94c90f main, fb717af develop sync)
+- **Blockers Fixed:**
+  - tsdown devDependency missing in @kiteid/ui + @kiteid/sdk (added to both)
+  - Dockerfile using wrong pnpm filter syntax (changed to `--filter @kiteid/web...` for transitive deps)
+  - Gitleaks false positives (refactored test secret to template literal + gitleaks:allow annotation, fixed tarball extraction to temp dir)
+- **Deliverables:**
+  - useWrapName SDK hook (wrapAsync, unwrapAsync, setFusesAsync)
+  - wrap-dialog.tsx frontend integration (real writeContract calls)
+  - Ponder handlers for 5 KiteWrapper events → activityEvent + wrappedName/agentAuth tables
+  - API status/preview endpoints (graceful fallback if wrapper not deployed)
+  - Staging deployment live + all smoke tests passing
+  - See `docs/phase-lessons.md` for blocker details & solutions
+
+### 📋 Phase 6c: KiteWrapper EIP-712 & Mainnet Deploy (NEXT)
+- **Blocked by:** Phase 6b completion
+- **Deliverables:**
+  - [ ] EIP-712 signature scheme for wrap/unwrap (controller model sufficient for MVP; full signature model deferred)
+  - [ ] KiteWrapper testnet → mainnet deployment script
+  - [ ] Contract address env vars for mainnet
+  - [ ] E2E test with real wrapping flow
+
+### 📋 Phase 7: V2 Identity Layer (Post-hackathon)
 - **Blocked by:** Phase 5 completion, hackathon results
 - **Deliverables:**
-  - NameWrapper (ENS compatibility)
   - Kite Passport integration (agent identity)
   - x402 payment primitives
   - Vault / Infisical for secrets
