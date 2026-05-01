@@ -54,9 +54,8 @@ function renderIcon(icon: EmptyStateProps['icon']): ReactNode {
   if (icon === undefined || icon === null) return null;
   if (icon === 'kite') return <KiteRhombus />;
   if (isValidElement(icon)) return icon;
-  // Lucide icons may be forwardRef objects (typeof === 'object'), not plain functions
-  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null)) {
-    const IconComp = icon as unknown as LucideLike;
+  if (typeof icon === 'function') {
+    const IconComp = icon as LucideLike;
     return <IconComp className="h-6 w-6 text-bronze" strokeWidth={1.5} />;
   }
   return icon as ReactNode;

@@ -1,20 +1,22 @@
 'use client';
 
-import { type UseWriteContractReturnType, useWriteContract } from 'wagmi';
+import type { UseWriteContractReturnType } from 'wagmi';
+import { useWriteContract } from 'wagmi';
 import { abis, getControllerAddress } from '../contracts';
 import { normalizeLabel } from '../utils/name-validation';
 
 const PRICE_BUFFER_PERCENT = 5n;
 
-type WriteRest = Omit<UseWriteContractReturnType, 'writeContract' | 'writeContractAsync'>;
-
-export function useKiteRenew(chainId?: number): {
+export function useKiteRenew(chainId?: number): Omit<
+  UseWriteContractReturnType,
+  'writeContract' | 'writeContractAsync'
+> & {
   renew: (name: string, duration: bigint, totalPrice: bigint) => void;
   renewAsync: (name: string, duration: bigint, totalPrice: bigint) => Promise<`0x${string}`>;
-} & WriteRest {
+} {
   const { writeContract, writeContractAsync, ...rest } = useWriteContract();
 
-  const renew = (name: string, duration: bigint, totalPrice: bigint) => {
+  const renew = (name: string, duration: bigint, totalPrice: bigint): void => {
     if (!chainId) return;
     const address = getControllerAddress(chainId);
     if (!address) return;
@@ -30,7 +32,11 @@ export function useKiteRenew(chainId?: number): {
     });
   };
 
-  const renewAsync = (name: string, duration: bigint, totalPrice: bigint) => {
+  const renewAsync = (
+    name: string,
+    duration: bigint,
+    totalPrice: bigint,
+  ): Promise<`0x${string}`> => {
     if (!chainId) throw new Error('Chain ID not set');
     const address = getControllerAddress(chainId);
     if (!address) throw new Error(`Unsupported chain ID: ${chainId}`);

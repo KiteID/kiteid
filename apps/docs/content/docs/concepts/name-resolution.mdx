@@ -1,0 +1,55 @@
+---
+title: Name Resolution
+description: How .kite names resolve to addresses and records.
+---
+
+## Overview
+
+KiteID uses a two-contract resolution model inspired by ENS:
+
+1. **KiteRegistry** — maps names (as `bytes32` node hashes) to their resolver address
+2. **KiteResolver** — stores actual records (address, text, contenthash) for each name
+
+## The node hash
+
+Every name is represented as a `bytes32` **node** computed by recursive `namehash`:
+
+```solidity
+namehash("") = 0x0000...0000
+namehash("kite") = keccak256(namehash("") ++ keccak256("kite"))
+namehash("alice.kite") = keccak256(namehash("kite") ++ keccak256("alice"))
+```
+
+This is deterministic and collision-resistant — no two distinct names share a node.
+
+## Forward resolution
+
+To resolve `alice.kite → address`:
+
+1. Compute `node = namehash("alice.kite")`
+2. Call `KiteRegistry.resolver(node)` → returns resolver address
+3. Call `KiteResolver.addr(node)` → returns the mapped address
+
+## Reverse resolution
+
+To resolve `0xABCD... → alice.kite`:
+
+1. Compute the reverse node: `namehash(<lowercase_address> + ".addr.reverse")`
+2. Call `KiteReverseRegistrar` which wraps resolver lookup
+3. Returns the primary name, or empty string if not set
+
+## Text records
+
+Text records attach arbitrary metadata:
+
+| Key          | Convention                        |
+| ------------ | --------------------------------- |
+| `url`        | Website URL                       |
+| `avatar`     | Image URL or IPFS hash            |
+| `description`| Short bio                         |
+| `com.twitter`| Twitter/X handle                  |
+| `com.github` | GitHub handle                     |
+
+```solidity
+KiteResolver.text(node, "url") // returns "https://alice.xyz"
+```

@@ -12,3 +12,4 @@ export { useKiteRegister } from './use-register';
 export { useKiteRenew } from './use-renew';
 export { useKiteRentPrice } from './use-rent-price';
 export { useKiteResolver } from './use-resolver';
+export { useWrapName } from './use-wrap-name';

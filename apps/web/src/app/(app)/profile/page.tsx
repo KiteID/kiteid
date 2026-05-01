@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { formatEther } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
 import { useAccount, useBalance, useChainId, useSignMessage } from 'wagmi';
+import { PassportBadge } from '@/components/auth/passport-badge';
+import { PassportLink } from '@/components/auth/passport-link';
 import { AnimatedCounter, FadeIn, MagneticButton } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -123,10 +125,29 @@ export default function ProfilePage() {
   const { data: session, isPending: sessionLoading } = useSession();
   const { domains, isLoading: domainsLoading, error: domainsError } = useIndexedNames();
   const { data: balance } = useBalance({ address, query: { enabled: !!address } });
+  const [passportLinked, setPassportLinked] = useState(false);
+  const [linkingPassport, setLinkingPassport] = useState(false);
 
   const handleSignOut = useCallback(async () => {
     await signOut();
     toast.success('Signed out');
+  }, []);
+
+  const handleLinkPassport = useCallback(async () => {
+    setLinkingPassport(true);
+    // Simulate OAuth flow
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setPassportLinked(true);
+    setLinkingPassport(false);
+    toast.success('Kite Passport linked');
+  }, []);
+
+  const handleUnlinkPassport = useCallback(async () => {
+    setLinkingPassport(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setPassportLinked(false);
+    setLinkingPassport(false);
+    toast.success('Kite Passport unlinked');
   }, []);
 
   const primaryName = useMemo(
@@ -271,6 +292,72 @@ export default function ProfilePage() {
           </div>
         </FadeIn>
       )}
+
+      {/* Kite Passport */}
+      <FadeIn delay={0.2}>
+        <div className="mt-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-bronze">
+                Identity
+              </p>
+              <h2 className="mt-1 font-display text-3xl text-carbon">Kite Passport</h2>
+            </div>
+            {passportLinked && <PassportBadge agentId="agent-verified" />}
+          </div>
+          <div className="mt-4 editorial-rule" />
+
+          <div className="mt-6 rounded-2xl border border-sand-core bg-cream p-6 shadow-kid-sm">
+            <PassportLink
+              isLinked={passportLinked}
+              isLoading={linkingPassport}
+              onLink={handleLinkPassport}
+              onUnlink={handleUnlinkPassport}
+            />
+
+            {passportLinked && (
+              <div className="mt-6 space-y-4 border-t border-sand-core pt-6">
+                <h3 className="font-display text-lg text-carbon">Verified Identity</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold/20">
+                      <span className="h-2 w-2 rounded-full bg-gold" />
+                    </span>
+                    <div>
+                      <p className="font-medium text-carbon">Agent Status</p>
+                      <p className="mt-1 text-xs text-stone">
+                        Verified as autonomous agent on Kite
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold/20">
+                      <span className="h-2 w-2 rounded-full bg-gold" />
+                    </span>
+                    <div>
+                      <p className="font-medium text-carbon">Trust Score</p>
+                      <p className="mt-1 text-xs text-stone">98/100 reputation</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold/20">
+                      <span className="h-2 w-2 rounded-full bg-gold" />
+                    </span>
+                    <div>
+                      <p className="font-medium text-carbon">Permissions</p>
+                      <p className="mt-1 text-xs text-stone">
+                        Can register, renew, and transfer names
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </FadeIn>
 
       {/* Owned names */}
       <div className="mt-10">

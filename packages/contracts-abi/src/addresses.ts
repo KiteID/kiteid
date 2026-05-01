@@ -10,6 +10,7 @@ export const addresses = {
     resolver: '0x0000000000000000000000000000000000000000' as `0x${string}`,
     priceOracle: '0x0000000000000000000000000000000000000000' as `0x${string}`,
     reverseRegistrar: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+    wrapper: '0x0000000000000000000000000000000000000000' as `0x${string}`,
   },
   kiteTestnet: {
     chainId: 2368,
@@ -19,5 +20,6 @@ export const addresses = {
     resolver: '0xfC69694BBd6b85Fd9b4aC5ddBD647b4f2196CC68' as `0x${string}`,
     priceOracle: '0x97972ee9Ca8cdB78d4897B016FDF4755240b6F77' as `0x${string}`,
     reverseRegistrar: '0x442FEe8572F4314A45bA2D81e32Db91fCB079E2D' as `0x${string}`,
+    wrapper: '0x0000000000000000000000000000000000000000' as `0x${string}`,
   },
 } as const;

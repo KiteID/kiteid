@@ -7,6 +7,8 @@ import { useMemo, useState } from 'react';
 import { AnimatedCounter, FadeIn, RevealOnScroll, Stagger, StaggerItem } from '@/components/motion';
 import { CopyAddress } from '@/components/ui/copy-address';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ReverseLabel } from '@/components/ui/reverse-label';
+import { useReverseBatch } from '@/lib/use-reverse-batch';
 
 const EXPLORER_URL = 'https://testnet.kitescan.ai';
 const PAGE_SIZE = 20;
@@ -89,7 +91,15 @@ function groupByDay(events: ActivityEvent[]): { day: string; events: ActivityEve
   return Array.from(map.entries()).map(([day, evts]) => ({ day, events: evts }));
 }
 
-function EventCard({ event }: { event: ActivityEvent }) {
+interface EventCardProps {
+  event: ActivityEvent;
+  reverseData?: Record<string, { domains: Array<{ name: string }>; count: number } | undefined>;
+}
+
+function EventCard({ event, reverseData }: EventCardProps) {
+  const actorLower = event.actor.toLowerCase();
+  const domainData = reverseData?.[actorLower];
+
   return (
     <div className="relative pl-10">
       {/* Timeline dot */}
@@ -114,8 +124,11 @@ function EventCard({ event }: { event: ActivityEvent }) {
             {event.priceKite ? ` · ${event.priceKite} KITE` : ''}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <CopyAddress value={event.actor} />
+        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+          <div className="flex items-center gap-2">
+            <ReverseLabel data={domainData} />
+            <CopyAddress value={event.actor} />
+          </div>
           <a
             href={`${EXPLORER_URL}/tx/${event.txHash}`}
             target="_blank"
@@ -168,6 +181,14 @@ function LoadingTimeline() {
   );
 }
 
+const EVENT_TYPES = [
+  { value: 'all', label: 'All Events' },
+  { value: 'NameRegistered', label: 'Registered' },
+  { value: 'NameRenewed', label: 'Renewed' },
+  { value: 'Transfer', label: 'Transferred' },
+  { value: 'AddrChanged', label: 'Address Updated' },
+] as const;
+
 export default function ActivityPage() {
   const { events, isLoading, error: eventsError } = useActivityFeed(200);
   const { stats, error: statsError } = useDomainStats();
@@ -175,22 +196,36 @@ export default function ActivityPage() {
   const indexerDown = Boolean(eventsError || statsError);
 
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [filterType, setFilterType] = useState<string>('all');
+
+  const filteredEvents = useMemo(
+    () => (filterType === 'all' ? events : events.filter((e) => e.eventType === filterType)),
+    [events, filterType],
+  );
+
+  // Batch fetch all unique addresses to avoid N+1
+  const uniqueAddresses = useMemo(() => {
+    const set = new Set(filteredEvents.map((e) => e.actor.toLowerCase()));
+    return Array.from(set);
+  }, [filteredEvents]);
+
+  const reverseData = useReverseBatch(uniqueAddresses);
 
   // TODO: wire active-wallet + today counts to dedicated endpoints
   const todayCount = useMemo(() => {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     const startTs = Math.floor(start.getTime() / 1000);
-    return events.filter((e) => Number(e.timestamp) >= startTs).length;
-  }, [events]);
+    return filteredEvents.filter((e) => Number(e.timestamp) >= startTs).length;
+  }, [filteredEvents]);
 
   const activeWallets = useMemo(() => {
     const cutoff = Math.floor(Date.now() / 1000) - 7 * 86400;
     const set = new Set(
-      events.filter((e) => Number(e.timestamp) >= cutoff).map((e) => e.actor.toLowerCase()),
+      filteredEvents.filter((e) => Number(e.timestamp) >= cutoff).map((e) => e.actor.toLowerCase()),
     );
     return set.size;
-  }, [events]);
+  }, [filteredEvents]);
 
   const avgPerDay = useMemo(() => {
     const oldest = events[events.length - 1];
@@ -200,7 +235,35 @@ export default function ActivityPage() {
     return Math.round(stats.totalDomains / spanDays);
   }, [events, stats.totalDomains]);
 
-  const grouped = useMemo(() => groupByDay(events.slice(0, visible)), [events, visible]);
+  const grouped = useMemo(
+    () => groupByDay(filteredEvents.slice(0, visible)),
+    [filteredEvents, visible],
+  );
+
+  const handleCsvExport = () => {
+    const headers = ['Date', 'Domain', 'Event Type', 'Actor', 'TX Hash', 'Price (KITE)'];
+    const rows = filteredEvents.map((e) => [
+      new Date(Number(e.timestamp) * 1000).toISOString(),
+      e.name || '—',
+      eventLabel(e.eventType),
+      e.actor,
+      e.txHash,
+      e.priceKite || '—',
+    ]);
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(','))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kiteid-activity-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
@@ -250,6 +313,36 @@ export default function ActivityPage() {
         </div>
       </FadeIn>
 
+      {/* Filters & Export */}
+      <FadeIn delay={0.2}>
+        <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {EVENT_TYPES.map((type) => (
+              <button
+                key={type.value}
+                type="button"
+                onClick={() => setFilterType(type.value)}
+                className={`rounded-full px-3 py-1.5 font-mono text-xs uppercase transition-all ${
+                  filterType === type.value
+                    ? 'bg-gold text-carbon'
+                    : 'border border-sand-core bg-cream text-bronze hover:bg-parchment'
+                }`}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCsvExport}
+            className="border-sand-core"
+          >
+            Export CSV
+          </Button>
+        </div>
+      </FadeIn>
+
       {/* Timeline */}
       <div className="relative mt-14">
         {/* Vertical dashed line */}
@@ -264,6 +357,16 @@ export default function ActivityPage() {
           <LoadingTimeline />
         ) : events.length === 0 ? (
           <ActivityEmpty />
+        ) : filteredEvents.length === 0 ? (
+          <div className="rounded-2xl border border-sand-core bg-cream p-4 shadow-kid-sm">
+            <EmptyState
+              icon={Activity}
+              title="No events found."
+              description={`No ${EVENT_TYPES.find((t) => t.value === filterType)?.label.toLowerCase()} events in the archive.`}
+              action={{ label: 'Clear filters', onClick: () => setFilterType('all') }}
+              className="py-12"
+            />
+          </div>
         ) : (
           <div className="space-y-12">
             {grouped.map((group) => (
@@ -285,7 +388,7 @@ export default function ActivityPage() {
                   <Stagger className="space-y-4">
                     {group.events.map((evt) => (
                       <StaggerItem key={evt.id}>
-                        <EventCard event={evt} />
+                        <EventCard event={evt} reverseData={reverseData} />
                       </StaggerItem>
                     ))}
                   </Stagger>
@@ -294,7 +397,7 @@ export default function ActivityPage() {
             ))}
 
             {/* Load more */}
-            {visible < events.length && (
+            {visible < filteredEvents.length && (
               <div className="pl-10 pt-4 text-center">
                 <Button
                   variant="outline"

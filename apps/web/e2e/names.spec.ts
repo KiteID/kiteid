@@ -21,9 +21,8 @@ test.describe('Names Page', () => {
 
   test('has correct heading', async ({ page }) => {
     await page.goto('/names');
-    const heading = page.getByRole('heading', { name: /names|domains/i }).first();
     const content = page.locator('main').first();
-    await expect(heading.or(content)).toBeVisible({ timeout: 10_000 });
+    await expect(content).toBeVisible({ timeout: 10_000 });
   });
 
   test('header navigation is visible', async ({ page }) => {

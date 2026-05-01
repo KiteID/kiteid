@@ -11,7 +11,7 @@
     "fmt": "forge fmt",
     "fmt:check": "forge fmt --check",
     "snapshot": "forge snapshot",
-    "abi:export": "forge build && node scripts/export-abis.mjs",
+    "abi:export": "forge build && node scripts/export-abis.mjs && pnpm exec biome check --write ../contracts-abi/src/abis ../contracts-abi/src/index.ts",
     "clean": "forge clean"
   }
 }

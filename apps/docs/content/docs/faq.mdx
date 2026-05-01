@@ -1,0 +1,51 @@
+---
+title: FAQ
+description: Frequently asked questions about KiteID.
+---
+
+## General
+
+**What TLD does KiteID use?**
+`.kite` — all names end in `.kite` (e.g., `alice.kite`).
+
+**Is KiteID the same as ENS?**
+KiteID is inspired by ENS and shares the same namehash and ERC-137 resolver spec. It's a separate deployment on the Kite AI network, not ENS on Ethereum.
+
+**Can I use a `.kite` name with my wallet?**
+Any wallet that supports EIP-137 name resolution with a configurable RPC can resolve `.kite` names. Most wallets need to be configured to point to the Kite AI network first.
+
+## Registration
+
+**Why do I need to wait 60 seconds between commit and register?**
+This is the commit-reveal protocol. See [Commit-Reveal Protocol](/docs/concepts/commit-reveal) for the full explanation.
+
+**What happens if I don't reveal within 24 hours?**
+Your commitment expires and you must start over (submit a new commit). Your KITE is not charged — you only pay on the final `register` transaction.
+
+**Can I register a name for someone else?**
+Yes — the `owner` parameter in the register transaction can be any address. The name is minted directly to that address.
+
+**What characters are allowed?**
+Lowercase letters `a-z`, digits `0-9`, and hyphens `-`. No leading or trailing hyphens. Unicode names are not supported in V1.
+
+## Renewal & Expiry
+
+**How much advance notice do I get before expiry?**
+The app shows days remaining on your names dashboard. Set up renewal reminders by watching your expiry date.
+
+**What is the grace period?**
+90 days after expiry. During this window only the current owner can renew. After 90 days the name enters a Dutch auction premium.
+
+**Can I renew without owning the name?**
+No — only the current owner can renew during the grace period.
+
+## Technical
+
+**Is the code open source?**
+Yes — MIT licensed at [github.com/KiteID/kiteid](https://github.com/KiteID/kiteid).
+
+**Is the contract upgradeable?**
+`KiteController` uses a UUPS proxy and can be upgraded by the admin. `KiteRegistry` and `KiteBaseRegistrar` are immutable.
+
+**What indexer does KiteID use?**
+[Ponder](https://ponder.sh) — a type-safe Ethereum indexer that stores events in PostgreSQL.

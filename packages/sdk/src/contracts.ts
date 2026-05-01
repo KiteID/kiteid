@@ -6,6 +6,7 @@ import {
   KiteRegistryAbi,
   KiteResolverAbi,
   KiteReverseRegistrarAbi,
+  KiteWrapperAbi,
 } from '@kiteid/contracts-abi';
 import type { Address } from 'viem';
 import { kiteAI, kiteAITestnet } from './chains';
@@ -17,6 +18,7 @@ export const abis = {
   resolver: KiteResolverAbi,
   reverseRegistrar: KiteReverseRegistrarAbi,
   priceOracle: IPriceOracleAbi,
+  wrapper: KiteWrapperAbi,
 } as const;
 
 export type NetworkKey = 'kiteMainnet' | 'kiteTestnet';
@@ -35,6 +37,10 @@ export function getControllerAddress(chainId: number): Address | undefined {
 
 export function getResolverAddress(chainId: number): Address | undefined {
   return getAddresses(chainId)?.resolver;
+}
+
+export function getWrapperAddress(chainId: number): Address | undefined {
+  return getAddresses(chainId)?.wrapper;
 }
 
 export { addresses };

@@ -5,10 +5,12 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import { namehash } from 'viem';
 import { useAccount } from 'wagmi';
 import { NameDetailCard } from '@/components/domain/name-detail-card';
 import { RenewDialog } from '@/components/domain/renew-dialog';
 import { FadeIn } from '@/components/motion';
+import { WrapDialog } from '@/components/wrapping/wrap-dialog';
 import { useNameDetails } from '@/hooks/use-name-details';
 
 function NameDetailContent() {
@@ -22,6 +24,7 @@ function NameDetailContent() {
   const { address } = useAccount();
 
   const [renewOpen, setRenewOpen] = useState(false);
+  const [wrapOpen, setWrapOpen] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('renew') === 'true') {
@@ -31,6 +34,7 @@ function NameDetailContent() {
 
   const handleOpenRenew = useCallback(() => setRenewOpen(true), []);
   const handleCloseRenew = useCallback(() => setRenewOpen(false), []);
+  const handleOpenWrap = useCallback(() => setWrapOpen(true), []);
 
   const isOwner = Boolean(
     address && details.owner && address.toLowerCase() === details.owner.toLowerCase(),
@@ -71,9 +75,16 @@ function NameDetailContent() {
         domain={indexed.domain}
         events={indexed.events}
         onRenew={handleOpenRenew}
+        onWrap={handleOpenWrap}
       />
 
       <RenewDialog name={name} open={renewOpen} onClose={handleCloseRenew} />
+      <WrapDialog
+        open={wrapOpen}
+        onOpenChange={setWrapOpen}
+        node={namehash(`${name}.kite`)}
+        owner={details.owner || '0x'}
+      />
     </section>
   );
 }

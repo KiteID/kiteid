@@ -1,0 +1,68 @@
+# Kener status page configuration for status.kiteid.xyz
+# Deploy via: docker run -d --name kener -p 3001:3001 -v ./config:/app/config rajnandan1/kener:latest
+# Or via Dokploy: use image rajnandan1/kener:latest, port 3001, mount config volume
+
+site:
+  title: KiteID Status
+  description: Live status for KiteID services
+  logo: /og.png
+  favicon: /favicon.ico
+  home: https://kiteid.xyz
+  github: https://github.com/KiteID/kiteid
+
+nav:
+  - name: App
+    url: https://kiteid.xyz
+  - name: Docs
+    url: https://docs.kiteid.xyz
+
+monitors:
+  - name: Web App
+    id: web-app
+    description: kiteid.xyz frontend
+    tag: frontend
+    url: https://kiteid.xyz
+    method: GET
+    timeout: 10000
+    expectedStatus: 200
+    expectedKeyword: KiteID
+
+  - name: API
+    id: api
+    description: REST API and indexer
+    tag: backend
+    url: https://kiteid.xyz/api/diagnose
+    method: GET
+    timeout: 10000
+    expectedStatus: 200
+    expectedKeyword: '"ok"'
+
+  - name: Staging Web
+    id: staging-web
+    description: staging.kiteid.xyz
+    tag: staging
+    url: https://staging.kiteid.xyz
+    method: GET
+    timeout: 10000
+    expectedStatus: 200
+
+  - name: Docs
+    id: docs
+    description: docs.kiteid.xyz
+    tag: docs
+    url: https://docs.kiteid.xyz
+    method: GET
+    timeout: 10000
+    expectedStatus: 200
+
+  - name: Kite AI Testnet RPC
+    id: kite-testnet-rpc
+    description: Kite AI testnet RPC reachability
+    tag: chain
+    url: https://rpc-testnet.gokite.ai
+    method: POST
+    body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+    headers:
+      Content-Type: application/json
+    timeout: 15000
+    expectedStatus: 200

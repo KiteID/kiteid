@@ -41,12 +41,35 @@ export const namesRouter = new Hono()
       return c.json({ error: 'Indexer unreachable', detail: message }, 502);
     }
   })
-  .get('/:name', async (c) => {
-    const name = c.req.param('name').toLowerCase();
+  .get('/owners', async (c) => {
+    const addresses = c.req.query('addresses')?.split(',') || [];
+    if (addresses.length === 0) {
+      return c.json({ owners: {} });
+    }
+
+    const result: Record<string, unknown> = {};
+    const unique = [...new Set(addresses.map((a) => a.toLowerCase()))];
+
+    const promises = unique.map(async (address) => {
+      try {
+        const res = await fetchIndexer(`/names/${address}`);
+        if (res.ok) {
+          const data = await res.json();
+          result[address] = data;
+        }
+      } catch {
+        // Silently skip failed requests
+      }
+    });
+
+    await Promise.all(promises);
+    return c.json({ owners: result });
+  })
+  .get('/owner/:address', async (c) => {
+    const address = c.req.param('address').toLowerCase();
     try {
-      const res = await fetchIndexer(`/names/detail/${encodeURIComponent(name)}`);
+      const res = await fetchIndexer(`/names/${address}`);
       if (!res.ok) {
-        if (res.status === 404) return c.json({ error: 'Domain not found' }, 404);
         return c.json({ error: 'Indexer unavailable', status: res.status }, 502);
       }
       const data = await res.json();
@@ -56,11 +79,12 @@ export const namesRouter = new Hono()
       return c.json({ error: 'Indexer unreachable', detail: message }, 502);
     }
   })
-  .get('/owner/:address', async (c) => {
-    const address = c.req.param('address').toLowerCase();
+  .get('/:name', async (c) => {
+    const name = c.req.param('name').toLowerCase();
     try {
-      const res = await fetchIndexer(`/names/${address}`);
+      const res = await fetchIndexer(`/names/detail/${encodeURIComponent(name)}`);
       if (!res.ok) {
+        if (res.status === 404) return c.json({ error: 'Domain not found' }, 404);
         return c.json({ error: 'Indexer unavailable', status: res.status }, 502);
       }
       const data = await res.json();

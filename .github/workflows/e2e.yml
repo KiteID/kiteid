@@ -36,7 +36,7 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v5
 
       - uses: actions/setup-node@v6
         with:
@@ -54,7 +54,7 @@ jobs:
       - name: Run E2E tests
         run: pnpm --filter @kiteid/web exec playwright test
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report

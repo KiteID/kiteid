@@ -6,4 +6,5 @@ export { KiteControllerAbi } from './abis/KiteController';
 export { KiteRegistryAbi } from './abis/KiteRegistry';
 export { KiteResolverAbi } from './abis/KiteResolver';
 export { KiteReverseRegistrarAbi } from './abis/KiteReverseRegistrar';
+export { KiteWrapperAbi } from './abis/KiteWrapper';
 export { addresses } from './addresses';

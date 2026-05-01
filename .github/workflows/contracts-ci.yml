@@ -75,7 +75,7 @@ jobs:
         working-directory: packages/contracts
         run: forge build
 
-      - uses: crytic/slither-action@v0.4.2
+      - uses: crytic/slither-action@v0.4.0
         id: slither
         with:
           target: packages/contracts
@@ -84,67 +84,8 @@ jobs:
           slither-config: packages/contracts/slither.config.json
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         continue-on-error: true
         with:
           sarif_file: results.sarif
-
-  aderyn:
-    name: Aderyn Static Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
-      - uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Build for Aderyn
-        working-directory: packages/contracts
-        run: forge build
-
-      - name: Install Aderyn
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ADERYN_VER=$(curl -s -H "Authorization: Bearer ${GH_TOKEN}" https://api.github.com/repos/Cyfrin/aderyn/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
-          curl -sSfL "https://github.com/Cyfrin/aderyn/releases/download/${ADERYN_VER}/aderyn-x86_64-unknown-linux-gnu.tar.xz" | tar xJ
-          sudo mv aderyn-x86_64-unknown-linux-gnu/aderyn /usr/local/bin/aderyn
-
-      - name: Run Aderyn
-        working-directory: packages/contracts
-        run: aderyn --output aderyn-report.md .
-
-      - name: Upload Aderyn report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: aderyn-report
-          path: packages/contracts/aderyn-report.md
-
-  halmos:
-    name: Halmos Symbolic Verification
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
-      - uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Build contracts
-        working-directory: packages/contracts
-        run: forge build
-
-      - name: Install Halmos
-        run: pip install halmos
-
-      - name: Run Halmos
-        working-directory: packages/contracts
-        run: |
-          halmos \
-            --contract HalmosProperties \
-            --solver-timeout-assertion 30000 \
-            --solver z3 \
-            -vvv

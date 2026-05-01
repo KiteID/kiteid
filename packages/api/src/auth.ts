@@ -6,22 +6,6 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { siwe } from 'better-auth/plugins/siwe';
 import { createPublicClient, http } from 'viem';
 
-// Public, dist-portable surface of the Better Auth instance.
-// Better Auth's full inferred type pulls in zod's internal `$strip` symbol
-// from a deep `.pnpm/...` path that TS can't name in an emitted `.d.ts`.
-// We expose only the methods we actually consume internally.
-type SessionResult = {
-  user: { id: string; [key: string]: unknown } | null;
-  session: { id: string; userId: string; [key: string]: unknown } | null;
-} | null;
-
-export type AuthHandler = {
-  handler: (req: Request) => Response | Promise<Response>;
-  api: {
-    getSession: (input: { headers: Headers }) => Promise<SessionResult>;
-  };
-};
-
 const kiteClient = createPublicClient({
   chain: {
     id: 2366,
@@ -32,7 +16,8 @@ const kiteClient = createPublicClient({
   transport: http(process.env.KITE_RPC_URL || 'https://rpc.gokite.ai/'),
 });
 
-export const auth: AuthHandler = betterAuth({
+// biome-ignore lint/suspicious/noExplicitAny: Better Auth type references zod internals which can't be portably emitted
+export const auth: any = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
@@ -83,4 +68,4 @@ export const auth: AuthHandler = betterAuth({
     .filter(Boolean),
 });
 
-export type Auth = typeof auth;
+export type Auth = ReturnType<typeof betterAuth>;
