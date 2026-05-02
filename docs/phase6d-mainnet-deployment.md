@@ -1,22 +1,43 @@
 # Phase 6d: Mainnet Deployment Guide
 
-**Status**: Ready for mainnet deployment  
+**Status**: DRAFT - Awaiting Phase 6e Gate 5 Runtime Proof  
 **Target Chain**: Kite Mainnet (Chain ID 2366)  
-**Predecessor**: Phase 6e Gate 5 E2E (testnet relayer confirmed ✅)  
-**Target Date**: 2026-05-03+  
+**Predecessor**: Phase 6e Gate 5 E2E (testnet relayer scaffold complete, runtime proof ⏳)  
+**Target Date**: 2026-05-04+ (after testnet proof)  
 
 ---
 
-## Pre-Deployment Checklist
+## Pre-Deployment Blockers (Must Close Before Gate 6)
 
-- [ ] Phase 6e Gate 5 E2E tests passing on testnet staging
-- [ ] KiteWrapper testnet address confirmed: `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5`
-- [ ] Testnet relayer in production for ≥24 hours (no incidents)
-- [ ] RELAYER_PRIVATE_KEY account has mainnet KITE balance (≥ 2 KITE for deploy + gas)
-- [ ] Mainnet RPC accessible: https://rpc.gokite.ai/
-- [ ] Git branch: `develop` (post-Phase 6e commit), working tree clean
+- [ ] **Phase 6e Gate 5 Runtime Proof Complete**:
+  - [ ] Manual testnet: SIWE session → nonce 200 OK
+  - [ ] Manual testnet: EIP-712 sign + relay txHash returned
+  - [ ] Manual testnet: On-chain getExpiry > 0 confirmed
+  - [ ] Manual testnet: Ponder wrapped_names table row created
+  - [ ] Manual testnet: Activity feed NameWrapped event visible
+  - [ ] E2E regression tests passing with authenticated session:
+    - [ ] Nonce replay → 409 Conflict (with auth)
+    - [ ] Owner mismatch → signature validation error
+    - [ ] Expired deadline → 400 Bad Request (with auth)
+
+- [ ] **Testnet Stability**: Relayer running ≥24h with zero incidents
+
+- [ ] **Mainnet Preparation**:
+  - [ ] Phase 1 registry addresses verified on chain 2366:
+    - [ ] KiteRegistry address
+    - [ ] KiteBaseRegistrar address
+    - [ ] KiteResolver address
+    - [ ] KiteReverseRegistrar address
+  - [ ] RELAYER_PRIVATE_KEY account has mainnet KITE (≥ 2 KITE for deploy + gas)
+  - [ ] Mainnet RPC tested: https://rpc.gokite.ai/ responding
+  - [ ] Mainnet indexer ready: Ponder configured for chain 2366
+  - [ ] Git branch: `develop` clean, all changes committed
+
+## Post-Gate-5 Checklist (After Runtime Proof)
+
 - [ ] Backup: RELAYER_PRIVATE_KEY securely stored (hardware wallet or Infisical Phase 7)
-- [ ] Mainnet indexer ready (Ponder app configured for chain 2366)
+- [ ] Mainnet explorer access verified
+- [ ] Rollback procedure tested locally
 
 ---
 
@@ -299,8 +320,13 @@ git push origin develop
 
 ## Phase 6d Completion Gate
 
-**✅ Phase 6d Complete when:**
+**Gate 5 Must Close First** ⏳:
+- [ ] Testnet manual proof: SIWE → nonce → sign → relay → on-chain → Ponder
+- [ ] E2E regression tests passing with auth (nonce single-use, owner validation, deadline)
+- [ ] 24h testnet stability confirmed
+- [ ] Documentation updated to reflect runtime proof
 
+**Phase 6d Complete when** (after Gate 5):
 - [ ] KiteWrapper deployed to mainnet at fixed address
 - [ ] All env vars updated (WRAPPER_ADDRESS, CHAIN_ID=2366)
 - [ ] API /health + /v2/wrap/preview responding 200 with correct wrapper

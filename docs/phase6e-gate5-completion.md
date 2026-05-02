@@ -1,8 +1,27 @@
-# Phase 6e: Gate 5 EIP-712 Relay & Ponder Indexing - COMPLETE ✅
+# Phase 6e: Gate 5 EIP-712 Relay & Ponder Indexing - SCAFFOLD & SMOKE TESTS (Runtime Proof Pending)
 
-**Status**: Complete  
-**Completion Date**: 2026-05-02  
-**E2E Test Suite**: All 35 executable tests passing, 11 skipped (testnet wallet required)  
+**Status**: E2E Scaffold Complete + Negative Smoke Tests | Runtime Proof ⏳  
+**Last Updated**: 2026-05-02  
+**E2E Test Suite**: 35 executable tests passing (auth-layer + preview), 11 skipped (critical path)  
+
+---
+
+## Gate 5 Status
+
+### ✅ Implemented
+- EIP-712 relayer architecture (API nonce issuance + relay endpoints)
+- Threat model documentation (8 vectors + mitigations)
+- E2E test scaffold (negative tests + auth-layer validation)
+- Testnet deployment (KiteWrapper live, relayer stable 24+h)
+
+### ⏳ Pending Runtime Proof
+- **SIWE Session + Nonce Issuance** (test skipped: requires wallet)
+- **Name Registration** (test skipped: commit-reveal flow)
+- **EIP-712 Signing & Relay** (test skipped: interactive wallet)
+- **On-Chain Wrap Execution** (not tested: requires relayer broadcast)
+- **Ponder Event Indexing** (not tested: depends on on-chain event)
+- **Activity Feed Update** (not tested: depends on Ponder indexing)
+- **Regression Tests with Auth** (nonce single-use, owner validation, deadline enforcement need authenticated session proof)
 
 ---
 
@@ -58,33 +77,35 @@ Activity feed updated
 
 ---
 
-### ✅ E2E Test Suite (Phase 6e Gate 5)
+### ✅ E2E Test Suite (Phase 6e Gate 5 - Scaffold Stage)
 
 **File**: `apps/web/e2e/wrap-flow.spec.ts`
 
-**Test Coverage**:
+**What's Tested (35/35 ✅)**:
+- Negative tests: API auth layer (nonce requires 401 without session)
+- Regression smoke tests: invalid params return expected HTTP status
+- Contract state: preview endpoint responds with wrapper address
+- API health: /health + /diagnose endpoints functional
+- **Scope**: Auth-layer validation + endpoint availability (NOT business logic)
 
-#### Executable Tests (35/35 ✅)
+**Regression Tests Status** ⚠️:
+- Nonce Replay (line 83): Tests 401 (auth fails) ✓ | Does NOT test 409 (nonce already used) ✗
+- Owner Mismatch (line 117): Tests 401 (auth fails) ✓ | Does NOT test signature validation ✗
+- Expired Deadline (line 135): Tests 401 (auth fails) ✓ | Does NOT test deadline validation ✗
+- **Why**: All fail at auth layer before reaching business logic
 
-1. **SIWE Session → Nonce Issuance** — Verify nonce endpoint requires auth
-2. **Nonce endpoint requires SIWE auth** — 401 without session
-3. **Nonce endpoint returns hex nonce when authenticated** (skipped, testnet only)
-4. **Register Disposable .kite Name** (skipped, testnet only)
-5. **Open WrapDialog + EIP-712 Sign** (skipped, interactive wallet)
-6. **Verify Wrap On-Chain + Ponder Indexing** (skipped, depends on prior wrap)
-7. **Regression: Nonce Replay → 409 Conflict** — Verify nonce can't be reused
-8. **Regression: Owner Mismatch → 401 Unauthorized** — Invalid signer rejected
-9. **Regression: Expired Deadline → 400 Bad Request** — Stale deadline rejected
-10. **API Health + Indexer Diagnostics** — /health and /diagnose endpoints
-11. **Preview endpoint returns wrapper contract state** — wrapperNotDeployed flag
-12. And 24 additional assertion variants...
-
-**Skipped Tests** (11 tests, require testnet wallet):
-- Interactive SIWE flow
-- Name registration (commit-reveal)
-- EIP-712 signing with actual wallet
-- On-chain verification with real transactions
-- Ponder event indexing verification
+**Critical Tests Skipped** (11 tests, require testnet wallet + manual execution):
+1. SIWE Session creation (line 15: test.skip)
+2. Name registration commit-reveal (line 40: test.skip)
+3. EIP-712 signing with wallet (line 68: test.skip)
+4. Relay execution via API (implicit in #3)
+5. On-chain wrap verification (getExpiry > 0)
+6. Ponder indexing verification (wrapped_names row created)
+7. Activity feed event appearance
+8. Nonce single-use enforcement (with valid auth)
+9. Owner address validation (with valid signature)
+10. Deadline validation (with valid signature)
+11. Full wrap flow integration
 
 ---
 
@@ -93,16 +114,22 @@ Activity feed updated
 | Component | Status | Details |
 |-----------|--------|---------|
 | KiteWrapper Contract | ✅ Deployed | Address: `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5` (chain 2368) |
-| Relayer API | ✅ Running | Docker image: `ghcr.io/kiteid/api:staging` |
-| Relayer Private Key | ✅ Configured | RELAYER_PRIVATE_KEY set in Dokploy |
+| Relay Endpoints | ✅ Running | /api/v2/wrap/* routes in Web container (via @kiteid/api package) |
+| Relayer Account | ✅ Configured | RELAYER_PRIVATE_KEY set in Web service env |
 | Web Frontend | ✅ Running | Docker image: `ghcr.io/kiteid/web:staging` |
 | Ponder Indexer | ✅ Running | Docker image: `ghcr.io/kiteid/indexer:staging` |
-| Environment Vars | ✅ Synced | WRAPPER_ADDRESS, RELAYER_PRIVATE_KEY, etc. on all services |
+| Environment Vars | ✅ Synced | WRAPPER_ADDRESS, RELAYER_PRIVATE_KEY, etc. on services |
+
+**Note**: Relay endpoints (@kiteid/api package) are built into Web container, not separate service. /api/v2/wrap/* routes handled by Hono server in same process.
 
 **Gate 4 (VPS Synchronization)**: ✅ Complete
 - All services have correct env vars
 - Wrap preview endpoint returns `wrapperNotDeployed: false`
-- Smoke tests passing
+- API health + preview endpoints responding
+
+**Gate 5 (Runtime Proof)**: ⏳ Pending
+- API endpoints tested (negative cases)
+- Critical flow tests (SIWE → sign → relay → on-chain → Ponder) not executed
 
 ---
 
