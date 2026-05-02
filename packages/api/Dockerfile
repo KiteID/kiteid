@@ -5,7 +5,7 @@ WORKDIR /app
 FROM base AS builder
 COPY . .
 RUN pnpm install --frozen-lockfile --filter @kiteid/api...
-RUN pnpm --filter @kiteid/api build
+RUN pnpm build --filter @kiteid/api...
 
 FROM base AS runner
 COPY --from=builder --chown=node:node /app /app
