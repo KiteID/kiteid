@@ -11,6 +11,46 @@
 
 ---
 
+## Pre-Test 0: Verify KiteWrapper On-Chain Setup (CRITICAL)
+
+Before running any test, verify the KiteWrapper contract is correctly initialized and the relayer is registered as controller. Without this, wrap() will always revert with `CallerNotController`.
+
+```bash
+WRAPPER_ADDRESS="0x3e45e568530763fa8f00b50b0106f63d2e6d84e5"
+RPC="https://rpc-testnet.gokite.ai/"
+
+# 1. Verify contract is deployed (should return bytecode)
+cast code $WRAPPER_ADDRESS --rpc-url $RPC | wc -c
+# > 100 means deployed; "0x" means not deployed
+
+# 2. Verify owner is set (not zero address)
+cast call $WRAPPER_ADDRESS "owner()(address)" --rpc-url $RPC
+# Should return: your relayer wallet address (non-zero)
+
+# 3. Verify relayer wallet IS a controller
+cast call $WRAPPER_ADDRESS \
+  "controllers(address)(bool)" \
+  <RELAYER_WALLET_ADDRESS> \
+  --rpc-url $RPC
+# MUST return: true
+# If false: call addController(relayerAddress) as contract owner first
+```
+
+**If relayer is not a controller:**
+```bash
+# Add relayer as controller (must run as contract owner)
+cast send $WRAPPER_ADDRESS \
+  "addController(address)" \
+  <RELAYER_WALLET_ADDRESS> \
+  --rpc-url $RPC \
+  --private-key $RELAYER_PRIVATE_KEY
+# Should succeed; verify with step 3 above
+```
+
+**Only proceed to Test 1 after verifying controller = true.**
+
+---
+
 ## Test 1: SIWE Session → Nonce Issuance
 
 ### Steps

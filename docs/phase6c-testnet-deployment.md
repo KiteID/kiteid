@@ -32,27 +32,44 @@ echo $RELAYER_PRIVATE_KEY
 
 ### 1.2 Deploy to Testnet
 
-**Via Foundry Cast (recommended):**
+**Via Foundry Script (correct UUPS proxy + initialization):**
+
+KiteWrapper uses UUPS upgradeable proxy. Do NOT use `forge create --constructor-args` — constructor takes zero args and calls `_disableInitializers()`. Use the deployment script instead.
 
 ```bash
-# Deploy KiteWrapper
-# Constructor args: (registry, baseRegistrar, reverseRegistrar, resolver)
-# These should match testnet deployment from Phase 1
+export BASE_REGISTRAR_ADDRESS="0x485cB7C9a8aC6fa4Cc60C489AE0221aFfdCC5841"
+export RELAYER_PRIVATE_KEY="0x..."
 
-REGISTRY="0xb54a0D86d9059bC2db72BFfD1FAf6a87b9F0B036"
-BASE_REGISTRAR="0x485cB7C9a8aC6fa4Cc60C489AE0221aFfdCC5841"
-REVERSE_REGISTRAR="0x442FEe8572F4314A45bA2D81e32Db91fCB079E2D"
-RESOLVER="0xfC69694BBd6b85Fd9b4aC5ddBD647b4f2196CC68"
-
-forge create \
+forge script script/DeployWrapper.s.sol:DeployWrapper \
   --rpc-url https://rpc-testnet.gokite.ai/ \
   --private-key $RELAYER_PRIVATE_KEY \
-  src/wrapper/KiteWrapper.sol:KiteWrapper \
-  --constructor-args $REGISTRY $BASE_REGISTRAR $REVERSE_REGISTRAR $RESOLVER \
-  --verify false
+  --broadcast
 ```
 
-**Output**: Copy the deployed contract address (e.g., `0x...`)
+**What this does:**
+1. Deploys KiteWrapper implementation (empty constructor, `_disableInitializers()`)
+2. Deploys ERC1967Proxy pointing to implementation
+3. Calls `initialize(baseRegistrar, owner)` on proxy
+4. Calls `addController(deployer)` to register relayer as controller
+
+**Output**: Copy the **proxy** address from `KiteWrapper (proxy):` line
+
+### 1.3 Verify Controller Registration
+
+```bash
+# Verify relayer is registered as controller (CRITICAL — wrap() will revert otherwise)
+cast call <WRAPPER_ADDRESS> \
+  "controllers(address)(bool)" \
+  <RELAYER_WALLET_ADDRESS> \
+  --rpc-url https://rpc-testnet.gokite.ai/
+# Must return: true
+
+# Verify initialization (owner should be deployer)
+cast call <WRAPPER_ADDRESS> \
+  "owner()(address)" \
+  --rpc-url https://rpc-testnet.gokite.ai/
+# Must return: <RELAYER_WALLET_ADDRESS>
+```
 
 ### 1.3 Verify Deployment
 
