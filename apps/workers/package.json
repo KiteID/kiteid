@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@kiteid/db": "workspace:*",
-    "bullmq": "^5.40.0",
+    "bullmq": "^5.76.5",
     "drizzle-orm": "^0.45.2",
-    "resend": "^4.5.0",
-    "viem": "^2.31.0"
+    "resend": "^6.12.2",
+    "viem": "^2.48.8"
   },
   "devDependencies": {
     "@kiteid/config-typescript": "workspace:*",
