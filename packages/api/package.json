@@ -22,7 +22,7 @@
     "@kiteid/db": "workspace:*",
     "better-auth": "^1.6.2",
     "drizzle-orm": "^0.45.2",
-    "hono": "^4.12.12",
+    "hono": "^4.12.18",
     "viem": "^2.31.0"
   },
   "devDependencies": {

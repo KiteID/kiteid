@@ -70,12 +70,13 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
       setError('');
       if (!account) throw new Error('Wallet not connected');
 
-      // Step 1: Check if wrapper has approval to transfer the NFT
+      // Step 1: Check if wrapper has approval to transfer the NFT.
+      // approveWrapperAsync() waits for the tx receipt internally before resolving,
+      // so we are safe to proceed to wrap() without race conditions on fresh wallets.
       const isApproved = await checkWrapperApprovalAsync(account);
       if (!isApproved) {
         setStep('approving');
         await approveWrapperAsync();
-        // Wait briefly for approval to be mined before proceeding
       }
 
       // Step 2: Sign EIP-712 and submit to relayer

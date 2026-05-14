@@ -48,16 +48,22 @@ export function useWrapName(chainId?: number): Omit<
 
   const approveWrapperAsync = async (): Promise<`0x${string}`> => {
     if (!effectiveChainId) throw new Error('Chain ID not set');
+    if (!publicClient) throw new Error('Public client not available');
     const wrapperAddress = getWrapperAddress(effectiveChainId);
     const baseRegistrar = getBaseRegistrarAddress(effectiveChainId);
     if (!wrapperAddress || !baseRegistrar) throw new Error('Contracts not deployed');
 
-    return writeContractAsync({
+    const txHash = await writeContractAsync({
       address: baseRegistrar,
       abi: abis.baseRegistrar,
       functionName: 'setApprovalForAll',
       args: [wrapperAddress, true],
     });
+
+    // Wait for approval tx to be mined before returning — otherwise relayer
+    // wrap() can race ahead and revert in safeTransferFrom on a fresh wallet.
+    await publicClient.waitForTransactionReceipt({ hash: txHash, confirmations: 1 });
+    return txHash;
   };
 
   const wrapAsync = async (
