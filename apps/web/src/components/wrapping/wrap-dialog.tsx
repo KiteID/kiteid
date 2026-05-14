@@ -25,12 +25,12 @@ interface WrapDialogProps {
   owner: string;
 }
 
-type Step = 'select' | 'preview' | 'confirm' | 'pending' | 'done';
+type Step = 'select' | 'preview' | 'confirm' | 'approving' | 'pending' | 'done';
 
 export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDialogProps) {
   const chainId = useChainId();
   const { address: account } = useAccount();
-  const { wrapAsync } = useWrapName(chainId);
+  const { wrapAsync, checkWrapperApprovalAsync, approveWrapperAsync } = useWrapName(chainId);
   const [step, setStep] = useState<Step>('select');
   const [selectedFuses, setSelectedFuses] = useState<bigint>(0n);
   const [txHash, setTxHash] = useState<string>('');
@@ -67,9 +67,19 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
 
   const _handleSign = async () => {
     try {
-      setStep('pending');
       setError('');
       if (!account) throw new Error('Wallet not connected');
+
+      // Step 1: Check if wrapper has approval to transfer the NFT
+      const isApproved = await checkWrapperApprovalAsync(account);
+      if (!isApproved) {
+        setStep('approving');
+        await approveWrapperAsync();
+        // Wait briefly for approval to be mined before proceeding
+      }
+
+      // Step 2: Sign EIP-712 and submit to relayer
+      setStep('pending');
       const expiry = BigInt(Math.floor(Date.now() / 1000) + 31536000);
       const hash = await wrapAsync(node as `0x${string}`, tokenId, account, selectedFuses, expiry);
       setTxHash(hash);
@@ -141,6 +151,20 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
                 Sign with Wallet
               </Button>
             </div>
+          </div>
+        )}
+
+        {step === 'approving' && (
+          <div className="space-y-4 text-center">
+            <div className="animate-pulse">
+              <div className="h-8 w-8 bg-gradient-to-r from-bronze to-stone rounded-full mx-auto" />
+            </div>
+            <p className="text-sm text-stone-600 dark:text-stone-400">
+              Approving wrapper to transfer your name NFT...
+            </p>
+            <p className="text-xs text-stone-500">
+              One-time approval required before wrapping. Please confirm in your wallet.
+            </p>
           </div>
         )}
 

@@ -43,4 +43,8 @@ export function getWrapperAddress(chainId: number): Address | undefined {
   return getAddresses(chainId)?.wrapper;
 }
 
+export function getBaseRegistrarAddress(chainId: number): Address | undefined {
+  return getAddresses(chainId)?.baseRegistrar;
+}
+
 export { addresses };

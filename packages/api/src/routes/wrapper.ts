@@ -43,8 +43,13 @@ export const wrapperRouter = new Hono()
       // Try on-chain read if wrapper is deployed
       if (WRAPPER_ADDRESS && WRAPPER_ADDRESS !== '0x0000000000000000000000000000000000000000') {
         try {
+          const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || '2368');
+          const rpcUrl =
+            chainId === 2366
+              ? process.env.KITE_RPC_URL || 'https://rpc.gokite.ai/'
+              : process.env.KITE_TESTNET_RPC_URL || 'https://rpc-testnet.gokite.ai/';
           const client = createPublicClient({
-            transport: http(process.env.KITE_TESTNET_RPC_URL || 'https://rpc-testnet.gokite.ai/'),
+            transport: http(rpcUrl),
           });
 
           const expiry = (await client.readContract({

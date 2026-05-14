@@ -92,8 +92,8 @@ cast send $WRAPPER_ADDRESS \
 
 1. **Generate Test Name**
    ```
-   Navigate to: https://staging.kiteid.xyz/register/test-mainnet-<TIMESTAMP>
-   Example: https://staging.kiteid.xyz/register/test-mainnet-1714767000
+   Navigate to: https://staging.kiteid.xyz/register/wrap-test-<TIMESTAMP>
+   Example: https://staging.kiteid.xyz/register/wrap-test-1714767000
    ```
 
 2. **Commit Phase**
@@ -249,7 +249,7 @@ cast send $WRAPPER_ADDRESS \
    ```
    Scroll to Activity section
    Should see event like:
-   "NameWrapped - test-mainnet-<TIMESTAMP>"
+   "NameWrapped - wrap-test-<TIMESTAMP>"
    Timestamp should be ≤ 20s ago
    Click event to see details
    ```

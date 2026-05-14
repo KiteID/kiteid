@@ -14,14 +14,50 @@
 - E2E test scaffold (negative tests + auth-layer validation)
 - Testnet deployment (KiteWrapper live, relayer stable 24+h)
 
-### ⏳ Pending Runtime Proof
-- **SIWE Session + Nonce Issuance** (test skipped: requires wallet)
-- **Name Registration** (test skipped: commit-reveal flow)
-- **EIP-712 Signing & Relay** (test skipped: interactive wallet)
-- **On-Chain Wrap Execution** (not tested: requires relayer broadcast)
-- **Ponder Event Indexing** (not tested: depends on on-chain event)
-- **Activity Feed Update** (not tested: depends on Ponder indexing)
-- **Regression Tests with Auth** (nonce single-use, owner validation, deadline enforcement need authenticated session proof)
+### ⏳ Pending Runtime Proof (commit actual evidence here)
+
+Template to fill in after manual testnet run. Each completed test must include the txHash/receipt URL or equivalent on-chain evidence to be considered proven.
+
+```text
+Test 0: Controller pre-check
+  cast call $WRAPPER "controllers(address)(bool)" $RELAYER → <true/false>
+
+Test 1: SIWE Session + Nonce 200
+  Session cookie:           <set/unset>
+  GET /api/v2/wrap/nonce:   <200 + nonce hex>
+  expiresAt offset:         <~300s>
+
+Test 2: Register Test Name
+  Name:                     <wrap-test-XXXX>.kite
+  Commit tx:                <0x...>
+  Reveal tx:                <0x...>
+
+Test 3: EIP-712 Sign + Relay
+  Nonce used:               <0x...>
+  Signature:                <0x...>
+  POST /api/v2/wrap/relay:  <200 + txHash>
+  Relay txHash:             <0x...>
+
+Test 4: On-Chain Verification
+  cast call $WRAPPER "getExpiry(bytes32)" $NODE → <uint64 > 0>
+  cast call $WRAPPER "ownerOf(uint256)" $TOKEN_ID → <wrapper address>
+
+Test 5: Ponder Indexing + Activity
+  wrapped_names row:        <inserted Y/N>
+  Activity feed:            <NameWrapped event visible Y/N>
+  Indexing lag:             <~12s>
+
+Test 6a: Nonce Replay
+  Second POST with same nonce → <409 Conflict>
+
+Test 6b: Owner Mismatch
+  Sign with wrong owner → <401 / signature error>
+
+Test 6c: Expired Deadline
+  Wait 310s, POST → <400 Bad Request>
+```
+
+When all rows are filled in this section, change the doc header to `Status: PASS` and remove the ⏳ marker.
 
 ---
 

@@ -2,8 +2,13 @@ import { createWalletClient, defineChain, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 const pk = process.env.RELAYER_PRIVATE_KEY;
-const rpcUrl = process.env.KITE_TESTNET_RPC_URL || 'https://rpc-testnet.gokite.ai/';
 const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || '2368');
+
+// Select RPC URL based on chainId — mainnet (2366) uses different RPC than testnet (2368)
+const rpcUrl =
+  chainId === 2366
+    ? process.env.KITE_RPC_URL || 'https://rpc.gokite.ai/'
+    : process.env.KITE_TESTNET_RPC_URL || 'https://rpc-testnet.gokite.ai/';
 
 // Define chain explicitly so writeContract encodes transactions correctly
 const kiteChain = defineChain({

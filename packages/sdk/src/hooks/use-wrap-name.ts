@@ -2,14 +2,16 @@
 
 import type { Address } from 'viem';
 import type { UseWriteContractReturnType } from 'wagmi';
-import { useAccount, useChainId, useSignTypedData, useWriteContract } from 'wagmi';
-import { abis, getWrapperAddress } from '../contracts';
+import { useAccount, useChainId, usePublicClient, useSignTypedData, useWriteContract } from 'wagmi';
+import { abis, getBaseRegistrarAddress, getWrapperAddress } from '../contracts';
 import { getWrapDomain, UNWRAP_REQUEST_TYPES, WRAP_REQUEST_TYPES } from '../lib/eip712';
 
 export function useWrapName(chainId?: number): Omit<
   UseWriteContractReturnType,
   'writeContract' | 'writeContractAsync'
 > & {
+  checkWrapperApprovalAsync: (owner: Address) => Promise<boolean>;
+  approveWrapperAsync: () => Promise<`0x${string}`>;
   wrapAsync: (
     node: `0x${string}`,
     tokenId: bigint,
@@ -25,8 +27,38 @@ export function useWrapName(chainId?: number): Omit<
   const { address: account } = useAccount();
   const connectedChainId = useChainId();
   const { signTypedDataAsync } = useSignTypedData();
+  const publicClient = usePublicClient();
 
   const effectiveChainId = chainId ?? connectedChainId;
+
+  const checkWrapperApprovalAsync = async (owner: Address): Promise<boolean> => {
+    if (!effectiveChainId) throw new Error('Chain ID not set');
+    if (!publicClient) throw new Error('Public client not available');
+    const wrapperAddress = getWrapperAddress(effectiveChainId);
+    const baseRegistrar = getBaseRegistrarAddress(effectiveChainId);
+    if (!wrapperAddress || !baseRegistrar) throw new Error('Contracts not deployed');
+
+    return (await publicClient.readContract({
+      address: baseRegistrar,
+      abi: abis.baseRegistrar,
+      functionName: 'isApprovedForAll',
+      args: [owner, wrapperAddress],
+    })) as boolean;
+  };
+
+  const approveWrapperAsync = async (): Promise<`0x${string}`> => {
+    if (!effectiveChainId) throw new Error('Chain ID not set');
+    const wrapperAddress = getWrapperAddress(effectiveChainId);
+    const baseRegistrar = getBaseRegistrarAddress(effectiveChainId);
+    if (!wrapperAddress || !baseRegistrar) throw new Error('Contracts not deployed');
+
+    return writeContractAsync({
+      address: baseRegistrar,
+      abi: abis.baseRegistrar,
+      functionName: 'setApprovalForAll',
+      args: [wrapperAddress, true],
+    });
+  };
 
   const wrapAsync = async (
     node: `0x${string}`,
@@ -189,5 +221,13 @@ export function useWrapName(chainId?: number): Omit<
     });
   };
 
-  return { wrapAsync, unwrapAsync, setFusesAsync, bindPassportAsync, ...rest };
+  return {
+    checkWrapperApprovalAsync,
+    approveWrapperAsync,
+    wrapAsync,
+    unwrapAsync,
+    setFusesAsync,
+    bindPassportAsync,
+    ...rest,
+  };
 }
