@@ -130,6 +130,21 @@ Activity feed updated
 - Expired Deadline (line 135): Tests 401 (auth fails) ✓ | Does NOT test deadline validation ✗
 - **Why**: All fail at auth layer before reaching business logic
 
+**Business Logic Coverage via Unit Tests** ✅ (added 2026-05-14):
+- `packages/api/src/lib/__tests__/eip712.test.ts` — 10 deterministic tests:
+  - Valid signature recovered ✓
+  - Wrong signer rejected ✓
+  - Tampered message (tokenId) rejected ✓
+  - Cross-chain replay (chainId mismatch) rejected ✓
+  - JSON-encoded bigint params accepted (string → bigint coercion) ✓
+  - WrapRequest ↔ UnwrapRequest signature replay rejected ✓
+  - Malformed signature gracefully returns false ✓
+- `packages/api/src/lib/__tests__/wallet.test.ts` — 6 deterministic tests:
+  - Mainnet vs testnet chain selection by NEXT_PUBLIC_CHAIN_ID ✓
+  - Mainnet vs testnet RPC URL selection ✓
+  - Fallback to default RPC when env unset ✓
+  - Wallet client undefined when RELAYER_PRIVATE_KEY unset ✓
+
 **Critical Tests Skipped** (11 tests, require testnet wallet + manual execution):
 1. SIWE Session creation (line 15: test.skip)
 2. Name registration commit-reveal (line 40: test.skip)
