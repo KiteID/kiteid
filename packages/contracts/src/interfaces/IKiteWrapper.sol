@@ -34,6 +34,8 @@ interface IKiteWrapper is IERC1155 {
     error CallerNotController();
     error TokenIdMismatch(bytes32 node, uint256 tokenId);
     error Unauthorized();
+    error InvalidFuseBits(uint96 fuses);
+    error AgentListFull(bytes32 parentNode);
 
     // ============ Structs ============
 

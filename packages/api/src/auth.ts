@@ -29,7 +29,18 @@ export const auth: any = betterAuth({
     },
   }),
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
-  secret: process.env.BETTER_AUTH_SECRET || 'kiteid-dev-secret-change-in-production',
+  secret: (() => {
+    const s = process.env.BETTER_AUTH_SECRET;
+    if (!s) {
+      throw new Error(
+        'BETTER_AUTH_SECRET must be set. Sessions cannot be signed without a secret.',
+      );
+    }
+    if (s.length < 32) {
+      throw new Error('BETTER_AUTH_SECRET must be at least 32 characters.');
+    }
+    return s;
+  })(),
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day

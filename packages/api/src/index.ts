@@ -48,10 +48,18 @@ app.all('/auth/*', (c) => auth.handler(c.req.raw));
 app.get('/health', (c) => c.json({ status: 'ok', service: 'kiteid-api', timestamp: Date.now() }));
 
 // Diagnostic: reports indexer reachability details
+// Public response is a minimal { ok } summary; internal hostnames/topology are only
+// exposed when the request carries a matching DIAGNOSE_TOKEN header (defense against
+// public infra fingerprinting flagged by HIGH-04 security review).
 app.get('/diagnose', async (c) => {
   const ponderUrl = process.env.PONDER_URL || 'http://localhost:42069';
+  const diagnoseToken = process.env.DIAGNOSE_TOKEN;
+  const authorized =
+    !!diagnoseToken &&
+    (c.req.header('x-diagnose-token') === diagnoseToken ||
+      c.req.header('authorization') === `Bearer ${diagnoseToken}`);
   const started = Date.now();
-  const report: Record<string, unknown> = {
+  const internal: Record<string, unknown> = {
     ponderUrl,
     timestamp: started,
   };
@@ -60,24 +68,23 @@ app.get('/diagnose', async (c) => {
     const timeout = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(`${ponderUrl}/health`, { signal: controller.signal });
     clearTimeout(timeout);
-    report.ok = res.ok;
-    report.status = res.status;
-    report.elapsedMs = Date.now() - started;
+    internal.ok = res.ok;
+    internal.status = res.status;
+    internal.elapsedMs = Date.now() - started;
     try {
-      report.body = await res.text();
+      internal.body = await res.text();
     } catch {
-      report.body = '<non-text>';
+      internal.body = '<non-text>';
     }
   } catch (err) {
-    report.ok = false;
-    report.elapsedMs = Date.now() - started;
+    internal.ok = false;
+    internal.elapsedMs = Date.now() - started;
     if (err instanceof Error) {
-      report.errorName = err.name;
-      report.errorMessage = err.message;
-      // Node fetch usually wraps DNS/connection errors in .cause
+      internal.errorName = err.name;
+      internal.errorMessage = err.message;
       const cause = (err as Error & { cause?: unknown }).cause;
       if (cause && typeof cause === 'object') {
-        report.cause = {
+        internal.cause = {
           code: (cause as { code?: string }).code,
           syscall: (cause as { syscall?: string }).syscall,
           hostname: (cause as { hostname?: string }).hostname,
@@ -85,12 +92,13 @@ app.get('/diagnose', async (c) => {
         };
       }
     } else {
-      report.errorMessage = String(err);
+      internal.errorMessage = String(err);
     }
   }
   // Always return 200 for diagnostics — CF Tunnel rewrites 5xx bodies with its own page.
-  // Caller must check `ok` field in JSON.
-  return c.json(report, 200);
+  if (authorized) return c.json(internal, 200);
+  // Public response: only the boolean health summary, no infra detail.
+  return c.json({ ok: internal.ok === true, timestamp: started }, 200);
 });
 
 // Routes

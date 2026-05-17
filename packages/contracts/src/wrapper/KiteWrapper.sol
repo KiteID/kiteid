@@ -31,8 +31,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         mapping(bytes32 => bytes32[]) agentList;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("kiteid.wrapper.storage")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant STORAGE_LOCATION = 0x9c0ab0b18e2a3abd56a0c6c3d45f8e7b1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f00;
+    // ERC-7201: keccak256(abi.encode(uint256(keccak256("kiteid.wrapper.storage")) - 1)) & ~bytes32(uint256(0xff))
+    // Verified via script/StorageSlot.s.sol on Solidity 0.8.34
+    bytes32 private constant STORAGE_LOCATION = 0xaae2fce06d1d1a11b86fed64bc139a7b878de3460d3a51271a51cea9bb3bc700;
 
     // ============ Fuse Constants ============
 
@@ -40,6 +41,13 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
     uint96 public constant CANNOT_TRANSFER = 1 << 2;
     uint96 public constant CANNOT_UNBIND_PASSPORT = 1 << 18;
     uint96 public constant CANNOT_REVOKE_AGENTS = 1 << 19;
+
+    /// @dev Bitmask of all valid fuse bits. setFuses reverts if any other bit is set.
+    uint96 public constant VALID_FUSE_MASK =
+        CANNOT_UNWRAP | CANNOT_TRANSFER | CANNOT_UNBIND_PASSPORT | CANNOT_REVOKE_AGENTS;
+
+    /// @dev Max authorized agents per parent name (DoS guard on agentList iteration).
+    uint256 public constant MAX_AGENTS_PER_NAME = 64;
 
     // ============ Events ============
 
@@ -212,6 +220,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
         if (msg.sender != owner) revert CallerNotOwner(node);
         if ($.expiries[node] == 0) revert NameNotWrapped(node);
 
+        // Reject unknown bits to prevent permanent garbage state (fuses are one-way burns).
+        if ((fuses & ~VALID_FUSE_MASK) != 0) revert InvalidFuseBits(fuses);
+
         uint96 currentFuses = $.fuses[node];
         if ((currentFuses & fuses) != 0) revert FuseBurned(fuses);
 
@@ -277,6 +288,9 @@ contract KiteWrapper is ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable,
 
         AgentAuth memory auth = $.agentAuths[parentNode][agentNode];
         if (auth.active) revert AgentAlreadyAuthorized(parentNode, agentNode);
+
+        // Cap list length to prevent unbounded growth (revoke marks .active=false but never removes).
+        if ($.agentList[parentNode].length >= MAX_AGENTS_PER_NAME) revert AgentListFull(parentNode);
 
         $.agentAuths[parentNode][agentNode] =
             AgentAuth({agentAddress: agentAddress, spendCapPerTx: spendCapPerTx, expiry: expiry, active: true});

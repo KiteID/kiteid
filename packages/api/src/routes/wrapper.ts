@@ -165,6 +165,21 @@ export const wrapperRouter = new Hono()
       }
 
       const address = getAddress(walletAddress.address);
+
+      // Per-wallet cap on outstanding (unused, unexpired) nonces to prevent DB bloat / DoS.
+      // 10 is generous for a real user; a normal flow consumes one nonce per wrap.
+      const outstanding = await db.query.relayerNonces.findMany({
+        where: and(
+          eq(relayerNonces.address, address),
+          gt(relayerNonces.expiresAt, new Date()),
+          isNull(relayerNonces.usedAt),
+        ),
+        limit: 11,
+      });
+      if (outstanding.length >= 10) {
+        return c.json({ error: 'Too many outstanding nonces; wait for them to expire' }, 429);
+      }
+
       const nonce = `0x${randomBytes(32).toString('hex')}`;
       const expiresAt = new Date(Date.now() + 300_000); // 5 minutes
 
@@ -257,7 +272,8 @@ export const wrapperRouter = new Hono()
           ),
         );
 
-      if (updateResult.rowCount === 0) {
+      // Treat null/undefined rowCount as zero (some drivers do not report it).
+      if (!updateResult.rowCount) {
         return c.json({ error: 'Invalid or expired nonce' }, 409);
       }
 
@@ -295,6 +311,21 @@ export const wrapperRouter = new Hono()
       const tokenId = BigInt(p.tokenId);
       const fuses = action === 'wrap' ? BigInt(p.fuses) : 0n;
       const expiry = action === 'wrap' ? BigInt(p.expiry) : 0n;
+
+      // Bounds checks on signed parameters (post-verify but pre-broadcast).
+      if (action === 'wrap') {
+        // Reject expiry that is missing, in the past, or absurdly far in the future (>10y).
+        const maxExpiry = BigInt(nowSeconds + 10 * 365 * 24 * 3600);
+        if (expiry <= BigInt(nowSeconds) || expiry > maxExpiry) {
+          return c.json({ error: 'Invalid expiry' }, 400);
+        }
+        // Only valid fuse bits allowed (must match KiteWrapper VALID_FUSE_MASK).
+        const VALID_FUSE_MASK = 1n | (1n << 2n) | (1n << 18n) | (1n << 19n);
+        if ((fuses & ~VALID_FUSE_MASK) !== 0n) {
+          return c.json({ error: 'Invalid fuses' }, 400);
+        }
+      }
+
       const writeContractParams = {
         address: WRAPPER_ADDRESS as `0x${string}`,
         abi: KiteWrapperAbi,

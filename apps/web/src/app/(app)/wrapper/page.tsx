@@ -206,21 +206,22 @@ export default function WrapperPage() {
         </div>
       </div>
 
-      {/* Coming Soon */}
+      {/* Live on Testnet CTA */}
       <FadeIn delay={0.2}>
         <div className="mt-16 rounded-2xl border border-gold/30 bg-gold/5 p-8 text-center">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-gold-deep">
-            Coming in Phase 6
+            Phase 6.1 · Live on Kite Testnet
           </p>
-          <h3 className="mt-4 font-display text-3xl text-carbon">Ready for mainnet</h3>
+          <h3 className="mt-4 font-display text-3xl text-carbon">Wrap your .kite name now</h3>
           <p className="mt-4 text-sm text-graphite">
-            NameWrapper will launch alongside Kite mainnet with full integration into the ecosystem.
+            KiteWrapper is deployed on testnet (chain 2368). Register a name, open it from your
+            dashboard, and use the Wrap dialog to lock fuses and bind a passport commitment.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
-            <Link href="/">
+            <Link href="/names">
               <MagneticButton className="inline-flex h-12 items-center gap-2 rounded-xl bg-carbon px-8 font-medium text-cream shadow-kid-md transition-shadow hover:shadow-kid-lg">
-                Register a .kite name
+                Try wrapping a name
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </MagneticButton>
             </Link>
