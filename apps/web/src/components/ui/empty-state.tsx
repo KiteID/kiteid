@@ -54,11 +54,17 @@ function renderIcon(icon: EmptyStateProps['icon']): ReactNode {
   if (icon === undefined || icon === null) return null;
   if (icon === 'kite') return <KiteRhombus />;
   if (isValidElement(icon)) return icon;
-  if (typeof icon === 'function') {
+  // Lucide icons can be either plain function components (older versions) or
+  // forwardRef objects ({ $$typeof, render, displayName }) in newer versions.
+  // Both are component types — instantiate as JSX, never render the object.
+  if (
+    typeof icon === 'function' ||
+    (typeof icon === 'object' && icon !== null && '$$typeof' in icon)
+  ) {
     const IconComp = icon as LucideLike;
     return <IconComp className="h-6 w-6 text-bronze" strokeWidth={1.5} />;
   }
-  return icon as ReactNode;
+  return null;
 }
 
 function ActionButton({ action }: { action: EmptyStateAction }) {
