@@ -198,10 +198,14 @@ export default function ActivityPage() {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [filterType, setFilterType] = useState<string>('all');
 
-  const filteredEvents = useMemo(
-    () => (filterType === 'all' ? events : events.filter((e) => e.eventType === filterType)),
-    [events, filterType],
-  );
+  const filteredEvents = useMemo(() => {
+    // Guard against malformed events from the indexer (missing actor, eventType, etc.)
+    // Previously this could throw client-side and trigger a "500" overlay; now we drop them.
+    const safe = events.filter(
+      (e) => e && typeof e.actor === 'string' && typeof e.eventType === 'string',
+    );
+    return filterType === 'all' ? safe : safe.filter((e) => e.eventType === filterType);
+  }, [events, filterType]);
 
   // Batch fetch all unique addresses to avoid N+1
   const uniqueAddresses = useMemo(() => {

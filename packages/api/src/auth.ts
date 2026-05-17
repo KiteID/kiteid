@@ -31,12 +31,19 @@ export const auth: any = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   secret: (() => {
     const s = process.env.BETTER_AUTH_SECRET;
+    // During Next.js build, page data collection imports this module without
+    // runtime env. Allow a placeholder then; runtime requests will fail loudly
+    // if the secret is actually missing.
+    const isBuildPhase =
+      process.env.NEXT_PHASE === 'phase-production-build' ||
+      process.env.NEXT_PHASE === 'phase-development-build';
     if (!s) {
+      if (isBuildPhase) return 'build-time-placeholder-do-not-use-at-runtime';
       throw new Error(
         'BETTER_AUTH_SECRET must be set. Sessions cannot be signed without a secret.',
       );
     }
-    if (s.length < 32) {
+    if (s.length < 32 && !isBuildPhase) {
       throw new Error('BETTER_AUTH_SECRET must be at least 32 characters.');
     }
     return s;
