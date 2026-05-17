@@ -20,6 +20,6 @@ export const addresses = {
     resolver: '0xfC69694BBd6b85Fd9b4aC5ddBD647b4f2196CC68' as `0x${string}`,
     priceOracle: '0x97972ee9Ca8cdB78d4897B016FDF4755240b6F77' as `0x${string}`,
     reverseRegistrar: '0x442FEe8572F4314A45bA2D81e32Db91fCB079E2D' as `0x${string}`,
-    wrapper: '0x3e45e568530763fa8f00b50b0106f63d2e6d84e5' as `0x${string}`,
+    wrapper: '0x6b42995873495b69639e207b86a5610bbdb95fb9' as `0x${string}`,
   },
 } as const;

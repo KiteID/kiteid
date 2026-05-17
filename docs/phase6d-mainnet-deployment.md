@@ -101,7 +101,7 @@ cast storage <MAINNET_WRAPPER_ADDRESS> 0 --rpc-url https://rpc.gokite.ai/
 
 ```typescript
 export const KITE_WRAPPER_ADDRESSES = {
-  [2368]: '0x3e45e568530763fa8f00b50b0106f63d2e6d84e5' as const, // testnet
+  [2368]: '0x6b42995873495b69639e207b86a5610bbdb95fb9' as const, // testnet
   [2366]: '<MAINNET_WRAPPER_ADDRESS>' as const,                    // mainnet
 };
 ```
@@ -154,7 +154,7 @@ KiteWrapper deployed to Kite mainnet (chain 2366):
 Address: <MAINNET_WRAPPER_ADDRESS>
 Controller: <RELAYER_PUBLIC_ADDRESS>
 
-Testnet address retained for staging (2368): 0x3e45e568530763fa8f00b50b0106f63d2e6d84e5
+Testnet address retained for staging (2368): 0x6b42995873495b69639e207b86a5610bbdb95fb9
 "
 git push origin develop
 ```

@@ -27,7 +27,7 @@ For each of 3 applications (API, Indexer, Workers), update environment variables
 
 | Key | Value | Notes |
 |-----|-------|-------|
-| `WRAPPER_ADDRESS` | `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5` | Testnet KiteWrapper deploy address |
+| `WRAPPER_ADDRESS` | `0x6b42995873495b69639e207b86a5610bbdb95fb9` | Testnet KiteWrapper deploy address |
 | `RELAYER_PRIVATE_KEY` | (existing) | Verify already set, do not change |
 | `KITE_TESTNET_RPC_URL` | `https://rpc-testnet.gokite.ai/` | Verify correct |
 | `NEXT_PUBLIC_CHAIN_ID` | `2368` | Verify correct |
@@ -45,7 +45,7 @@ For each of 3 applications (API, Indexer, Workers), update environment variables
 
 | Key | Value | Notes |
 |-----|-------|-------|
-| `WRAPPER_ADDRESS` | `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5` | Testnet KiteWrapper deploy address |
+| `WRAPPER_ADDRESS` | `0x6b42995873495b69639e207b86a5610bbdb95fb9` | Testnet KiteWrapper deploy address |
 | `DATABASE_SCHEMA` | `ponder_index` | **CRITICAL**: Must be set (Ponder event indexing) |
 | `KITE_TESTNET_RPC_URL` | `https://rpc-testnet.gokite.ai/` | Verify correct |
 | `NEXT_PUBLIC_CHAIN_ID` | `2368` | Verify correct |
@@ -65,7 +65,7 @@ For each of 3 applications (API, Indexer, Workers), update environment variables
 
 | Key | Value | Notes |
 |-----|-------|-------|
-| `WRAPPER_ADDRESS` | `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5` | Testnet KiteWrapper deploy address |
+| `WRAPPER_ADDRESS` | `0x6b42995873495b69639e207b86a5610bbdb95fb9` | Testnet KiteWrapper deploy address |
 | `RELAYER_PRIVATE_KEY` | (existing) | Verify already set |
 | `KITE_TESTNET_RPC_URL` | `https://rpc-testnet.gokite.ai/` | Verify correct |
 
@@ -110,7 +110,7 @@ curl -X POST https://api.staging.kiteid.xyz/v2/wrap/preview \
     "unwrap": "100000",
     ...
   },
-  "wrapperAddress": "0x3e45e568530763fa8f00b50b0106f63d2e6d84e5",
+  "wrapperAddress": "0x6b42995873495b69639e207b86a5610bbdb95fb9",
   "wrapperNotDeployed": false
 }
 ```

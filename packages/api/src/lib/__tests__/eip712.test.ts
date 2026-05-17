@@ -11,7 +11,7 @@ import {
 const TEST_PK = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d';
 const TEST_ACCOUNT = privateKeyToAccount(TEST_PK);
 
-const WRAPPER = '0x3e45e568530763fa8f00b50b0106f63d2e6d84e5' as `0x${string}`;
+const WRAPPER = '0x6b42995873495b69639e207b86a5610bbdb95fb9' as `0x${string}`;
 const NODE = `0x${'a'.repeat(64)}` as `0x${string}`;
 const NONCE = `0x${'b'.repeat(64)}` as `0x${string}`;
 

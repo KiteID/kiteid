@@ -16,7 +16,7 @@
 Before running any test, verify the KiteWrapper contract is correctly initialized and the relayer is registered as controller. Without this, wrap() will always revert with `CallerNotController`.
 
 ```bash
-WRAPPER_ADDRESS="0x3e45e568530763fa8f00b50b0106f63d2e6d84e5"
+WRAPPER_ADDRESS="0x6b42995873495b69639e207b86a5610bbdb95fb9"
 RPC="https://rpc-testnet.gokite.ai/"
 
 # 1. Verify contract is deployed (should return bytecode)
@@ -200,7 +200,7 @@ cast send $WRAPPER_ADDRESS \
    Search for txHash from Test 3
    Should show successful transaction
    Check transaction details:
-     - To: KiteWrapper contract (0x3e45e568530763fa8f00b50b0106f63d2e6d84e5)
+     - To: KiteWrapper contract (0x6b42995873495b69639e207b86a5610bbdb95fb9)
      - Function: wrap(...)
      - Status: Success (checkmark)
    ```
@@ -215,7 +215,7 @@ cast send $WRAPPER_ADDRESS \
 4. **Check Contract State**
    ```
    Via cast (CLI):
-   cast call 0x3e45e568530763fa8f00b50b0106f63d2e6d84e5 \
+   cast call 0x6b42995873495b69639e207b86a5610bbdb95fb9 \
      "getExpiry(bytes32)" <name-node-hash> \
      --rpc-url https://rpc-testnet.gokite.ai/
    
@@ -261,7 +261,7 @@ cast send $WRAPPER_ADDRESS \
      - node: <calculated-node-hash>
      - owner: <your-wallet>
      - expiry: <timestamp>
-     - wrapper_address: 0x3e45e568530763fa8f00b50b0106f63d2e6d84e5
+     - wrapper_address: 0x6b42995873495b69639e207b86a5610bbdb95fb9
    ```
 
 ### Pass Criteria

@@ -14,7 +14,7 @@ This file is a **short operational mirror** of the master plan from the repo's p
 - **Branch:** `develop`
 - **Staging URL:** https://staging.kiteid.xyz
 - **Docs URL:** https://staging.kiteid.xyz/docs
-- **Testnet KiteWrapper:** `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5` (Chain ID 2368)
+- **Testnet KiteWrapper:** `0x6b42995873495b69639e207b86a5610bbdb95fb9` (Chain ID 2368)
 
 ---
 

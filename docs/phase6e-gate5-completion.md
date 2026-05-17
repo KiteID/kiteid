@@ -136,7 +136,7 @@ Activity feed updated
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| KiteWrapper Contract | ✅ Deployed | Address: `0x3e45e568530763fa8f00b50b0106f63d2e6d84e5` (chain 2368) |
+| KiteWrapper Contract | ✅ Deployed | Address: `0x6b42995873495b69639e207b86a5610bbdb95fb9` (chain 2368) |
 | Relay Endpoints | ✅ Running | /api/v2/wrap/* routes in Web container (via @kiteid/api package) |
 | Relayer Account | ✅ Configured | RELAYER_PRIVATE_KEY set in Web service env |
 | Web Frontend | ✅ Running | Docker image: `ghcr.io/kiteid/web:staging` |
@@ -150,9 +150,10 @@ Activity feed updated
 - Wrap preview endpoint returns `wrapperNotDeployed: false`
 - API health + preview endpoints responding
 
-**Gate 5 (Runtime Proof)**: ⏳ Pending
-- API endpoints tested (negative cases)
-- Critical flow tests (SIWE → sign → relay → on-chain → Ponder) not executed
+**Gate 5 (Runtime Proof)**: ✅ PASS (2026-05-14)
+- API endpoints tested (negative cases + 16 deterministic unit tests)
+- Manual testnet run: SIWE → sign → relay → on-chain → Ponder all confirmed by founder
+- Re-deployment 2026-05-17: KiteWrapper proxy now at `0x6b42995873495b69639e207b86a5610bbdb95fb9` with corrected ERC-7201 storage slot
 
 ---
 
