@@ -1,10 +1,16 @@
-# Phase 6e: Gate 5 EIP-712 Relay & Ponder Indexing — PASS ✅
+# Phase 6e: Gate 5 EIP-712 Relay & Ponder Indexing — PASS with caveats ⚠️
 
-**Status**: PASS — Scaffold + smoke tests + 16 deterministic API unit tests + manual testnet runtime proof
-**Last Updated**: 2026-05-14
-**E2E Test Suite**: 35 executable tests passing (auth-layer + preview), 11 skipped (require live wallet)
+**Status**: PASS for runtime relay correctness, but GitHub-hosted E2E workflow needed
+env fixes (BETTER_AUTH_SECRET + `next dev` instead of `next start` against an
+output:standalone build). Both addressed 2026-05-17.
+
+**Last Updated**: 2026-05-17 (runtime proof 2026-05-14, env/start fixes 2026-05-17)
+**E2E Test Suite**: 35 executable tests passing locally; CI run gated on the
+2026-05-17 workflow patch (BETTER_AUTH_SECRET + dev-mode webServer).
 **API Unit Tests**: 16/16 passing (`eip712.test.ts` + `wallet.test.ts`)
-**Manual Runtime Proof**: Completed by founder (2026-05-14) — full wrap flow validated end-to-end on testnet
+**Manual Runtime Proof**: Completed by founder (2026-05-14) — full wrap flow
+validated end-to-end on testnet against KiteWrapper proxy
+`0x6b42995873495b69639e207b86a5610bbdb95fb9` (chain 2368).
 
 ---
 

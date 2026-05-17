@@ -71,8 +71,6 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
       if (!account) throw new Error('Wallet not connected');
 
       // Step 1: Check if wrapper has approval to transfer the NFT.
-      // approveWrapperAsync() waits for the tx receipt internally before resolving,
-      // so we are safe to proceed to wrap() without race conditions on fresh wallets.
       const isApproved = await checkWrapperApprovalAsync(account);
       if (!isApproved) {
         setStep('approving');
@@ -86,7 +84,15 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
       setTxHash(hash);
       setStep('done');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      // The SDK hook throws the API error body verbatim, so we can string-match
+      // 401/Unauthorized and give the user an actionable hint instead of a
+      // generic "Relay failed" toast.
+      if (/401|Unauthorized|Failed to get nonce/i.test(message)) {
+        setError('Please connect your wallet and sign in (SIWE) before wrapping.');
+      } else {
+        setError(message);
+      }
       setStep('confirm');
     }
   };
@@ -109,7 +115,28 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
 
         {step === 'select' && <FuseSelector onSelect={handleSelectFuses} />}
 
-        {step === 'preview' && preview && (
+        {step === 'preview' && previewLoading && (
+          <div className="space-y-4 py-8 text-center text-sm text-stone-600 dark:text-stone-400">
+            Loading wrap preview…
+          </div>
+        )}
+
+        {step === 'preview' && !previewLoading && preview?.wrapperNotDeployed && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+              <p className="font-medium">Wrapper not yet available</p>
+              <p className="mt-1">
+                KiteWrapper is not deployed on this network. Wrapping is disabled until the contract
+                goes live.
+              </p>
+            </div>
+            <Button variant="outline" onClick={() => setStep('select')} className="w-full">
+              Back
+            </Button>
+          </div>
+        )}
+
+        {step === 'preview' && !previewLoading && preview && !preview.wrapperNotDeployed && (
           <div className="space-y-4">
             <FuseLockWarning fuses={selectedFuses} />
             <div className="rounded-lg bg-stone-50 dark:bg-stone-900 p-4 space-y-2">
@@ -120,8 +147,8 @@ export function WrapDialog({ open, onOpenChange, node, tokenId, owner }: WrapDia
               <Button variant="outline" onClick={() => setStep('select')} className="flex-1">
                 Back
               </Button>
-              <Button onClick={handleConfirm} className="flex-1" disabled={previewLoading}>
-                {previewLoading ? 'Loading...' : 'Continue'}
+              <Button onClick={handleConfirm} className="flex-1">
+                Continue
               </Button>
             </div>
           </div>

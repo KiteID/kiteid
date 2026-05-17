@@ -6,14 +6,24 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { siwe } from 'better-auth/plugins/siwe';
 import { createPublicClient, http } from 'viem';
 
+// Chain selection mirrors packages/api/src/lib/wallet.ts so SIWE verification
+// targets the same network the wallet client signs against. Hard-coding 2366
+// (mainnet) used to break SIWE login on testnet because viem.verifySiweMessage
+// rejects messages whose chainId does not match the client's chain.
+const _siweChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || '2368');
+const _siweRpcUrl =
+  _siweChainId === 2366
+    ? process.env.KITE_RPC_URL || 'https://rpc.gokite.ai/'
+    : process.env.KITE_TESTNET_RPC_URL || 'https://rpc-testnet.gokite.ai/';
+
 const kiteClient = createPublicClient({
   chain: {
-    id: 2366,
-    name: 'Kite AI',
+    id: _siweChainId,
+    name: _siweChainId === 2366 ? 'Kite AI' : 'Kite AI Testnet',
     nativeCurrency: { name: 'KITE', symbol: 'KITE', decimals: 18 },
-    rpcUrls: { default: { http: ['https://rpc.gokite.ai/'] } },
+    rpcUrls: { default: { http: [_siweRpcUrl] } },
   },
-  transport: http(process.env.KITE_RPC_URL || 'https://rpc.gokite.ai/'),
+  transport: http(_siweRpcUrl),
 });
 
 // biome-ignore lint/suspicious/noExplicitAny: Better Auth type references zod internals which can't be portably emitted

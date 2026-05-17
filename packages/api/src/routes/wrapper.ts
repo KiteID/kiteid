@@ -3,7 +3,7 @@ import { KiteWrapperAbi } from '@kiteid/contracts-abi';
 import { db, relayerNonces, walletAddresses, wrappedNames } from '@kiteid/db';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { createPublicClient, getAddress, http } from 'viem';
+import { createPublicClient, encodePacked, getAddress, http, keccak256, pad } from 'viem';
 import {
   getWrapDomain,
   UNWRAP_REQUEST_TYPES,
@@ -14,6 +14,30 @@ import { relayerWalletClient } from '../lib/wallet';
 import { requireAuth } from '../middleware/session';
 
 const WRAPPER_ADDRESS = process.env.WRAPPER_ADDRESS;
+
+// keccak256(0x00...00 || keccak256("kite")) — namehash of the kite TLD.
+// Used to verify that the (node, tokenId) pair the client signed actually
+// satisfies the ENS-style invariant: node = keccak256(KITE_NODE || tokenId).
+// Without this, a relayer could be tricked into spending gas on a wrap whose
+// stored ERC-1155 id (= uint256(node)) does not match the transferred ERC-721.
+const KITE_NODE = keccak256(
+  encodePacked(
+    ['bytes32', 'bytes32'],
+    [
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+      keccak256(new TextEncoder().encode('kite')),
+    ],
+  ),
+);
+
+function expectedNodeForTokenId(tokenId: bigint): `0x${string}` {
+  return keccak256(
+    encodePacked(
+      ['bytes32', 'bytes32'],
+      [KITE_NODE, pad(`0x${tokenId.toString(16)}`, { size: 32 })],
+    ),
+  );
+}
 
 interface WrapPreviewRequest {
   node: string; // hex node
@@ -324,6 +348,15 @@ export const wrapperRouter = new Hono()
         if ((fuses & ~VALID_FUSE_MASK) !== 0n) {
           return c.json({ error: 'Invalid fuses' }, 400);
         }
+      }
+
+      // ENS-style invariant: node = keccak256(KITE_NODE || bytes32(tokenId)).
+      // The contract does not enforce this on-chain, so the relayer (which pays
+      // gas) must reject mismatched pairs to avoid grief attacks that produce
+      // wrapped state inconsistent with the ERC-721 actually transferred.
+      const expectedNode = expectedNodeForTokenId(tokenId);
+      if (expectedNode.toLowerCase() !== (p.node as string).toLowerCase()) {
+        return c.json({ error: 'node does not match keccak256(KITE_NODE || tokenId)' }, 400);
       }
 
       const writeContractParams = {

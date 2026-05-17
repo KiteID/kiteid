@@ -22,7 +22,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? 'pnpm start' : 'pnpm dev',
+    // Always use `next dev`. The prod build uses output: standalone which is
+    // incompatible with `next start`; running a real prod server in E2E would
+    // require `node .next/standalone/apps/web/server.js` plus extra env. Dev
+    // mode is sufficient for the assertions we run (status codes + page text).
+    command: 'pnpm dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

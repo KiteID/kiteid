@@ -48,7 +48,9 @@ export const namesRouter = new Hono()
     }
 
     const result: Record<string, unknown> = {};
-    const unique = [...new Set(addresses.map((a) => a.toLowerCase()))];
+    // Cap fan-out: a single authenticated request must not be able to trigger
+    // arbitrarily many parallel Ponder calls. Bulk indexer endpoint TBD.
+    const unique = [...new Set(addresses.map((a) => a.toLowerCase()))].slice(0, 50);
 
     const promises = unique.map(async (address) => {
       try {

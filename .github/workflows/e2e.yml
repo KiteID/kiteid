@@ -31,6 +31,15 @@ jobs:
       NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: 'ci-dummy-project-id'
       NEXT_PUBLIC_CHAIN_ID: '2368'
       NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
+      # Runtime env required by /api/* import-time validation.
+      # E2E tests never sign sessions so the placeholder values just need to
+      # let the modules load without throwing.
+      BETTER_AUTH_SECRET: 'ci-only-placeholder-secret-32chars'
+      BETTER_AUTH_URL: 'http://localhost:3000'
+      DATABASE_URL: 'postgres://ci:ci@localhost:5432/ci'
+      DATABASE_DIRECT_URL: 'postgres://ci:ci@localhost:5432/ci'
+      KITE_TESTNET_RPC_URL: 'https://rpc-testnet.gokite.ai/'
+      WRAPPER_ADDRESS: '0x6b42995873495b69639e207b86a5610bbdb95fb9'
     steps:
       - uses: actions/checkout@v6
         with:
@@ -48,8 +57,11 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter @kiteid/web exec playwright install --with-deps chromium
 
-      - name: Build web app
-        run: pnpm build --filter=@kiteid/web...
+      # Skip prod build: next.config has output: standalone which is incompatible
+      # with `next start`. Playwright config now spawns `pnpm dev` so we just
+      # need the dependency packages built (SDK/UI emit dist/ that web imports).
+      - name: Build workspace deps
+        run: pnpm build --filter=@kiteid/sdk --filter=@kiteid/ui --filter=@kiteid/contracts-abi --filter=@kiteid/db --filter=@kiteid/api
 
       - name: Run E2E tests
         run: pnpm --filter @kiteid/web exec playwright test

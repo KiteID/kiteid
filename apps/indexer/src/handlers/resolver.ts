@@ -39,15 +39,18 @@ ponder.on('KiteResolver:AddrChanged', async ({ event, context }) => {
     });
 
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: domainName,
-    eventType: 'AddrChanged',
-    actor: event.transaction.from,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainName,
+      eventType: 'AddrChanged',
+      actor: event.transaction.from,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoNothing();
 });
 
 ponder.on('KiteResolver:TextChanged', async ({ event, context }) => {
@@ -73,15 +76,18 @@ ponder.on('KiteResolver:TextChanged', async ({ event, context }) => {
     });
 
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: domainName,
-    eventType: 'TextChanged',
-    actor: event.transaction.from,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainName,
+      eventType: 'TextChanged',
+      actor: event.transaction.from,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoNothing();
 });
 
 ponder.on('KiteResolver:ContenthashChanged', async ({ event, context }) => {
@@ -107,13 +113,16 @@ ponder.on('KiteResolver:ContenthashChanged', async ({ event, context }) => {
     });
 
   const eventId = `${event.transaction.hash}:${event.log.logIndex}`;
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name: domainName,
-    eventType: 'ContenthashChanged',
-    actor: event.transaction.from,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name: domainName,
+      eventType: 'ContenthashChanged',
+      actor: event.transaction.from,
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoNothing();
 });

@@ -27,17 +27,20 @@ ponder.on('KiteController:NameRegistered', async ({ event, context }) => {
       expiresAt: expires,
     });
 
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name,
-    eventType: 'NameRegistered',
-    actor: owner,
-    toAddr: owner,
-    priceKite: formatEther(baseCost + premium),
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name,
+      eventType: 'NameRegistered',
+      actor: owner,
+      toAddr: owner,
+      priceKite: formatEther(baseCost + premium),
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoNothing();
 });
 
 ponder.on('KiteController:NameRenewed', async ({ event, context }) => {
@@ -46,14 +49,17 @@ ponder.on('KiteController:NameRenewed', async ({ event, context }) => {
 
   await context.db.update(domain, { name }).set({ expiresAt: expires });
 
-  await context.db.insert(activityEvent).values({
-    id: eventId,
-    name,
-    eventType: 'NameRenewed',
-    actor: event.transaction.from,
-    priceKite: formatEther(cost),
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    txHash: event.transaction.hash,
-  });
+  await context.db
+    .insert(activityEvent)
+    .values({
+      id: eventId,
+      name,
+      eventType: 'NameRenewed',
+      actor: event.transaction.from,
+      priceKite: formatEther(cost),
+      blockNumber: event.block.number,
+      timestamp: event.block.timestamp,
+      txHash: event.transaction.hash,
+    })
+    .onConflictDoNothing();
 });

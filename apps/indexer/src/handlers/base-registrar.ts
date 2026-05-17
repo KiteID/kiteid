@@ -21,17 +21,20 @@ ponder.on('KiteBaseRegistrar:Transfer', async ({ event, context }) => {
   if (existing) {
     await context.db.update(domain, { name: existing.name }).set({ owner: to });
 
-    await context.db.insert(activityEvent).values({
-      id: eventId,
-      name: existing.name,
-      eventType: 'Transfer',
-      actor: from,
-      fromAddr: from,
-      toAddr: to,
-      blockNumber: event.block.number,
-      timestamp: event.block.timestamp,
-      txHash: event.transaction.hash,
-    });
+    await context.db
+      .insert(activityEvent)
+      .values({
+        id: eventId,
+        name: existing.name,
+        eventType: 'Transfer',
+        actor: from,
+        fromAddr: from,
+        toAddr: to,
+        blockNumber: event.block.number,
+        timestamp: event.block.timestamp,
+        txHash: event.transaction.hash,
+      })
+      .onConflictDoNothing();
   }
 });
 

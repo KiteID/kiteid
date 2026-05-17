@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { auth } from './auth';
 import { rateLimit } from './middleware/rate-limit';
+import { requireSameOrigin } from './middleware/session';
 import { namesRouter } from './routes/names';
 import { notificationsRouter } from './routes/notifications';
 import { profileRouter } from './routes/profile';
@@ -38,6 +39,12 @@ app.use('*', async (c, next) => {
 
 // Auth rate limit: 30 requests / 1 min
 app.use('/auth/*', rateLimit({ windowMs: 60 * 1000, max: 30, keyPrefix: 'auth' }));
+
+// CSRF / same-origin guard for state-changing custom endpoints.
+// Better Auth's own /auth/* routes are excluded — it has its own CSRF logic.
+app.use('/v2/*', requireSameOrigin());
+app.use('/profile/*', requireSameOrigin());
+app.use('/notifications/*', requireSameOrigin());
 
 // Better Auth handler — handles /api/auth/*
 // Cover all methods (GET/POST/OPTIONS preflight) + single /auth leaf too.
