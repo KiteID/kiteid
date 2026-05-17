@@ -239,14 +239,12 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll hint */}
+      {/* Scroll hint — decorative, hidden from a11y tree (mid-animation
+          opacity tripped axe color-contrast checks, but the cue carries no
+          information a SR user can act on). */}
       <FadeIn delay={1} duration={1}>
-        <div className="relative z-10 flex flex-col items-center gap-2 pb-8">
-          <ChevronDown
-            className="h-5 w-5 animate-bounce text-stone-700"
-            strokeWidth={1.5}
-            aria-hidden="true"
-          />
+        <div className="relative z-10 flex flex-col items-center gap-2 pb-8" aria-hidden="true">
+          <ChevronDown className="h-5 w-5 animate-bounce text-stone-700" strokeWidth={1.5} />
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-stone-700">
             scroll
           </span>
