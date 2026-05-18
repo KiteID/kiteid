@@ -41,17 +41,17 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.2",
+    "@axe-core/playwright": "^4.11.3",
     "@kiteid/config-typescript": "workspace:*",
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "@vitest/coverage-v8": "^4.1.4",
-    "happy-dom": "^18.0.1",
-    "typescript": "^6.0.0",
-    "vitest": "^4.1.4"
+    "@vitest/coverage-v8": "^4.1.6",
+    "happy-dom": "^20.9.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   }
 }
