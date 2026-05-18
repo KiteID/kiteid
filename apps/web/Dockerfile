@@ -17,8 +17,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+# Drizzle migration runner. The web container serves /api/* so it owns the
+# auth + relayer tables — running migrate at start keeps a fresh DB or a new
+# migration deploy from leaving the container broken until someone SSHes in.
+# Failure here intentionally aborts boot (set -e in the CMD shell).
+#
+# The migration script lives under apps/web/scripts/ so Node module
+# resolution walks up to apps/web/node_modules where standalone has placed
+# pg + drizzle-orm (declared in serverExternalPackages of next.config.ts).
+COPY --from=builder --chown=nextjs:nodejs /app/packages/db/drizzle ./packages/db/drizzle
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/scripts/migrate.mjs ./apps/web/scripts/migrate.mjs
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "apps/web/server.js"]
+CMD ["sh", "-c", "node apps/web/scripts/migrate.mjs && node apps/web/server.js"]

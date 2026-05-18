@@ -1,4 +1,4 @@
-import { createWalletClient, defineChain, http } from 'viem';
+import { createPublicClient, createWalletClient, defineChain, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 const pk = process.env.RELAYER_PRIVATE_KEY;
@@ -28,3 +28,10 @@ export const relayerWalletClient = pk
       transport: http(rpcUrl),
     })
   : undefined;
+
+// Read-only client shared by relay handlers (simulateContract, ownerOf reads,
+// etc.). Keeping it module-level avoids re-creating HTTP clients per request.
+export const publicClient = createPublicClient({
+  chain: kiteChain,
+  transport: http(rpcUrl),
+});

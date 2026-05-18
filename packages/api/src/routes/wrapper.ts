@@ -10,7 +10,7 @@ import {
   verifyRelaySignature,
   WRAP_REQUEST_TYPES,
 } from '../lib/eip712';
-import { relayerWalletClient } from '../lib/wallet';
+import { publicClient, relayerAccount, relayerWalletClient } from '../lib/wallet';
 import { requireAuth } from '../middleware/session';
 
 const WRAPPER_ADDRESS = process.env.WRAPPER_ADDRESS;
@@ -283,25 +283,18 @@ export const wrapperRouter = new Hono()
         return c.json({ error: 'Deadline has passed' }, 400);
       }
 
-      // Atomically consume nonce: update only if conditions match, return count
-      const updateResult = await db
-        .update(relayerNonces)
-        .set({ usedAt: new Date() })
-        .where(
-          and(
-            eq(relayerNonces.address, sessionWallet),
-            eq(relayerNonces.nonce, nonce),
-            gt(relayerNonces.expiresAt, new Date()),
-            isNull(relayerNonces.usedAt),
-          ),
-        );
+      // ---- Pre-flight validation (stateless; no nonce consumption yet) ----
+      //
+      // We deliberately verify EVERYTHING (signature, bounds, simulation)
+      // before atomically marking the nonce used. Earlier this handler
+      // consumed the nonce up front, which meant a single bad signature or
+      // a doomed-on-chain wrap would burn the user's nonce and force them
+      // to round-trip /nonce again. Worse, automated client retries could
+      // chain-burn nonces. Replay safety is still preserved by the atomic
+      // consume immediately before writeContract — nothing reaches chain
+      // until the row update succeeds.
 
-      // Treat null/undefined rowCount as zero (some drivers do not report it).
-      if (!updateResult.rowCount) {
-        return c.json({ error: 'Invalid or expired nonce' }, 409);
-      }
-
-      // Verify EIP-712 signature
+      // 1) Verify EIP-712 signature.
       const primaryType = action === 'wrap' ? ('WrapRequest' as const) : ('UnwrapRequest' as const);
       const types = action === 'wrap' ? WRAP_REQUEST_TYPES : UNWRAP_REQUEST_TYPES;
       const domain = getWrapDomain(
@@ -329,14 +322,13 @@ export const wrapperRouter = new Hono()
         return c.json({ error: 'Invalid signature' }, 401);
       }
 
-      // Broadcast transaction via relayer wallet
+      // 2) Bounds checks on the signed parameters.
       // biome-ignore lint/suspicious/noExplicitAny: runtime params require any
       const p = params as any;
       const tokenId = BigInt(p.tokenId);
       const fuses = action === 'wrap' ? BigInt(p.fuses) : 0n;
       const expiry = action === 'wrap' ? BigInt(p.expiry) : 0n;
 
-      // Bounds checks on signed parameters (post-verify but pre-broadcast).
       if (action === 'wrap') {
         // Reject expiry that is missing, in the past, or absurdly far in the future (>10y).
         const maxExpiry = BigInt(nowSeconds + 10 * 365 * 24 * 3600);
@@ -350,7 +342,7 @@ export const wrapperRouter = new Hono()
         }
       }
 
-      // ENS-style invariant: node = keccak256(KITE_NODE || bytes32(tokenId)).
+      // 3) ENS-style invariant: node = keccak256(KITE_NODE || bytes32(tokenId)).
       // The contract does not enforce this on-chain, so the relayer (which pays
       // gas) must reject mismatched pairs to avoid grief attacks that produce
       // wrapped state inconsistent with the ERC-721 actually transferred.
@@ -359,6 +351,11 @@ export const wrapperRouter = new Hono()
         return c.json({ error: 'node does not match keccak256(KITE_NODE || tokenId)' }, 400);
       }
 
+      // 4) On-chain pre-flight simulation. simulateContract performs an
+      // eth_call from the relayer account: ownership/approval/already-wrapped
+      // failures show up here as revert reasons WITHOUT burning gas. If we
+      // skipped this step the relayer would happily pay for a tx that lands
+      // on-chain only to revert.
       const writeContractParams = {
         address: WRAPPER_ADDRESS as `0x${string}`,
         abi: KiteWrapperAbi,
@@ -367,8 +364,40 @@ export const wrapperRouter = new Hono()
           action === 'wrap'
             ? [p.node, tokenId, p.owner, fuses, expiry]
             : [p.node, tokenId, p.owner],
+        account: relayerAccount,
         // biome-ignore lint/suspicious/noExplicitAny: viem writeContract requires any for dynamic args
       } as any;
+
+      try {
+        await publicClient.simulateContract(writeContractParams);
+      } catch (simErr) {
+        const simMessage = simErr instanceof Error ? simErr.message : 'Simulation failed';
+        // 422 = semantically invalid (owner does not have the token, approval
+        // missing, etc.) — distinct from auth/validation failures above. The
+        // client can surface this directly without retrying.
+        return c.json({ error: 'Transaction would revert on-chain', detail: simMessage }, 422);
+      }
+
+      // 5) Atomically consume the nonce. Anything from this point on can
+      // assume replay protection.
+      const updateResult = await db
+        .update(relayerNonces)
+        .set({ usedAt: new Date() })
+        .where(
+          and(
+            eq(relayerNonces.address, sessionWallet),
+            eq(relayerNonces.nonce, nonce),
+            gt(relayerNonces.expiresAt, new Date()),
+            isNull(relayerNonces.usedAt),
+          ),
+        );
+
+      // Treat null/undefined rowCount as zero (some drivers do not report it).
+      if (!updateResult.rowCount) {
+        return c.json({ error: 'Invalid or expired nonce' }, 409);
+      }
+
+      // 6) Broadcast.
       const txHash = await relayerWalletClient.writeContract(writeContractParams);
 
       return c.json({ txHash });

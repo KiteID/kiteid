@@ -69,7 +69,32 @@ export const profileRouter = new Hono<AppEnv>()
       }
       updateData.image = body.image;
     }
-    if (body.notificationPrefs !== undefined) updateData.notificationPrefs = body.notificationPrefs;
+    if (body.notificationPrefs !== undefined) {
+      // Whitelist the three known boolean flags; reject everything else so a
+      // malicious client cannot stuff arbitrary JSON (large blobs, nested
+      // objects, prototype-pollution keys) into the column.
+      const prefs = body.notificationPrefs;
+      if (prefs === null || typeof prefs !== 'object' || Array.isArray(prefs)) {
+        return c.json({ error: 'notificationPrefs must be an object' }, 400);
+      }
+      const ALLOWED_KEYS = ['expiryReminder', 'renewalConfirm', 'transferAlert'] as const;
+      const sanitized: Record<string, boolean> = {};
+      for (const key of ALLOWED_KEYS) {
+        const value = (prefs as Record<string, unknown>)[key];
+        if (value === undefined) continue;
+        if (typeof value !== 'boolean') {
+          return c.json({ error: `notificationPrefs.${key} must be a boolean` }, 400);
+        }
+        sanitized[key] = value;
+      }
+      const extra = Object.keys(prefs).find(
+        (k) => !ALLOWED_KEYS.includes(k as (typeof ALLOWED_KEYS)[number]),
+      );
+      if (extra) {
+        return c.json({ error: `notificationPrefs: unknown key '${extra}'` }, 400);
+      }
+      updateData.notificationPrefs = sanitized;
+    }
 
     const [updated] = await db
       .update(users)
